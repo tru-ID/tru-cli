@@ -11,8 +11,12 @@ The 4Auth CLI
 <!-- toc -->
 * [Usage](#usage)
 * [Commands](#commands)
+* [Development](#development)
 <!-- tocstop -->
 # Usage
+
+Every run of the CLI will check to see if all required configuration is in place.
+
 <!-- usage -->
 ```sh-session
 $ npm install -g 4auth-cli
@@ -28,28 +32,8 @@ USAGE
 <!-- usagestop -->
 # Commands
 <!-- commands -->
-* [`4auth hello [FILE]`](#4auth-hello-file)
 * [`4auth help [COMMAND]`](#4auth-help-command)
-
-## `4auth hello [FILE]`
-
-describe the command here
-
-```
-USAGE
-  $ 4auth hello [FILE]
-
-OPTIONS
-  -f, --force
-  -h, --help       show CLI help
-  -n, --name=name  name to print
-
-EXAMPLE
-  $ 4auth hello
-  hello world from ./src/hello.ts!
-```
-
-_See code: [src/commands/hello.ts](https://github.com/4auth/4auth-cli/blob/v0.1.0/src/commands/hello.ts)_
+* [`4auth projects:create [NAME]`](#4auth-projectscreate-name)
 
 ## `4auth help [COMMAND]`
 
@@ -67,4 +51,42 @@ OPTIONS
 ```
 
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v3.1.0/src/commands/help.ts)_
+
+## `4auth projects:create [NAME]`
+
+Creates a new Project
+
+```
+USAGE
+  $ 4auth projects:create [NAME]
+
+ARGUMENTS
+  NAME  the name of the project to create
+
+OPTIONS
+  -h, --help  show CLI help
+
+EXAMPLE
+  $ 4auth project:create
+  What is the name of the project?: My first project
+  Creating Project "My first project"
+```
+
+_See code: [src/commands/projects/create.ts](https://github.com/4auth/4auth-cli/blob/v0.1.0/src/commands/projects/create.ts)_
 <!-- commandsstop -->
+
+# Development
+
+## Update the README
+
+To update the table of contents, usage and commands run:
+
+```
+$ npm run version
+```
+
+## Configuration
+
+Every run of the CLI will check to see if all required configuration is in place. This is achieved through a [hook](https://oclif.io/docs/hooks).
+
+For more inforation see the [Oclif Configuration How to](https://oclif.io/docs/config).
