@@ -1,6 +1,8 @@
 import {flags} from '@oclif/command'
-import CommandWithConfig from '../../commandWithConfig'
+import CommandWithConfig from '../commandWithConfig'
 import cli from 'cli-ux'
+import Projects from '../../api/projects'
+import APIConfiguration from '../../api/APIConfiguration'
 
 export default class Create extends CommandWithConfig {
   static description = 'Creates a new Project'
@@ -31,5 +33,18 @@ Creating Project "My first project"
         args.name = await cli.prompt('What is the name of the project?')
     }
     this.log(`Creating Project "${args.name}"`)
+
+    const projectsAPI = new Projects(
+        new APIConfiguration({
+            clientId: 'client_id',
+            clientSecret: 'client_secret', 
+            baseUrl: 'https://localhost:4010'
+        })
+    )
+    const projectCreationResult = await projectsAPI.create({
+        name: args.name
+    })
+
+    console.log(projectCreationResult.data)
   }
 }

@@ -4,11 +4,29 @@ import * as path from 'path'
 import cli from 'cli-ux'
 import * as inquirer from 'inquirer'
 
-const requiredConfiguation:object = {
+interface RequiredConfiguration{
+  defaultWorkspaceClientId: ConfigurationObject
+  defaultWorkspaceClientSecret: ConfigurationObject
+  defaultWorkspaceDataResidency: ConfigurationObject
+  [index: string]: any
+}
+
+interface ConfigurationObject {
+  notSetValue: any
+  defaultValue: any
+  prompt: string
+  [index: string]: any
+}
+
+interface JSONConfig {
+  [index: string]: any
+}
+
+const requiredConfiguation:RequiredConfiguration = {
   defaultWorkspaceClientId: {
     notSetValue: null,
     defaultValue: null,
-    prompt: 'Please provide your workspace `client_id`. Hint: http://4auth.io/console/getting-started'
+    prompt: 'Please provide your workspace `client_id`. Hint: http://4auth.io/console/getting-started',
   },
   defaultWorkspaceClientSecret: {
     notSetValue: null,
@@ -23,6 +41,7 @@ const requiredConfiguation:object = {
 }
 
 const hook: Hook<'init'> = async function (opts) {
+
   const configFileLocation:string = path.join(this.config.configDir, 'config.json')
 
   // If the user configuration file does not exist, create it
@@ -37,7 +56,7 @@ const hook: Hook<'init'> = async function (opts) {
   }
 }
 
-async function promptForMissingConfig(existingConfig:object, configFileLocation:string) {
+async function promptForMissingConfig(existingConfig:JSONConfig, configFileLocation:string) {
 
   let writeRequired:boolean = false
   for await (const configItem of Object.keys(requiredConfiguation)) {
