@@ -1,0 +1,17 @@
+image: node:latest
+
+stages:
+  - test
+
+cache:
+  paths:
+    - node_modules/
+
+test_api_specs:
+  stage: test
+  script:
+    - yarn install
+    - yarn test
+  artifacts:
+    paths:
+      - node_modules/
