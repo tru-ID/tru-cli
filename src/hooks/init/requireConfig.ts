@@ -82,7 +82,7 @@ async function promptForMissingConfig(existingConfig:JSONConfig, configFileLocat
   if(writeRequired) {
     cli.action.start('Thanks. Writing your updated configuration')
     await fs.outputFile(configFileLocation, JSON.stringify(existingConfig, null, 2))
-    await cli.wait() // for user reassurance
+    await cli.wait() // show brief working indicator for user reassurance
     cli.action.stop()
   }
 }

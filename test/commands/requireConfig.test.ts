@@ -24,17 +24,33 @@ describe('hooks', () => {
     expect(existsSyncStub.called).to.be.true
   })
 
+  function setupDefaultPromptResponses(_inquirerPromptStub:any) {
+    _inquirerPromptStub
+      .onCall(0).resolves({defaultWorkspaceClientId: expectedUserConfig.defaultWorkspaceClientId})
+    _inquirerPromptStub
+      .onCall(1).resolves({defaultWorkspaceClientSecret: expectedUserConfig.defaultWorkspaceClientSecret})
+    _inquirerPromptStub
+      .onCall(2).resolves({defaultWorkspaceDataResidency: expectedUserConfig.defaultWorkspaceDataResidency})
+  }
+
   test
   .do(() => {
     existsSyncStub = sinon.default.stub(fs, 'existsSync').returns(false)
     outputFileStub = sinon.default.stub(fs, 'outputFile')
     inquirerPromptStub = sinon.default.stub(inquirer, 'prompt')
-    inquirerPromptStub
-      .onCall(0).resolves({defaultWorkspaceClientId: expectedUserConfig.defaultWorkspaceClientId})
-    inquirerPromptStub
-      .onCall(1).resolves({defaultWorkspaceClientSecret: expectedUserConfig.defaultWorkspaceClientSecret})
-    inquirerPromptStub
-      .onCall(2).resolves({defaultWorkspaceDataResidency: expectedUserConfig.defaultWorkspaceDataResidency})
+    setupDefaultPromptResponses(inquirerPromptStub)
+  })
+  .hook('init')
+  .it('should create a new config file if one does not exist', () => {
+    expect(outputFileStub.called).to.be.true
+  })
+
+  test
+  .do(() => {
+    existsSyncStub = sinon.default.stub(fs, 'existsSync').returns(false)
+    outputFileStub = sinon.default.stub(fs, 'outputFile')
+    inquirerPromptStub = sinon.default.stub(inquirer, 'prompt')
+    setupDefaultPromptResponses(inquirerPromptStub)
   })
   .hook('init')
   .it('should create a new config file with expected contents if one does not exist', () => {
