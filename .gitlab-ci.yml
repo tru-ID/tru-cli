@@ -7,7 +7,7 @@ cache:
   paths:
     - node_modules/
 
-test_api_specs:
+unit_tests:
   stage: test
   script:
     - yarn install
