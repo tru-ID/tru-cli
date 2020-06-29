@@ -3,15 +3,15 @@ image: node:latest
 stages:
   - test
 
-cache:
-  paths:
-    - node_modules/
+# cache:
+#   paths:
+#     - node_modules/
 
 unit_tests:
   stage: test
   script:
     - yarn install
     - yarn test
-  artifacts:
-    paths:
-      - node_modules/
+  # artifacts:
+  #   paths:
+  #     - node_modules/
