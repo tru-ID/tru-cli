@@ -36,7 +36,7 @@ class APIConfiguration {
 
      generateBasicAuth():string {
         const toEncode:string = `${this.clientId}:${this.clientSecret}`
-        const auth = new Buffer(toEncode).toString('base64')
+        const auth = Buffer.from(toEncode).toString('base64')
         return auth
     }
 }
