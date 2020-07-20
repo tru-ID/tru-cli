@@ -1,10 +1,21 @@
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios"
+import { string } from '@oclif/command/lib/flags'
 
 export declare interface APIConfigurationArguments {
     clientId:string,
     clientSecret:string,
-    baseUrl:string
+    baseUrl:string, // https://eu.api.4auth.io
 }
+
+export declare interface ICreateTokenResponse {
+    access_token:string,
+    id_token:string,
+    expires_in:number,
+    token_type:string,
+    refresh_token:string,
+    scope:string
+}
+
 
 export class APIConfiguration {
     clientId: string
@@ -22,9 +33,9 @@ export class APIConfiguration {
           });
     }
 
-    async getAccessToken() {
+    async createAccessToken(): Promise<ICreateTokenResponse> {
         const auth:string = this.generateBasicAuth()
-        const tokenResponse:any = await this.axios.post('/token', {
+        const axiosResponse:AxiosResponse = await this.axios.post('/token', {
             grant_type: 'client_credentials',
             scope: 'projects'
         },{
@@ -32,6 +43,8 @@ export class APIConfiguration {
                 Authorization: `Basic ${auth}`
             }
         })
+
+        const tokenResponse:ICreateTokenResponse = axiosResponse.data
 
         return tokenResponse
     }

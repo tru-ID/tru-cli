@@ -5,9 +5,7 @@ import * as sinonChai from 'sinon-chai'
 import {Projects} from '../../src/api/projects'
 import {APIConfiguration} from '../../src/api/APIConfiguration';
 
-import axios from "axios"
-import { access } from 'fs-extra';
-import Axios from 'axios';
+import axios from 'axios'
 
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -15,12 +13,8 @@ chai.use(sinonChai);
 describe('API: projects', () => {
     const projectName:string = 'a project'
     const accessToken:string = 'i am an access token'
-    const axiosInstance = axios.create
-    sinon.default.stub(axios, 'create').returns(axios)
-    const axiosPostStub = sinon.default.stub(axios, 'post')
-    
-    axiosPostStub.withArgs('/token', sinon.default.match.any, sinon.default.match.any).resolves({data: {access_token: accessToken}})
-    axiosPostStub.withArgs('/projects', sinon.default.match.any, sinon.default.match.any).resolves({name: projectName})
+
+    let axiosPostStub:any = null
 
     function createDefaultProjectsAPI():Projects {
         return new Projects(
@@ -31,6 +25,18 @@ describe('API: projects', () => {
                     })
                 )
     }
+
+    beforeEach(() => {
+        sinon.default.stub(axios, 'create').returns(axios)
+        axiosPostStub = sinon.default.stub(axios, 'post')
+    
+        axiosPostStub.withArgs('/token', sinon.default.match.any, sinon.default.match.any).resolves({data: {access_token: accessToken}})
+        axiosPostStub.withArgs('/projects', sinon.default.match.any, sinon.default.match.any).resolves({name: projectName})
+    })
+
+    afterEach(() => {
+        sinon.default.restore()
+    })
 
     it('should make a request to create a Project with an access token', async () => {
 

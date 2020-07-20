@@ -15,7 +15,7 @@ export class Projects {
     async create(params:any) {
         return this.axios.post('/projects', params, {
             headers: {
-                Authorization: `Bearer ${(await this.apiConfig.getAccessToken()).data.access_token}`
+                Authorization: `Bearer ${(await this.apiConfig.createAccessToken()).access_token}`
             }
         })
     }
