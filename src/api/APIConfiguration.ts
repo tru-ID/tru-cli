@@ -1,12 +1,12 @@
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios"
 
-interface APIConfigurationArguments {
+export declare interface APIConfigurationArguments {
     clientId:string,
     clientSecret:string,
     baseUrl:string
 }
 
-class APIConfiguration {
+export class APIConfiguration {
     clientId: string
     clientSecret: string
     baseUrl: string
@@ -28,7 +28,9 @@ class APIConfiguration {
             grant_type: 'client_credentials',
             scope: 'projects'
         },{
-            headers: `Authentication: Basic ${auth}`
+            headers: {
+                Authorization: `Basic ${auth}`
+            }
         })
 
         return tokenResponse
@@ -40,5 +42,3 @@ class APIConfiguration {
         return auth
     }
 }
-
-export default APIConfiguration

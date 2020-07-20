@@ -41,4 +41,15 @@ describe('Command: projects:create', () => {
   .it('prompts for the name of a project', ctx => {
     expect(projectsApiCreateStub).to.have.been.calledWith({name: 'hello'})
   })
+
+
+  test
+  .do( () => {
+    existsSyncStub.returns(true)
+  })
+  .command(['projects:create', 'inline arg name'])
+  .it('uses the inline_arg argument for the project', ctx => {
+    expect(projectsApiCreateStub).to.have.been.calledWith({name: 'inline arg name'})
+  })
+
 })

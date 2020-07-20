@@ -2,7 +2,7 @@ import {flags} from '@oclif/command'
 import CommandWithConfig from '../commandWithConfig'
 import * as inquirer from 'inquirer'
 import {Projects} from '../../api/projects'
-import APIConfiguration from '../../api/APIConfiguration'
+import {APIConfiguration} from '../../api/APIConfiguration'
 
 export default class Create extends CommandWithConfig {
   static description = 'Creates a new Project'
