@@ -29,7 +29,6 @@ beforeEach(() => {
 })
 
 afterEach(() => {
-  console.log('>>>>>>>>>>>>>>>>>>>> restored')
   sinon.default.restore()
 });
 
@@ -42,11 +41,4 @@ describe('Command: projects:create', () => {
   .it('prompts for the name of a project', ctx => {
     expect(projectsApiCreateStub).to.have.been.calledWith({name: 'hello'})
   })
-
-  // test
-  // .stdout()
-  // .command(['tet', '--name', 'jeff'])
-  // .it('runs hello --name jeff', ctx => {
-  //   expect(ctx.stdout).to.contain('hello jeff')
-  // })
 })
