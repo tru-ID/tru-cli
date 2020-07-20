@@ -1,7 +1,7 @@
 import axios from "axios"
 import APIConfiguration from './APIConfiguration'
 
-class Projects {
+export class Projects {
     axios: any
     apiConfig: APIConfiguration;
 
@@ -32,4 +32,4 @@ class Projects {
 
 }
 
-export default Projects
+// export default Projects

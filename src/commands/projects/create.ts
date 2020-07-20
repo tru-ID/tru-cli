@@ -1,7 +1,7 @@
 import {flags} from '@oclif/command'
 import CommandWithConfig from '../commandWithConfig'
-import cli from 'cli-ux'
-import Projects from '../../api/projects'
+import * as inquirer from 'inquirer'
+import {Projects} from '../../api/projects'
 import APIConfiguration from '../../api/APIConfiguration'
 
 export default class Create extends CommandWithConfig {
@@ -30,7 +30,14 @@ Creating Project "My first project"
     const {args} = this.parse(Create)
 
     if(!args.name) {
-        args.name = await cli.prompt('What is the name of the project?')
+        const response:any = await inquirer.prompt([
+          {
+            name: 'projectName',
+            message: 'What is the name of the project?',
+            type: 'input'
+          }
+        ])
+        args.name = response['projectName']
     }
     this.log(`Creating Project "${args.name}"`)
 
