@@ -22,7 +22,7 @@ let expectedUserConfig = {
 let existsSyncStub:any = null
 
 beforeEach(() => {
-  existsSyncStub = sinon.default.stub(fs, 'existsSync')
+  existsSyncStub = sinon.default.stub(fs, 'existsSync').withArgs(sinon.default.match(new RegExp(/config.json/)))
   sinon.default.stub(fs, 'readJson').resolves(expectedUserConfig)
   sinon.default.stub(inquirer, 'prompt').resolves({'projectName': 'hello'})
   projectsApiCreateStub = sinon.default.stub(projectsModule.Projects.prototype, 'create').resolves({data: {name: 'hello'}})
@@ -50,6 +50,42 @@ describe('Command: projects:create', () => {
   .command(['projects:create', 'inline arg name'])
   .it('uses the inline_arg argument for the project', ctx => {
     expect(projectsApiCreateStub).to.have.been.calledWith({name: 'inline arg name'})
+  })
+
+  test
+  .do( () => {
+
+  })
+  .command(['projects:create', 'My First Project'])
+  .it('creates a new directory base on the name of the project', ctx => {
+
+  })
+
+  test
+  .do( () => {
+
+  })
+  .command(['projects:create', 'My First Project'])
+  .it('creates a new directory with a snake-case name based on the name of the project', ctx => {
+
+  })
+
+  test
+  .do( () => {
+
+  })
+  .command(['projects:create', 'My First Project'])
+  .it('creates a 4auth.json project configuration file', ctx => {
+
+  })
+
+  test
+  .do( () => {
+
+  })
+  .command(['projects:create', 'My First Project'])
+  .it('saves project configuration into a 4auth.json project configuration file', ctx => {
+    
   })
 
 })
