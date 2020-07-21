@@ -6,6 +6,7 @@ import {APIConfiguration} from '../../api/APIConfiguration'
 import {stringToSnakeCase} from '../../utilities'
 import { string } from '@oclif/command/lib/flags'
 import * as fs from 'fs-extra'
+import { AxiosResponse } from 'axios'
 
 export default class Create extends CommandWithConfig {
   static description = 'Creates a new Project'
@@ -51,9 +52,18 @@ Creating Project "My first project"
             baseUrl: 'https://localhost:4010'
         })
     )
-    const projectCreationResult = await projectsAPI.create({
+    
+    let projectCreationResult:AxiosResponse;
+    try {
+
+      projectCreationResult = await projectsAPI.create({
         name: args.name
-    })
+      })
+    }
+    catch(error) {
+      this.log('API Error - There was an error with the 4Auth API')
+      this.exit(1)
+    }
 
     const directoryName = stringToSnakeCase(args.name)
     const directoryToCreate = `${process.cwd()}/${directoryName}`

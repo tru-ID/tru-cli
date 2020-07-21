@@ -93,11 +93,6 @@ describe('Command: projects:create', () => {
     existsSyncStub.withArgs(sinon.default.match(expectedProjectFullPath)).returns(false)
     sinon.default.stub(fs, 'mkdir').resolves()
 
-    const inlineArgProject = {
-      ...projectConfigJson
-    }
-    inlineArgProject.name = 'inline arg name'
-
     projectsApiCreateStub.withArgs({name: 'inline arg name'}).resolves({data: projectConfigJson})
     projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
     projectConfigFileCreationStub.resolves()
@@ -105,6 +100,17 @@ describe('Command: projects:create', () => {
   .command(['projects:create', 'inline arg name'])
   .it('uses the inline argument for the name project', ctx => {
     expect(projectsApiCreateStub).to.have.been.calledWith({name: 'inline arg name'})
+  })
+
+  test
+  .do( () => {  
+    projectsApiCreateStub.withArgs({name: 'Error Project'}).throws()
+  })
+  .stdout()
+  .command(['projects:create', 'Error Project'])
+  .exit(1)
+  .it('provides user feedback if there is an error with the Projects API', ctx => {
+    expect(ctx.stdout).to.contain('API Error')
   })
 
   test
