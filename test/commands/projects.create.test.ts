@@ -112,6 +112,24 @@ describe('Command: projects:create', () => {
     expect(projectsApiCreateStub).to.have.been.calledWith({name: 'inline arg name'})
   })
 
+  let projectConstructorStub:any
+  test
+  .do( () => {
+    existsSyncStub.withArgs(sinon.default.match(expectedProjectFullPath)).returns(false)
+    sinon.default.stub(fs, 'outputJson').resolves()
+
+    projectConstructorStub = sinon.default.spy(projectsModule, 'Projects')
+    // projectConstructorStub.create.withArgs({name: newProjectName}).resolves({data: projectConfigJson})
+  })
+  .command(['projects:create', newProjectName])
+  .it('should instantiate a Project API object with configuration based on global configuration', ctx => {
+    expect(projectConstructorStub).to.have.been.calledWith(
+      sinon.default.match.has('clientId', expectedUserConfig.defaultWorkspaceClientId).and(
+      sinon.default.match.has('clientSecret', expectedUserConfig.defaultWorkspaceClientSecret)).and(
+      sinon.default.match.has('baseUrl', `https://${expectedUserConfig.defaultWorkspaceDataResidency}.api.4auth.io`))
+    )
+  })
+
   test
   .do( () => {
     existsSyncStub.withArgs(sinon.default.match(expectedProjectFullPath)).returns(false)
