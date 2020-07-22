@@ -30,8 +30,8 @@ describe('API: projects', () => {
         sinon.default.stub(axios, 'create').returns(axios)
         axiosPostStub = sinon.default.stub(axios, 'post')
     
-        axiosPostStub.withArgs('/token', sinon.default.match.any, sinon.default.match.any).resolves({data: {access_token: accessToken}})
-        axiosPostStub.withArgs('/projects', sinon.default.match.any, sinon.default.match.any).resolves({name: projectName})
+        axiosPostStub.withArgs('/oauth2/token', sinon.default.match.any, sinon.default.match.any).resolves({data: {access_token: accessToken}})
+        axiosPostStub.withArgs('/console/v0.1/projects', sinon.default.match.any, sinon.default.match.any).resolves({name: projectName})
     })
 
     afterEach(() => {
@@ -45,8 +45,8 @@ describe('API: projects', () => {
         const result = await projectsAPI.create({name: projectName})
 
         expect(axiosPostStub).to.have.been.calledWith(
-            '/projects',
-            sinon.default.match.has('name', projectName),
+            sinon.default.match.any,
+            sinon.default.match.any,
             sinon.default.match((arg) => {
                 return arg.headers['Authorization'] === `Bearer ${accessToken}`
             })
@@ -60,6 +60,15 @@ describe('API: projects', () => {
         const projectName:string = 'a unique project name'
         await projectsAPI.create({name: projectName})
 
-        expect(axiosPostStub).to.have.been.calledWith('/projects', {name: projectName}, sinon.default.match.any)
+        expect(axiosPostStub).to.have.been.calledWith(sinon.default.match.any, {name: projectName}, sinon.default.match.any)
+    })
+
+    it('should create a project with the expected API endpoint path', async () => {
+        const projectsAPI:Projects = createDefaultProjectsAPI()
+
+        const projectName:string = 'a unique project name'
+        await projectsAPI.create({name: projectName})
+
+        expect(axiosPostStub).to.have.been.calledWith('/console/v0.1/projects', sinon.default.match.any, sinon.default.match.any)
     })
 })

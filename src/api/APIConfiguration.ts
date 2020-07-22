@@ -35,7 +35,7 @@ export class APIConfiguration {
 
     async createAccessToken(): Promise<ICreateTokenResponse> {
         const auth:string = this.generateBasicAuth()
-        const axiosResponse:AxiosResponse = await this.axios.post('/token', {
+        const axiosResponse:AxiosResponse = await this.axios.post('/oauth2/token', {
             grant_type: 'client_credentials',
             scope: 'projects'
         },{
