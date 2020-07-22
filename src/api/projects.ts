@@ -1,5 +1,5 @@
 import axios from "axios"
-import APIConfiguration from './APIConfiguration'
+import {APIConfiguration} from './APIConfiguration'
 
 export class Projects {
     axios: any
@@ -7,14 +7,19 @@ export class Projects {
 
     constructor(apiConfig:APIConfiguration) {
         this.apiConfig = apiConfig
+
         this.axios = axios.create({
             baseURL: apiConfig.baseUrl
           });
     }
 
     async create(params:any) {
-        return this.axios.post('/projects', params, {
-            headers: {'Authentication: Bearer': await this.apiConfig.getAccessToken()}
+        const accessTokenResponse = await this.apiConfig.createAccessToken()
+        console.log('Access Token Response:', accessTokenResponse)
+        return this.axios.post('/console/v0.1/projects', params, {
+            headers: {
+                'Authorization': `Bearer ${accessTokenResponse.access_token}`
+            }
         })
     }
 
@@ -31,5 +36,3 @@ export class Projects {
     }
 
 }
-
-// export default Projects

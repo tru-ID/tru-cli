@@ -8,21 +8,11 @@ describe('hooks', () => {
   let existsSyncStub:any = null
   let outputFileStub:any = null
   let inquirerPromptStub:any = null
-  let expectedUserConfig = {
+  const expectedUserConfig = {
     defaultWorkspaceClientId: 'my client id',
     defaultWorkspaceClientSecret: 'my client secret',
     defaultWorkspaceDataResidency: 'eu'
   }
-
-  test
-  .do(() => {
-    existsSyncStub = sinon.default.stub(fs, 'existsSync').returns(true)
-  })
-  .hook('init')
-  .do(() => {})
-  .it('checks that a user configuration file exists', () => {
-    expect(existsSyncStub.called).to.be.true
-  })
 
   function setupDefaultPromptResponses(_inquirerPromptStub:any) {
     _inquirerPromptStub
@@ -33,9 +23,23 @@ describe('hooks', () => {
       .onCall(2).resolves({defaultWorkspaceDataResidency: expectedUserConfig.defaultWorkspaceDataResidency})
   }
 
+  afterEach(() => {
+    sinon.default.restore();
+  });
+
   test
   .do(() => {
-    existsSyncStub = sinon.default.stub(fs, 'existsSync').returns(false)
+    existsSyncStub = sinon.default.stub(fs, 'existsSync').withArgs(sinon.default.match(new RegExp(/config.json/))).returns(true)
+    sinon.default.stub(fs, 'readJson').resolves(expectedUserConfig)
+  })
+  .hook('init')
+  .it('checks that a user configuration file exists', () => {
+    expect(existsSyncStub.called).to.be.true
+  })
+
+  test
+  .do(() => {
+    existsSyncStub = sinon.default.stub(fs, 'existsSync').withArgs(sinon.default.match(new RegExp(/config.json/))).returns(false)
     outputFileStub = sinon.default.stub(fs, 'outputFile')
     inquirerPromptStub = sinon.default.stub(inquirer, 'prompt')
     setupDefaultPromptResponses(inquirerPromptStub)
@@ -47,7 +51,7 @@ describe('hooks', () => {
 
   test
   .do(() => {
-    existsSyncStub = sinon.default.stub(fs, 'existsSync').returns(false)
+    existsSyncStub = sinon.default.stub(fs, 'existsSync').withArgs(sinon.default.match(new RegExp(/config.json/))).returns(false)
     outputFileStub = sinon.default.stub(fs, 'outputFile')
     inquirerPromptStub = sinon.default.stub(inquirer, 'prompt')
     setupDefaultPromptResponses(inquirerPromptStub)
@@ -57,9 +61,5 @@ describe('hooks', () => {
     const expectedString:string = JSON.stringify(expectedUserConfig, null, 2)
     expect(outputFileStub.getCall(0).args[1]).to.equal(expectedString)
   })
-
-  afterEach(() => {
-    sinon.default.restore();
-  });
 
 })

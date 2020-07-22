@@ -1,10 +1,13 @@
 import {flags} from '@oclif/command'
-import CommandWithConfig from '../commandWithConfig'
+import CommandWithGlobalConfig from '../../helpers/CommandWithGlobalConfig'
 import * as inquirer from 'inquirer'
 import {Projects} from '../../api/projects'
-import APIConfiguration from '../../api/APIConfiguration'
+import {APIConfiguration} from '../../api/APIConfiguration'
+import {stringToSnakeCase} from '../../utilities'
+import * as fs from 'fs-extra'
+import { AxiosResponse } from 'axios'
 
-export default class Create extends CommandWithConfig {
+export default class Create extends CommandWithGlobalConfig {
   static description = 'Creates a new Project'
 
   static examples = [
@@ -42,16 +45,47 @@ Creating Project "My first project"
     this.log(`Creating Project "${args.name}"`)
 
     const projectsAPI = new Projects(
-        new APIConfiguration({
-            clientId: 'client_id',
-            clientSecret: 'client_secret', 
-            baseUrl: 'https://localhost:4010'
-        })
+      new APIConfiguration({
+          clientId: this.globalConfig?.defaultWorkspaceClientId,
+          clientSecret: this.globalConfig?.defaultWorkspaceClientSecret,
+          baseUrl: this.globalConfig?.apiBaseUrlOverride ?? `https://${this.globalConfig?.defaultWorkspaceDataResidency}.api.4auth.io`
+      })
     )
-    const projectCreationResult = await projectsAPI.create({
+    
+    let projectCreationResult:AxiosResponse;
+    try {
+      projectCreationResult = await projectsAPI.create({
         name: args.name
-    })
+      })
+    }
+    catch(error) {
+      this.log('API Error - There was an error with the 4Auth API',
+              `${error.toString()} ${(error.response && error.response.data? JSON.stringify(error.response.data, null, '\t') : '')}`)
+      this.exit(1)
+    }
 
-    console.log(projectCreationResult.data)
+    const directoryName = stringToSnakeCase(args.name)
+    const directoryToCreate = `${process.cwd()}/${directoryName}`
+    if(fs.existsSync(directoryToCreate)) {
+        this.error(`Cannot create project directory "${directoryToCreate}" because a directory with that name already exists.\n` +
+                   `Please choose another name for your project.`, {exit: 1})
+    }
+    else {
+      const configFileFullPathToCreate = `${directoryToCreate}/4auth.json`
+      try {
+        // Save the project configuration to match the Project resource excluding the _links property
+        const projectConfig = {
+          ...projectCreationResult.data
+        }
+        delete projectConfig._links
+        await fs.outputJson(configFileFullPathToCreate, projectConfig, {spaces: '\t'})
+
+        this.log(`Project created at ${directoryToCreate}. Project configuration is in the 4auth.json file.`)
+      }
+      catch(error) {
+        this.error(`An unexpected error occurred: ${error}`, {exit: 1})
+      }
+    }
   }
+
 }
