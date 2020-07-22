@@ -1,14 +1,14 @@
 import {flags} from '@oclif/command'
-import CommandWithConfig from '../../helpers/commandWithConfig'
+import CommandWithGlobalConfig from '../../helpers/CommandWithGlobalConfig'
 import * as inquirer from 'inquirer'
 import {Projects} from '../../api/projects'
 import {APIConfiguration} from '../../api/APIConfiguration'
 import {stringToSnakeCase} from '../../utilities'
-import { string } from '@oclif/command/lib/flags'
 import * as fs from 'fs-extra'
 import { AxiosResponse } from 'axios'
+import IGlobalConfiguration from '../../IGlobalConfiguration'
 
-export default class Create extends CommandWithConfig {
+export default class Create extends CommandWithGlobalConfig {
   static description = 'Creates a new Project'
 
   static examples = [
@@ -46,11 +46,11 @@ Creating Project "My first project"
     this.log(`Creating Project "${args.name}"`)
 
     const projectsAPI = new Projects(
-        new APIConfiguration({
-            clientId: 'client_id',
-            clientSecret: 'client_secret', 
-            baseUrl: 'https://localhost:4010'
-        })
+      new APIConfiguration({
+          clientId: this.globalConfig?.defaultWorkspaceClientId,
+          clientSecret: this.globalConfig?.defaultWorkspaceClientSecret,
+          baseUrl: this.globalConfig?.apiBaseUrlOverride ?? `https://${this.globalConfig?.defaultWorkspaceDataResidency}.api.4auth.io`
+      })
     )
     
     let projectCreationResult:AxiosResponse;
@@ -61,7 +61,7 @@ Creating Project "My first project"
       })
     }
     catch(error) {
-      this.log('API Error - There was an error with the 4Auth API')
+      this.log('API Error - There was an error with the 4Auth API', error.toString())
       this.exit(1)
     }
 

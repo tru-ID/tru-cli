@@ -8,12 +8,15 @@ chai.use(sinonChai);
 
 import * as fs from 'fs-extra'
 import * as inquirer from 'inquirer'
+
 import * as projectsModule from '../../src/api/projects'
+import { APIConfiguration } from '../../src/api/APIConfiguration';
+import IGlobalConfiguration from '../../src/IGlobalConfiguration'
 
 let inquirerPromptStub:any = null
 let projectsApiCreateStub:any = null
 
-let expectedUserConfig = {
+let expectedUserConfig:IGlobalConfiguration = {
   defaultWorkspaceClientId: 'my client id',
   defaultWorkspaceClientSecret: 'my client secret',
   defaultWorkspaceDataResidency: 'eu'
@@ -63,10 +66,9 @@ const projectConfigJsonWithLinks = {
 describe('Command: projects:create', () => {
 
   beforeEach(() => {
-    existsSyncStub = sinon.default.stub(fs, 'existsSync')
-    existsSyncStub.withArgs(sinon.default.match(new RegExp(/config.json/))).returns(true)
-
+    existsSyncStub = sinon.default.stub(fs, 'existsSync').withArgs(sinon.default.match(new RegExp(/config.json/))).returns(true)
     sinon.default.stub(fs, 'readJson').resolves(expectedUserConfig)
+
     sinon.default.stub(inquirer, 'prompt').resolves({'projectName': newProjectName})
     
     projectsApiCreateStub = sinon.default.stub(projectsModule.Projects.prototype, 'create')
@@ -90,9 +92,6 @@ describe('Command: projects:create', () => {
 
   test
   .do( () => {
-    existsSyncStub.withArgs(sinon.default.match(expectedProjectFullPath)).returns(false)
-    sinon.default.stub(fs, 'mkdir').resolves()
-
     projectsApiCreateStub.withArgs({name: 'inline arg name'}).resolves({data: projectConfigJson})
     projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
     projectConfigFileCreationStub.resolves()
@@ -100,6 +99,24 @@ describe('Command: projects:create', () => {
   .command(['projects:create', 'inline arg name'])
   .it('uses the inline argument for the name project', ctx => {
     expect(projectsApiCreateStub).to.have.been.calledWith({name: 'inline arg name'})
+  })
+
+  let projectConstructorStub:any
+  test
+  .do( () => {
+    existsSyncStub.withArgs(sinon.default.match(expectedProjectFullPath)).returns(false)
+    sinon.default.stub(fs, 'outputJson').resolves()
+
+    projectConstructorStub = sinon.default.spy(projectsModule, 'Projects')
+    // projectConstructorStub.create.withArgs({name: newProjectName}).resolves({data: projectConfigJson})
+  })
+  .command(['projects:create', newProjectName])
+  .it('should instantiate a Project API object with configuration based on global configuration', ctx => {
+    expect(projectConstructorStub).to.have.been.calledWith(
+      sinon.default.match.has('clientId', expectedUserConfig.defaultWorkspaceClientId).and(
+      sinon.default.match.has('clientSecret', expectedUserConfig.defaultWorkspaceClientSecret)).and(
+      sinon.default.match.has('baseUrl', `https://${expectedUserConfig.defaultWorkspaceDataResidency}.api.4auth.io`))
+    )
   })
 
   test
