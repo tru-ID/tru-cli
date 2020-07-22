@@ -7,15 +7,18 @@ export class Projects {
 
     constructor(apiConfig:APIConfiguration) {
         this.apiConfig = apiConfig
+
         this.axios = axios.create({
             baseURL: apiConfig.baseUrl
           });
     }
 
     async create(params:any) {
+        const accessTokenResponse = await this.apiConfig.createAccessToken()
+        console.log('Access Token Response:', accessTokenResponse)
         return this.axios.post('/console/v0.1/projects', params, {
             headers: {
-                Authorization: `Bearer ${(await this.apiConfig.createAccessToken()).access_token}`
+                'Authorization': `Bearer ${accessTokenResponse.access_token}`
             }
         })
     }

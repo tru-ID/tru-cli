@@ -1,5 +1,5 @@
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios"
-import { string } from '@oclif/command/lib/flags'
+import * as qs from 'querystring'
 
 export declare interface APIConfigurationArguments {
     clientId?:string,
@@ -23,10 +23,10 @@ export class APIConfiguration {
     baseUrl?: string
     private axios: any
 
-    constructor(apiConfirationArguments: APIConfigurationArguments) {
-        this.clientId = apiConfirationArguments.clientId
-        this.clientSecret = apiConfirationArguments.clientSecret
-        this.baseUrl = apiConfirationArguments.baseUrl
+    constructor(apiConfigurtionArguments: APIConfigurationArguments) {
+        this.clientId = apiConfigurtionArguments.clientId
+        this.clientSecret = apiConfigurtionArguments.clientSecret
+        this.baseUrl = apiConfigurtionArguments.baseUrl
 
         this.axios = axios.create({
             baseURL: this.baseUrl
@@ -34,14 +34,27 @@ export class APIConfiguration {
     }
 
     async createAccessToken(): Promise<ICreateTokenResponse> {
-        const auth:string = this.generateBasicAuth()
-        const axiosResponse:AxiosResponse = await this.axios.post('/oauth2/token', {
+        const path = '/oauth2/v1/token'
+        const params = qs.stringify({
             grant_type: 'client_credentials',
-            scope: 'projects'
-        },{
-            headers: {
-                Authorization: `Basic ${auth}`
-            }
+            scope: 'projects',
+            // client_id: this.clientId, // In body auth support
+            // client_secret: this.clientSecret // In body auth support
+        })
+        const auth = this.generateBasicAuth()
+        const headers = {
+            Authorization: `Basic ${auth}`,
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }
+        
+        console.log('Creating Access Token', {
+            baseUrl: this.axios.defaults.baseURL,
+            path: path,
+            parameters: params,
+            headers: headers
+        })
+        const axiosResponse:AxiosResponse = await this.axios.post(path, params, {
+            headers: headers
         })
 
         const tokenResponse:ICreateTokenResponse = axiosResponse.data

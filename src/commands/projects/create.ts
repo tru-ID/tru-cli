@@ -60,7 +60,8 @@ Creating Project "My first project"
       })
     }
     catch(error) {
-      this.log('API Error - There was an error with the 4Auth API', error.toString())
+      this.log('API Error - There was an error with the 4Auth API',
+              `${error.toString()} ${(error.response && error.response.data? JSON.stringify(error.response.data, null, '\t') : '')}`)
       this.exit(1)
     }
 

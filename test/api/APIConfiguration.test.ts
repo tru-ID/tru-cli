@@ -44,7 +44,7 @@ describe('APIConfiguration', () => {
             sinon.default.restore()
         })
 
-        it('should get an Access Token from the /oauth2/token endpoint', async () => {
+        it('should get an Access Token from the /oauth2/v1/token endpoint', async () => {
             const apiConfig:APIConfiguration = createDefaultAPIConfiguration()
 
             const axiosPostStub = sinon.default.stub(axios, 'post').resolves({data:{}})
@@ -52,7 +52,7 @@ describe('APIConfiguration', () => {
             await apiConfig.createAccessToken()
 
             expect(axiosPostStub).has.been.calledWith(
-                '/oauth2/token',
+                '/oauth2/v1/token',
                 sinon.default.match.any,
                 sinon.default.match.any
             )

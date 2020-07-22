@@ -30,7 +30,7 @@ describe('API: projects', () => {
         sinon.default.stub(axios, 'create').returns(axios)
         axiosPostStub = sinon.default.stub(axios, 'post')
     
-        axiosPostStub.withArgs('/oauth2/token', sinon.default.match.any, sinon.default.match.any).resolves({data: {access_token: accessToken}})
+        axiosPostStub.withArgs('/oauth2/v1/token', sinon.default.match.any, sinon.default.match.any).resolves({data: {access_token: accessToken}})
         axiosPostStub.withArgs('/console/v0.1/projects', sinon.default.match.any, sinon.default.match.any).resolves({name: projectName})
     })
 
