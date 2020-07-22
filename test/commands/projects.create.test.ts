@@ -22,8 +22,17 @@ let expectedUserConfig:IGlobalConfiguration = {
   defaultWorkspaceDataResidency: 'eu'
 }
 
-let existsSyncStub:any = null
+let expectedUserConfigWithOverride:IGlobalConfiguration = {
+  ...expectedUserConfig,
+  apiBaseUrlOverride: 'https://eu-dev.api-dev.4auth.io'
+}
+
+// Stubs
+let existsSyncStub:any
 let projectConfigFileCreationStub:any
+let projectConstructorStub:any
+let readJsonStub:any
+
 let newProjectName: string = 'My First Project'
 let expectedProjectDirectoryName = 'my_first_project'
 const expectedProjectFullPath = `${process.cwd()}/${expectedProjectDirectoryName}`
@@ -67,7 +76,9 @@ describe('Command: projects:create', () => {
 
   beforeEach(() => {
     existsSyncStub = sinon.default.stub(fs, 'existsSync').withArgs(sinon.default.match(new RegExp(/config.json/))).returns(true)
-    sinon.default.stub(fs, 'readJson').resolves(expectedUserConfig)
+
+    readJsonStub = sinon.default.stub(fs, 'readJson')
+    readJsonStub.resolves(expectedUserConfig)
 
     sinon.default.stub(inquirer, 'prompt').resolves({'projectName': newProjectName})
     
@@ -101,14 +112,12 @@ describe('Command: projects:create', () => {
     expect(projectsApiCreateStub).to.have.been.calledWith({name: 'inline arg name'})
   })
 
-  let projectConstructorStub:any
   test
   .do( () => {
     existsSyncStub.withArgs(sinon.default.match(expectedProjectFullPath)).returns(false)
     sinon.default.stub(fs, 'outputJson').resolves()
 
     projectConstructorStub = sinon.default.spy(projectsModule, 'Projects')
-    // projectConstructorStub.create.withArgs({name: newProjectName}).resolves({data: projectConfigJson})
   })
   .command(['projects:create', newProjectName])
   .it('should instantiate a Project API object with configuration based on global configuration', ctx => {
@@ -116,6 +125,27 @@ describe('Command: projects:create', () => {
       sinon.default.match.has('clientId', expectedUserConfig.defaultWorkspaceClientId).and(
       sinon.default.match.has('clientSecret', expectedUserConfig.defaultWorkspaceClientSecret)).and(
       sinon.default.match.has('baseUrl', `https://${expectedUserConfig.defaultWorkspaceDataResidency}.api.4auth.io`))
+    )
+  })
+
+  test
+  .do( () => {
+    existsSyncStub.withArgs(sinon.default.match(expectedProjectFullPath)).returns(false)
+    sinon.default.stub(fs, 'outputJson').resolves()
+
+    // change default test behaviour for this specific test
+    readJsonStub.restore() 
+    readJsonStub = sinon.default.stub(fs, 'readJson')
+    readJsonStub.resolves(expectedUserConfigWithOverride)
+
+    projectConstructorStub = sinon.default.spy(projectsModule, 'Projects')
+  })
+  .command(['projects:create', newProjectName])
+  .it('should instantiate a Project API object with configuration based on global configuration with apiBaseUrlOverride', ctx => {
+    expect(projectConstructorStub).to.have.been.calledWith(
+      sinon.default.match.has('clientId', expectedUserConfigWithOverride.defaultWorkspaceClientId).and(
+      sinon.default.match.has('clientSecret', expectedUserConfigWithOverride.defaultWorkspaceClientSecret)).and(
+      sinon.default.match.has('baseUrl', `${expectedUserConfigWithOverride.apiBaseUrlOverride}`))
     )
   })
 

@@ -18,7 +18,14 @@ export default interface IGlobalConfiguration{
      */
     defaultWorkspaceDataResidency?: string
 
+    /**
+     * If present, the `defaultWorkspaceDataResidency` configuration value should not be used to generate data residency specific API endpoints.
+     * Instead, the full value of `apiBaseUrlOverride` should be used as the base URL.
+     */
+    apiBaseUrlOverride?: string
 
-    // apiBaseUrlOverride?: string
+    /**
+     * Allow configuration values to be iterated over
+     */
     [index: string]: any
 }
