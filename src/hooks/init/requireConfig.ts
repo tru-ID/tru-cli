@@ -3,6 +3,7 @@ import * as fs from 'fs-extra'
 import * as path from 'path'
 import cli from 'cli-ux'
 import * as inquirer from 'inquirer'
+import IGlobalConfiguration from '../../IGlobalConfiguration'
 
 interface RequiredConfiguration{
   defaultWorkspaceClientId: ConfigurationObject
@@ -51,12 +52,12 @@ const hook: Hook<'init'> = async function (opts) {
   }
   else {
     // Ensure default values have been updated by the user
-    const userConfig:object = await fs.readJson(configFileLocation)
+    const userConfig:IGlobalConfiguration = await fs.readJson(configFileLocation)
     await promptForMissingConfig(userConfig, configFileLocation)
   }
 }
 
-async function promptForMissingConfig(existingConfig:JSONConfig, configFileLocation:string) {
+async function promptForMissingConfig(existingConfig:IGlobalConfiguration, configFileLocation:string) {
 
   let writeRequired:boolean = false
   for await (const configItem of Object.keys(requiredConfiguation)) {

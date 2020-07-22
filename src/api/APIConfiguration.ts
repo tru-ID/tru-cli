@@ -2,9 +2,9 @@ import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios"
 import { string } from '@oclif/command/lib/flags'
 
 export declare interface APIConfigurationArguments {
-    clientId:string,
-    clientSecret:string,
-    baseUrl:string, // https://eu.api.4auth.io
+    clientId?:string,
+    clientSecret?:string,
+    baseUrl?:string, // https://eu.api.4auth.io
 }
 
 export declare interface ICreateTokenResponse {
@@ -18,10 +18,10 @@ export declare interface ICreateTokenResponse {
 
 
 export class APIConfiguration {
-    clientId: string
-    clientSecret: string
-    baseUrl: string
-    axios: any
+    clientId?: string
+    clientSecret?: string
+    baseUrl?: string
+    private axios: any
 
     constructor(apiConfirationArguments: APIConfigurationArguments) {
         this.clientId = apiConfirationArguments.clientId
