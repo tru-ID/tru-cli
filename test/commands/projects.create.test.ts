@@ -185,4 +185,17 @@ describe('Command: projects:create', () => {
     )
   })
 
+  test
+  .do( () => {
+    existsSyncStub.withArgs(sinon.default.match(expectedProjectFullPath)).returns(false)
+
+    projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
+    projectConfigFileCreationStub.resolves()
+  })
+  .stdout()
+  .command(['projects:create', newProjectName])
+  .it('informs the user of successful creation of the project', ctx => {
+    expect(ctx.stdout).to.contain(`Project created at ${expectedProjectFullPath}. Project configuration is in the 4auth.json file.`)
+  })
+
 })

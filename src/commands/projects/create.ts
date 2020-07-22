@@ -55,7 +55,6 @@ Creating Project "My first project"
     
     let projectCreationResult:AxiosResponse;
     try {
-
       projectCreationResult = await projectsAPI.create({
         name: args.name
       })
@@ -80,6 +79,8 @@ Creating Project "My first project"
         }
         delete projectConfig._links
         await fs.outputJson(configFileFullPathToCreate, projectConfig, {spaces: '\t'})
+
+        this.log(`Project created at ${directoryToCreate}. Project configuration is in the 4auth.json file.`)
       }
       catch(error) {
         this.error(`An unexpected error occurred: ${error}`, {exit: 1})
