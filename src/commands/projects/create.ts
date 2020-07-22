@@ -6,7 +6,6 @@ import {APIConfiguration} from '../../api/APIConfiguration'
 import {stringToSnakeCase} from '../../utilities'
 import * as fs from 'fs-extra'
 import { AxiosResponse } from 'axios'
-import IGlobalConfiguration from '../../IGlobalConfiguration'
 
 export default class Create extends CommandWithGlobalConfig {
   static description = 'Creates a new Project'

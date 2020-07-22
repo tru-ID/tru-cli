@@ -4,6 +4,7 @@ import * as path from 'path'
 import cli from 'cli-ux'
 import * as inquirer from 'inquirer'
 import IGlobalConfiguration from '../../IGlobalConfiguration'
+import * as figlet from 'figlet';
 
 interface RequiredConfiguration{
   defaultWorkspaceClientId: ConfigurationObject
@@ -27,27 +28,39 @@ const requiredConfiguation:RequiredConfiguration = {
   defaultWorkspaceClientId: {
     notSetValue: null,
     defaultValue: null,
-    prompt: 'Please provide your workspace `client_id`. Hint: http://4auth.io/console/getting-started',
+    prompt: 'Please provide your workspace `client_id`'
   },
   defaultWorkspaceClientSecret: {
     notSetValue: null,
     defaultValue: null,
-    prompt: 'Please provide your workspace `client_secret`. Hint: http://4auth.io/console/getting-started'
+    prompt: 'Please provide your workspace `client_secret`'
   },
   defaultWorkspaceDataResidency: {
     notSetValue: null,
     defaultValue: 'eu',
-    prompt: 'Please provide your workspace data residency. Hint: http://4auth.io/console/getting-started'
+    prompt: 'Please provide your workspace data residency'
   }
 }
 
 const hook: Hook<'init'> = async function (opts) {
 
+  // Oclif captures the output of commands in order to update the README during prepack
+  if(process.env.npm_lifecycle_event && process.env.npm_lifecycle_event === 'prepack') return
+
   const configFileLocation:string = path.join(this.config.configDir, 'config.json')
 
   // If the user configuration file does not exist, create it
   if(!fs.existsSync(configFileLocation)) {
+    this.log(figlet.textSync('4Auth CLI', {
+      font: 'Slant',
+      horizontalLayout: 'default',
+      verticalLayout: 'default',
+    }))
+      
     this.log('Welcome to the 4Auth CLI! Let\'s start by configuring the CLI')
+    this.log('')
+    this.log('Configuration values can be found via http://4auth.io/console/getting-started')
+    this.log('')
     await promptForMissingConfig({}, configFileLocation)
   }
   else {
@@ -64,8 +77,6 @@ async function promptForMissingConfig(existingConfig:IGlobalConfiguration, confi
     // If the current configuration value indicates it's never been set
     if(existingConfig[configItem] === requiredConfiguation[configItem].notSetValue || existingConfig[configItem] === undefined) {
 
-      // existingConfig[configItem] = await cli.prompt(requiredConfiguation[configItem].prompt)
-
       const response:any = await inquirer.prompt([
         {
           name: configItem,
@@ -77,6 +88,7 @@ async function promptForMissingConfig(existingConfig:IGlobalConfiguration, confi
       existingConfig[configItem] = response[configItem]
 
       writeRequired = true
+
     }
   }
 
