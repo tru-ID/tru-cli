@@ -12,6 +12,11 @@ interface IRequestLog {
     headers: any
 }
 
+interface IResponseLog {
+    statusCode: number,
+    data: any
+}
+
 export declare interface ICreateTokenResponse {
     access_token:string,
     id_token:string,
@@ -53,8 +58,8 @@ export class HttpClient {
         const response:AxiosResponse = await this.axios.post(path, parameters, {
                 headers: requestHeaders
             })
-
-        this.logger.debug({
+        
+        this.logResponse({
             statusCode: response.status,
             data: response.data
         })
@@ -84,11 +89,16 @@ export class HttpClient {
             headers: requestHeaders
         })
 
-        const axiosResponse:AxiosResponse = await this.axios.post(path, params, {
+        const response:AxiosResponse = await this.axios.post(path, params, {
             headers: requestHeaders
         })
 
-        return axiosResponse.data as ICreateTokenResponse
+        this.logResponse({
+            statusCode: response.status,
+            data: response.data
+        })
+
+        return response.data as ICreateTokenResponse
     }
 
      generateBasicAuth():string {
@@ -98,7 +108,11 @@ export class HttpClient {
     }
 
     logRequest(log: IRequestLog): void {
-        this.logger.debug(log)
+        this.logger.debug('Request:', log)
+    }
+
+    logResponse(log: IResponseLog): void {
+        this.logger.debug('Response:', log)
     }
 
 }
