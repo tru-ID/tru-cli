@@ -2,10 +2,9 @@ import * as sinon from 'ts-sinon'
 import * as chai from 'chai';
 import * as sinonChai from 'sinon-chai'
 
-import {APIConfiguration, ICreateTokenResponse} from '../../src/api/APIConfiguration';
-
 import axios from 'axios'
-import { assert } from 'console';
+
+import {APIConfiguration, ICreateTokenResponse} from '../../src/api/APIConfiguration';
 
 const expect = chai.expect;
 chai.use(sinonChai);

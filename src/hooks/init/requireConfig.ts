@@ -3,8 +3,9 @@ import * as fs from 'fs-extra'
 import * as path from 'path'
 import cli from 'cli-ux'
 import * as inquirer from 'inquirer'
-import IGlobalConfiguration from '../../IGlobalConfiguration'
 import * as figlet from 'figlet';
+
+import IGlobalConfiguration from '../../IGlobalConfiguration'
 
 interface RequiredConfiguration{
   defaultWorkspaceClientId: ConfigurationObject

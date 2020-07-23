@@ -2,10 +2,10 @@ import * as sinon from 'ts-sinon'
 import * as chai from 'chai';
 import * as sinonChai from 'sinon-chai'
 
+import axios from 'axios'
+
 import {ProjectsAPIClient} from '../../src/api/ProjectsAPIClient'
 import {APIConfiguration} from '../../src/api/APIConfiguration';
-
-import axios from 'axios'
 
 const expect = chai.expect;
 chai.use(sinonChai);

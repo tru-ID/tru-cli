@@ -1,11 +1,12 @@
 import {flags} from '@oclif/command'
-import CommandWithGlobalConfig from '../../helpers/CommandWithGlobalConfig'
 import * as inquirer from 'inquirer'
+import * as fs from 'fs-extra'
+import { AxiosResponse } from 'axios'
+
+import CommandWithGlobalConfig from '../../helpers/CommandWithGlobalConfig'
 import {ProjectsAPIClient} from '../../api/ProjectsAPIClient'
 import {APIConfiguration} from '../../api/APIConfiguration'
 import {stringToSnakeCase} from '../../utilities'
-import * as fs from 'fs-extra'
-import { AxiosResponse } from 'axios'
 
 export default class Create extends CommandWithGlobalConfig {
   static description = 'Creates a new Project'

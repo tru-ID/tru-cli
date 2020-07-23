@@ -1,5 +1,6 @@
 import {expect, test} from '@oclif/test'
 import * as sinon from 'ts-sinon'
+
 import * as fs from 'fs-extra'
 import * as inquirer from 'inquirer'
 

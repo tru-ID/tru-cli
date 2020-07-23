@@ -1,4 +1,4 @@
-import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios"
+import axios, { AxiosResponse } from "axios"
 import * as qs from 'querystring'
 
 export declare interface APIConfigurationArguments {
