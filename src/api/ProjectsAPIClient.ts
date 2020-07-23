@@ -1,26 +1,36 @@
 import axios from "axios"
 import {APIConfiguration} from './APIConfiguration'
+import {HttpClient} from './HttpClient'
+
+export interface ICredentials {
+    client_id: string,
+    client_secret: string,
+    created_at: string
+}
+export interface ICreateProjectResponse {
+        project_id: string
+        name: string
+        created_at: string
+        updated_at: string
+        credentials: ICredentials[],
+        _links: {
+        self: {
+            href: string
+        }
+    }
+}
 
 export class ProjectsAPIClient {
     axios: any
-    apiConfig: APIConfiguration;
+    httpClient: HttpClient;
 
     constructor(apiConfig:APIConfiguration) {
-        this.apiConfig = apiConfig
-
-        this.axios = axios.create({
-            baseURL: apiConfig.baseUrl
-          });
+        this.httpClient = new HttpClient(apiConfig, console)
     }
 
-    async create(params:any) {
-        const accessTokenResponse = await this.apiConfig.createAccessToken()
-        console.log('Access Token Response:', accessTokenResponse)
-        return this.axios.post('/console/v0.1/projects', params, {
-            headers: {
-                'Authorization': `Bearer ${accessTokenResponse.access_token}`
-            }
-        })
+    async create(params:any): Promise<ICreateProjectResponse> {
+        const response:ICreateProjectResponse = await this.httpClient.post<ICreateProjectResponse>('/console/v0.1/projects', params, {})
+        return response
     }
 
     list() {

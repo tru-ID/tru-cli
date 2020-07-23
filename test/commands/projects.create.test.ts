@@ -10,9 +10,9 @@ import * as fs from 'fs-extra'
 import * as inquirer from 'inquirer'
 
 import * as projectsModule from '../../src/api/ProjectsAPIClient'
+import {ICreateProjectResponse} from '../../src/api/ProjectsAPIClient'
 import IGlobalConfiguration from '../../src/IGlobalConfiguration'
 
-let inquirerPromptStub:any = null
 let projectsApiCreateStub:any = null
 
 let expectedUserConfig:IGlobalConfiguration = {
@@ -36,25 +36,10 @@ let newProjectName: string = 'My First Project'
 let expectedProjectDirectoryName = 'my_first_project'
 const expectedProjectFullPath = `${process.cwd()}/${expectedProjectDirectoryName}`
 const expectedProjectConfigFileFullPath = `${expectedProjectFullPath}/4auth.json`
-const projectConfigJson = {
+
+const createProjectAPIResponse: ICreateProjectResponse = {
   "project_id": "c69bc0e6-a429-11ea-bb37-0242ac130003",
   "name": newProjectName,
-  "created_at": "2020-06-01T16:43:30+00:00",
-  "updated_at": "2020-06-01T16:43:30+00:00",
-  "credentials": [
-    {
-      "client_id": "6779ef20e75817b79602",
-      "client_secret": "dzi1v4osLNr5vv0.2mnvcKM37.",
-      "created_at": "2020-06-01T16:43:30+00:00"
-    }
-  ]
-}
-
-const projectNameWithLinks = newProjectName + ' with links'
-const expectedProjectConfigFileFullPathWithLinks = `${process.cwd()}/${expectedProjectDirectoryName}_with_links/4auth.json`
-const projectConfigJsonWithLinks = {
-  "project_id": "c69bc0e6-a429-11ea-bb37-0242ac130003",
-  "name": projectNameWithLinks,
   "created_at": "2020-06-01T16:43:30+00:00",
   "updated_at": "2020-06-01T16:43:30+00:00",
   "credentials": [
@@ -71,6 +56,11 @@ const projectConfigJsonWithLinks = {
   }
 }
 
+const expectedProjectConfigJson: any = {
+  ... createProjectAPIResponse,
+}
+delete expectedProjectConfigJson._links
+
 describe('Command: projects:create', () => {
 
   beforeEach(() => {
@@ -82,7 +72,7 @@ describe('Command: projects:create', () => {
     sinon.default.stub(inquirer, 'prompt').resolves({'projectName': newProjectName})
     
     projectsApiCreateStub = sinon.default.stub(projectsModule.ProjectsAPIClient.prototype, 'create')
-    projectsApiCreateStub.withArgs({name: newProjectName}).resolves({data: projectConfigJson})
+    projectsApiCreateStub.withArgs({name: newProjectName}).resolves(createProjectAPIResponse)
   })
   
   afterEach(() => {
@@ -102,7 +92,7 @@ describe('Command: projects:create', () => {
 
   test
   .do( () => {
-    projectsApiCreateStub.withArgs({name: 'inline arg name'}).resolves({data: projectConfigJson})
+    projectsApiCreateStub.withArgs({name: 'inline arg name'}).resolves(createProjectAPIResponse)
     projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
     projectConfigFileCreationStub.resolves()
   })
@@ -206,29 +196,27 @@ describe('Command: projects:create', () => {
   .it('creates a 4auth.json project configuration file with the Project resource contents', ctx => {
     expect(projectConfigFileCreationStub).to.have.been.calledWith(
       expectedProjectConfigFileFullPath,
-      sinon.default.match(projectConfigJson)
+      sinon.default.match(expectedProjectConfigJson)
     )
   })
 
   test
   .do( () => {
-    existsSyncStub.withArgs(expectedProjectConfigFileFullPathWithLinks).returns(false)
+    existsSyncStub.withArgs(expectedProjectFullPath).returns(false)
 
-    projectsApiCreateStub.withArgs({name: projectConfigJsonWithLinks.name}).resolves({data: projectConfigJsonWithLinks})
+    projectsApiCreateStub.withArgs({name: createProjectAPIResponse.name}).resolves(createProjectAPIResponse)
     projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
     projectConfigFileCreationStub.resolves()
   })
-  .command(['projects:create', projectConfigJsonWithLinks.name])
+  .command(['projects:create', createProjectAPIResponse.name])
   .it('creates a 4auth.json project configuration file stripping the _links contents', ctx => {
 
-    const expectedSavedConfig = {
-      ...projectConfigJsonWithLinks
-    }
-    delete expectedSavedConfig._links
-
     expect(projectConfigFileCreationStub).to.have.been.calledWith(
-      expectedProjectConfigFileFullPathWithLinks,
-      sinon.default.match(expectedSavedConfig)
+      expectedProjectConfigFileFullPath,
+      sinon.default.match((value) => {
+        return value._links === undefined
+      })
+      
     )
   })
 

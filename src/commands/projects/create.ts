@@ -1,10 +1,9 @@
 import {flags} from '@oclif/command'
 import * as inquirer from 'inquirer'
 import * as fs from 'fs-extra'
-import { AxiosResponse } from 'axios'
 
 import CommandWithGlobalConfig from '../../helpers/CommandWithGlobalConfig'
-import {ProjectsAPIClient} from '../../api/ProjectsAPIClient'
+import {ProjectsAPIClient, ICreateProjectResponse} from '../../api/ProjectsAPIClient'
 import {APIConfiguration} from '../../api/APIConfiguration'
 import {stringToSnakeCase} from '../../utilities'
 
@@ -53,7 +52,7 @@ Creating Project "My first project"
       })
     )
     
-    let projectCreationResult:AxiosResponse;
+    let projectCreationResult:ICreateProjectResponse;
     try {
       projectCreationResult = await projectsAPI.create({
         name: args.name
@@ -76,7 +75,7 @@ Creating Project "My first project"
       try {
         // Save the project configuration to match the Project resource excluding the _links property
         const projectConfig = {
-          ...projectCreationResult.data
+          ...projectCreationResult
         }
         delete projectConfig._links
         await fs.outputJson(configFileFullPathToCreate, projectConfig, {spaces: '\t'})
