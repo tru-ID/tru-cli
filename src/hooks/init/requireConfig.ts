@@ -3,8 +3,9 @@ import * as fs from 'fs-extra'
 import * as path from 'path'
 import cli from 'cli-ux'
 import * as inquirer from 'inquirer'
-import IGlobalConfiguration from '../../IGlobalConfiguration'
 import * as figlet from 'figlet';
+
+import IGlobalConfiguration from '../../IGlobalConfiguration'
 
 interface RequiredConfiguration{
   defaultWorkspaceClientId: ConfigurationObject
@@ -93,10 +94,12 @@ async function promptForMissingConfig(existingConfig:IGlobalConfiguration, confi
   }
 
   if(writeRequired) {
+    cli.log('')
     cli.action.start(`Thanks! Writing your updated configuration to ${configFileLocation}`)
     await fs.outputFile(configFileLocation, JSON.stringify(existingConfig, null, 2))
     await cli.wait() // show brief working indicator for user reassurance
     cli.action.stop()
+    cli.log('')
   }
 }
 

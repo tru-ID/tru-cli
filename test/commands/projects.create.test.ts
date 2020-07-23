@@ -9,11 +9,11 @@ chai.use(sinonChai);
 import * as fs from 'fs-extra'
 import * as inquirer from 'inquirer'
 
-import * as projectsModule from '../../src/api/projects'
-import { APIConfiguration } from '../../src/api/APIConfiguration';
+import * as projectsModule from '../../src/api/ProjectsAPIClient'
+import {ICreateProjectResponse} from '../../src/api/ProjectsAPIClient'
 import IGlobalConfiguration from '../../src/IGlobalConfiguration'
+import * as consoleLoggerModule from '../../src/helpers/ConsoleLogger'
 
-let inquirerPromptStub:any = null
 let projectsApiCreateStub:any = null
 
 let expectedUserConfig:IGlobalConfiguration = {
@@ -30,32 +30,18 @@ let expectedUserConfigWithOverride:IGlobalConfiguration = {
 // Stubs
 let existsSyncStub:any
 let projectConfigFileCreationStub:any
-let projectConstructorStub:any
 let readJsonStub:any
+let consoleLoggerConstructorStub:any
+let consoleLoggerDebugStub:any
 
 let newProjectName: string = 'My First Project'
 let expectedProjectDirectoryName = 'my_first_project'
 const expectedProjectFullPath = `${process.cwd()}/${expectedProjectDirectoryName}`
 const expectedProjectConfigFileFullPath = `${expectedProjectFullPath}/4auth.json`
-const projectConfigJson = {
+
+const createProjectAPIResponse: ICreateProjectResponse = {
   "project_id": "c69bc0e6-a429-11ea-bb37-0242ac130003",
   "name": newProjectName,
-  "created_at": "2020-06-01T16:43:30+00:00",
-  "updated_at": "2020-06-01T16:43:30+00:00",
-  "credentials": [
-    {
-      "client_id": "6779ef20e75817b79602",
-      "client_secret": "dzi1v4osLNr5vv0.2mnvcKM37.",
-      "created_at": "2020-06-01T16:43:30+00:00"
-    }
-  ]
-}
-
-const projectNameWithLinks = newProjectName + ' with links'
-const expectedProjectConfigFileFullPathWithLinks = `${process.cwd()}/${expectedProjectDirectoryName}_with_links/4auth.json`
-const projectConfigJsonWithLinks = {
-  "project_id": "c69bc0e6-a429-11ea-bb37-0242ac130003",
-  "name": projectNameWithLinks,
   "created_at": "2020-06-01T16:43:30+00:00",
   "updated_at": "2020-06-01T16:43:30+00:00",
   "credentials": [
@@ -72,6 +58,11 @@ const projectConfigJsonWithLinks = {
   }
 }
 
+const expectedProjectConfigJson: any = {
+  ... createProjectAPIResponse,
+}
+delete expectedProjectConfigJson._links
+
 describe('Command: projects:create', () => {
 
   beforeEach(() => {
@@ -82,8 +73,8 @@ describe('Command: projects:create', () => {
 
     sinon.default.stub(inquirer, 'prompt').resolves({'projectName': newProjectName})
     
-    projectsApiCreateStub = sinon.default.stub(projectsModule.Projects.prototype, 'create')
-    projectsApiCreateStub.withArgs({name: newProjectName}).resolves({data: projectConfigJson})
+    projectsApiCreateStub = sinon.default.stub(projectsModule.ProjectsAPIClient.prototype, 'create')
+    projectsApiCreateStub.withArgs({name: newProjectName}).resolves(createProjectAPIResponse)
   })
   
   afterEach(() => {
@@ -103,7 +94,7 @@ describe('Command: projects:create', () => {
 
   test
   .do( () => {
-    projectsApiCreateStub.withArgs({name: 'inline arg name'}).resolves({data: projectConfigJson})
+    projectsApiCreateStub.withArgs({name: 'inline arg name'}).resolves(createProjectAPIResponse)
     projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
     projectConfigFileCreationStub.resolves()
   })
@@ -118,7 +109,24 @@ describe('Command: projects:create', () => {
     existsSyncStub.withArgs(sinon.default.match(expectedProjectFullPath)).returns(false)
     sinon.default.stub(fs, 'outputJson').resolves()
 
-    projectConstructorStub = sinon.default.spy(projectsModule, 'Projects')
+    projectConstructorStub = sinon.default.spy(projectsModule, 'ProjectsAPIClient')
+  })
+  .command(['projects:create', newProjectName])
+  .it('should instantiate a Project API object with configuration based on global configuration', ctx => {
+    expect(projectConstructorStub).to.have.been.calledWith(
+      sinon.default.match.has('clientId', expectedUserConfig.defaultWorkspaceClientId).and(
+        sinon.default.match.has('clientSecret', expectedUserConfig.defaultWorkspaceClientSecret)).and(
+        sinon.default.match.has('baseUrl', `https://${expectedUserConfig.defaultWorkspaceDataResidency}.api.4auth.io`)),
+      sinon.default.match.instanceOf(consoleLoggerModule.ConsoleLogger)
+    )
+  })
+
+  test
+  .do( () => {
+    existsSyncStub.withArgs(sinon.default.match(expectedProjectFullPath)).returns(false)
+    sinon.default.stub(fs, 'outputJson').resolves()
+
+    projectConstructorStub = sinon.default.spy(projectsModule, 'ProjectsAPIClient')
     // projectConstructorStub.create.withArgs({name: newProjectName}).resolves({data: projectConfigJson})
   })
   .command(['projects:create', newProjectName])
@@ -135,7 +143,7 @@ describe('Command: projects:create', () => {
     existsSyncStub.withArgs(sinon.default.match(expectedProjectFullPath)).returns(false)
     sinon.default.stub(fs, 'outputJson').resolves()
 
-    projectConstructorStub = sinon.default.spy(projectsModule, 'Projects')
+    projectConstructorStub = sinon.default.spy(projectsModule, 'ProjectsAPIClient')
   })
   .command(['projects:create', newProjectName])
   .it('should instantiate a Project API object with configuration based on global configuration', ctx => {
@@ -156,7 +164,7 @@ describe('Command: projects:create', () => {
     readJsonStub = sinon.default.stub(fs, 'readJson')
     readJsonStub.resolves(expectedUserConfigWithOverride)
 
-    projectConstructorStub = sinon.default.spy(projectsModule, 'Projects')
+    projectConstructorStub = sinon.default.spy(projectsModule, 'ProjectsAPIClient')
   })
   .command(['projects:create', newProjectName])
   .it('should instantiate a Project API object with configuration based on global configuration with apiBaseUrlOverride', ctx => {
@@ -207,29 +215,27 @@ describe('Command: projects:create', () => {
   .it('creates a 4auth.json project configuration file with the Project resource contents', ctx => {
     expect(projectConfigFileCreationStub).to.have.been.calledWith(
       expectedProjectConfigFileFullPath,
-      sinon.default.match(projectConfigJson)
+      sinon.default.match(expectedProjectConfigJson)
     )
   })
 
   test
   .do( () => {
-    existsSyncStub.withArgs(expectedProjectConfigFileFullPathWithLinks).returns(false)
+    existsSyncStub.withArgs(expectedProjectFullPath).returns(false)
 
-    projectsApiCreateStub.withArgs({name: projectConfigJsonWithLinks.name}).resolves({data: projectConfigJsonWithLinks})
+    projectsApiCreateStub.withArgs({name: createProjectAPIResponse.name}).resolves(createProjectAPIResponse)
     projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
     projectConfigFileCreationStub.resolves()
   })
-  .command(['projects:create', projectConfigJsonWithLinks.name])
+  .command(['projects:create', createProjectAPIResponse.name])
   .it('creates a 4auth.json project configuration file stripping the _links contents', ctx => {
 
-    const expectedSavedConfig = {
-      ...projectConfigJsonWithLinks
-    }
-    delete expectedSavedConfig._links
-
     expect(projectConfigFileCreationStub).to.have.been.calledWith(
-      expectedProjectConfigFileFullPathWithLinks,
-      sinon.default.match(expectedSavedConfig)
+      expectedProjectConfigFileFullPath,
+      sinon.default.match((value) => {
+        return value._links === undefined
+      })
+      
     )
   })
 
@@ -244,6 +250,45 @@ describe('Command: projects:create', () => {
   .command(['projects:create', newProjectName])
   .it('informs the user of successful creation of the project', ctx => {
     expect(ctx.stdout).to.contain(`Project created at ${expectedProjectFullPath}. Project configuration is in the 4auth.json file.`)
+  })
+
+  test
+  .do( () => {
+    projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
+    projectConfigFileCreationStub.resolves()
+
+    consoleLoggerConstructorStub = sinon.default.spy(consoleLoggerModule, 'ConsoleLogger')
+  })
+  .stdout()
+  .command(['projects:create', newProjectName])
+  .it('should set the ConsoleLogger to log at info level by default', ctx => {
+    expect(consoleLoggerConstructorStub).to.have.been.calledWith(consoleLoggerModule.LogLevel.info)
+  })
+
+  test
+  .do( () => {
+    projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
+    projectConfigFileCreationStub.resolves()
+
+    consoleLoggerConstructorStub = sinon.default.spy(consoleLoggerModule, 'ConsoleLogger')
+  })
+  .stdout()
+  .command(['projects:create', newProjectName, `--debug`])
+  .it('should set the ConsoleLogger level to debug when the debug flag is set', ctx => {
+    expect(consoleLoggerConstructorStub).to.have.been.calledWith(consoleLoggerModule.LogLevel.debug)
+  })
+
+  test
+  .do( () => {
+    projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
+    projectConfigFileCreationStub.resolves()
+
+    consoleLoggerDebugStub = sinon.default.stub(consoleLoggerModule.ConsoleLogger.prototype, 'debug')
+  })
+  .stdout()
+  .command(['projects:create', newProjectName, `--debug`])
+  .it('should log that debug is set when the --debug flag is passed', ctx => {
+    expect(consoleLoggerDebugStub).to.have.been.calledWith('--debug', true)
   })
 
 })

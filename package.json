@@ -16,6 +16,7 @@
     "figlet": "^1.5.0",
     "fs-extra": "^9.0.1",
     "inquirer": "^7.2.0",
+    "lookpath": "^1.1.0",
     "tslib": "^1"
   },
   "devDependencies": {
@@ -73,7 +74,7 @@
   },
   "repository": "4auth/4auth-cli",
   "scripts": {
-    "postinstall": "if [ -x \"$(command -v 4auth)\" ]; then echo '4auth is installed. Initializing...' && 4auth >&2; fi",
+    "postinstall": "bin/postinstall.js",
     "postpack": "rm -f oclif.manifest.json",
     "pack": "oclif-dev pack",
     "x_posttest": "eslint . --ext .ts --config .eslintrc",
