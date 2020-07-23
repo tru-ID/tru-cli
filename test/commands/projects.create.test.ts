@@ -9,8 +9,7 @@ chai.use(sinonChai);
 import * as fs from 'fs-extra'
 import * as inquirer from 'inquirer'
 
-import * as projectsModule from '../../src/api/projects'
-import { APIConfiguration } from '../../src/api/APIConfiguration';
+import * as projectsModule from '../../src/api/ProjectsAPIClient'
 import IGlobalConfiguration from '../../src/IGlobalConfiguration'
 
 let inquirerPromptStub:any = null
@@ -82,7 +81,7 @@ describe('Command: projects:create', () => {
 
     sinon.default.stub(inquirer, 'prompt').resolves({'projectName': newProjectName})
     
-    projectsApiCreateStub = sinon.default.stub(projectsModule.Projects.prototype, 'create')
+    projectsApiCreateStub = sinon.default.stub(projectsModule.ProjectsAPIClient.prototype, 'create')
     projectsApiCreateStub.withArgs({name: newProjectName}).resolves({data: projectConfigJson})
   })
   
@@ -118,7 +117,7 @@ describe('Command: projects:create', () => {
     existsSyncStub.withArgs(sinon.default.match(expectedProjectFullPath)).returns(false)
     sinon.default.stub(fs, 'outputJson').resolves()
 
-    projectConstructorStub = sinon.default.spy(projectsModule, 'Projects')
+    projectConstructorStub = sinon.default.spy(projectsModule, 'ProjectsAPIClient')
     // projectConstructorStub.create.withArgs({name: newProjectName}).resolves({data: projectConfigJson})
   })
   .command(['projects:create', newProjectName])
@@ -135,7 +134,7 @@ describe('Command: projects:create', () => {
     existsSyncStub.withArgs(sinon.default.match(expectedProjectFullPath)).returns(false)
     sinon.default.stub(fs, 'outputJson').resolves()
 
-    projectConstructorStub = sinon.default.spy(projectsModule, 'Projects')
+    projectConstructorStub = sinon.default.spy(projectsModule, 'ProjectsAPIClient')
   })
   .command(['projects:create', newProjectName])
   .it('should instantiate a Project API object with configuration based on global configuration', ctx => {
@@ -156,7 +155,7 @@ describe('Command: projects:create', () => {
     readJsonStub = sinon.default.stub(fs, 'readJson')
     readJsonStub.resolves(expectedUserConfigWithOverride)
 
-    projectConstructorStub = sinon.default.spy(projectsModule, 'Projects')
+    projectConstructorStub = sinon.default.spy(projectsModule, 'ProjectsAPIClient')
   })
   .command(['projects:create', newProjectName])
   .it('should instantiate a Project API object with configuration based on global configuration with apiBaseUrlOverride', ctx => {

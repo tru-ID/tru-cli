@@ -2,7 +2,7 @@ import * as sinon from 'ts-sinon'
 import * as chai from 'chai';
 import * as sinonChai from 'sinon-chai'
 
-import {Projects} from '../../src/api/projects'
+import {ProjectsAPIClient} from '../../src/api/ProjectsAPIClient'
 import {APIConfiguration} from '../../src/api/APIConfiguration';
 
 import axios from 'axios'
@@ -16,8 +16,8 @@ describe('API: projects', () => {
 
     let axiosPostStub:any = null
 
-    function createDefaultProjectsAPI():Projects {
-        return new Projects(
+    function createDefaultProjectsAPI():ProjectsAPIClient {
+        return new ProjectsAPIClient(
                     new APIConfiguration({
                         clientId: 'client_id',
                         clientSecret: 'client_secret', 
@@ -40,7 +40,7 @@ describe('API: projects', () => {
 
     it('should make a request to create a Project with an access token', async () => {
 
-        const projectsAPI:Projects = createDefaultProjectsAPI()
+        const projectsAPI:ProjectsAPIClient = createDefaultProjectsAPI()
 
         const result = await projectsAPI.create({name: projectName})
 
@@ -55,7 +55,7 @@ describe('API: projects', () => {
     })
 
     it('should create a project with the expected name', async () => {
-        const projectsAPI:Projects = createDefaultProjectsAPI()
+        const projectsAPI:ProjectsAPIClient = createDefaultProjectsAPI()
 
         const projectName:string = 'a unique project name'
         await projectsAPI.create({name: projectName})
@@ -64,7 +64,7 @@ describe('API: projects', () => {
     })
 
     it('should create a project with the expected API endpoint path', async () => {
-        const projectsAPI:Projects = createDefaultProjectsAPI()
+        const projectsAPI:ProjectsAPIClient = createDefaultProjectsAPI()
 
         const projectName:string = 'a unique project name'
         await projectsAPI.create({name: projectName})

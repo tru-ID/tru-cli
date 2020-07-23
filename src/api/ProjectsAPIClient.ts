@@ -1,7 +1,7 @@
 import axios from "axios"
 import {APIConfiguration} from './APIConfiguration'
 
-export class Projects {
+export class ProjectsAPIClient {
     axios: any
     apiConfig: APIConfiguration;
 

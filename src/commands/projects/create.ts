@@ -1,7 +1,7 @@
 import {flags} from '@oclif/command'
 import CommandWithGlobalConfig from '../../helpers/CommandWithGlobalConfig'
 import * as inquirer from 'inquirer'
-import {Projects} from '../../api/projects'
+import {ProjectsAPIClient} from '../../api/ProjectsAPIClient'
 import {APIConfiguration} from '../../api/APIConfiguration'
 import {stringToSnakeCase} from '../../utilities'
 import * as fs from 'fs-extra'
@@ -44,7 +44,7 @@ Creating Project "My first project"
     }
     this.log(`Creating Project "${args.name}"`)
 
-    const projectsAPI = new Projects(
+    const projectsAPI = new ProjectsAPIClient(
       new APIConfiguration({
           clientId: this.globalConfig?.defaultWorkspaceClientId,
           clientSecret: this.globalConfig?.defaultWorkspaceClientSecret,
