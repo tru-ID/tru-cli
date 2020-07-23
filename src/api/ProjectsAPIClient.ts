@@ -1,6 +1,6 @@
-import axios from "axios"
 import {APIConfiguration} from './APIConfiguration'
 import {HttpClient} from './HttpClient'
+import ILogger from '../helpers/ILogger';
 
 export interface ICredentials {
     client_id: string,
@@ -24,7 +24,7 @@ export class ProjectsAPIClient {
     axios: any
     httpClient: HttpClient;
 
-    constructor(apiConfig:APIConfiguration, logger: Console) {
+    constructor(apiConfig:APIConfiguration, logger: ILogger) {
         this.httpClient = new HttpClient(apiConfig, logger)
     }
 

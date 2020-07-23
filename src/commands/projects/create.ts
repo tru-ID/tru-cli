@@ -6,6 +6,7 @@ import CommandWithGlobalConfig from '../../helpers/CommandWithGlobalConfig'
 import {ProjectsAPIClient, ICreateProjectResponse} from '../../api/ProjectsAPIClient'
 import {APIConfiguration} from '../../api/APIConfiguration'
 import {stringToSnakeCase} from '../../utilities'
+import {ConsoleLogger, LogLevel} from '../../helpers/ConsoleLogger'
 
 export default class Create extends CommandWithGlobalConfig {
   static description = 'Creates a new Project'
@@ -18,7 +19,7 @@ Creating Project "My first project"
   ]
 
   static flags = {
-    help: flags.help({char: 'h'}),
+    ...CommandWithGlobalConfig.flags,
   }
 
   static args = [
@@ -30,7 +31,10 @@ Creating Project "My first project"
 ]
 
   async run() {
-    const {args} = this.parse(Create)
+    const {args, flags} = this.parse(Create)
+
+    const logger = new ConsoleLogger(!flags.debug? LogLevel.info : LogLevel.debug)
+    logger.debug('--debug', true)
 
     if(!args.name) {
         const response:any = await inquirer.prompt([
@@ -50,7 +54,7 @@ Creating Project "My first project"
           clientSecret: this.globalConfig?.defaultWorkspaceClientSecret,
           baseUrl: this.globalConfig?.apiBaseUrlOverride ?? `https://${this.globalConfig?.defaultWorkspaceDataResidency}.api.4auth.io`
       }),
-      console
+      logger
     )
     
     let projectCreationResult:ICreateProjectResponse;

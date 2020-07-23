@@ -2,6 +2,7 @@ import axios, { AxiosResponse, AxiosInstance } from 'axios'
 import * as qs from 'querystring'
 
 import { APIConfiguration } from './APIConfiguration'
+import ILogger from '../helpers/ILogger'
 
 interface IRequestLog {
     baseUrl: string,
@@ -22,10 +23,10 @@ export declare interface ICreateTokenResponse {
 
 export class HttpClient {
     config:APIConfiguration
-    logger:Console
+    logger:ILogger
     axios:AxiosInstance
 
-    constructor(apiConfiguration: APIConfiguration, logger:Console) {
+    constructor(apiConfiguration: APIConfiguration, logger:ILogger) {
         this.config = apiConfiguration
         this.logger = logger
         this.axios = axios.create({
@@ -53,7 +54,7 @@ export class HttpClient {
                 headers: requestHeaders
             })
 
-        this.logger.log({
+        this.logger.debug({
             statusCode: response.status,
             data: response.data
         })

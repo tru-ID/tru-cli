@@ -12,6 +12,7 @@ import * as inquirer from 'inquirer'
 import * as projectsModule from '../../src/api/ProjectsAPIClient'
 import {ICreateProjectResponse} from '../../src/api/ProjectsAPIClient'
 import IGlobalConfiguration from '../../src/IGlobalConfiguration'
+import * as consoleLoggerModule from '../../src/helpers/ConsoleLogger'
 
 let projectsApiCreateStub:any = null
 
@@ -29,8 +30,9 @@ let expectedUserConfigWithOverride:IGlobalConfiguration = {
 // Stubs
 let existsSyncStub:any
 let projectConfigFileCreationStub:any
-let projectConstructorStub:any
 let readJsonStub:any
+let consoleLoggerConstructorStub:any
+let consoleLoggerDebugStub:any
 
 let newProjectName: string = 'My First Project'
 let expectedProjectDirectoryName = 'my_first_project'
@@ -115,7 +117,7 @@ describe('Command: projects:create', () => {
       sinon.default.match.has('clientId', expectedUserConfig.defaultWorkspaceClientId).and(
         sinon.default.match.has('clientSecret', expectedUserConfig.defaultWorkspaceClientSecret)).and(
         sinon.default.match.has('baseUrl', `https://${expectedUserConfig.defaultWorkspaceDataResidency}.api.4auth.io`)),
-      console
+      sinon.default.match.instanceOf(consoleLoggerModule.ConsoleLogger)
     )
   })
 
@@ -248,6 +250,45 @@ describe('Command: projects:create', () => {
   .command(['projects:create', newProjectName])
   .it('informs the user of successful creation of the project', ctx => {
     expect(ctx.stdout).to.contain(`Project created at ${expectedProjectFullPath}. Project configuration is in the 4auth.json file.`)
+  })
+
+  test
+  .do( () => {
+    projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
+    projectConfigFileCreationStub.resolves()
+
+    consoleLoggerConstructorStub = sinon.default.spy(consoleLoggerModule, 'ConsoleLogger')
+  })
+  .stdout()
+  .command(['projects:create', newProjectName])
+  .it('should set the ConsoleLogger to log at info level by default', ctx => {
+    expect(consoleLoggerConstructorStub).to.have.been.calledWith(consoleLoggerModule.LogLevel.info)
+  })
+
+  test
+  .do( () => {
+    projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
+    projectConfigFileCreationStub.resolves()
+
+    consoleLoggerConstructorStub = sinon.default.spy(consoleLoggerModule, 'ConsoleLogger')
+  })
+  .stdout()
+  .command(['projects:create', newProjectName, `--debug`])
+  .it('should set the ConsoleLogger level to debug when the debug flag is set', ctx => {
+    expect(consoleLoggerConstructorStub).to.have.been.calledWith(consoleLoggerModule.LogLevel.debug)
+  })
+
+  test
+  .do( () => {
+    projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
+    projectConfigFileCreationStub.resolves()
+
+    consoleLoggerDebugStub = sinon.default.stub(consoleLoggerModule.ConsoleLogger.prototype, 'debug')
+  })
+  .stdout()
+  .command(['projects:create', newProjectName, `--debug`])
+  .it('should log that debug is set when the --debug flag is passed', ctx => {
+    expect(consoleLoggerDebugStub).to.have.been.calledWith('--debug', true)
   })
 
 })
