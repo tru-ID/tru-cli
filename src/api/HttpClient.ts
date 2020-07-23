@@ -3,6 +3,14 @@ import * as qs from 'querystring'
 
 import { APIConfiguration } from './APIConfiguration'
 
+interface IRequestLog {
+    baseUrl: string,
+    method: 'post'| 'get' | 'patch'
+    path: string,
+    parameters: any,
+    headers: any
+}
+
 export declare interface ICreateTokenResponse {
     access_token:string,
     id_token:string,
@@ -33,8 +41,8 @@ export class HttpClient {
             'Authorization': `Bearer ${accessTokenResponse.access_token}`
         }
 
-        this.logger.log({
-            baseUrl: this.axios.defaults.baseURL,
+        this.logRequest({
+            baseUrl: this.axios.defaults.baseURL ?? 'NOT SET',
             method: 'post',
             path: path,
             parameters: parameters,
@@ -67,13 +75,14 @@ export class HttpClient {
             'Content-Type': 'application/x-www-form-urlencoded'
         }
         
-        console.log('Creating Access Token', {
-            baseUrl: this.axios.defaults.baseURL,
+        this.logRequest({
+            baseUrl: this.axios.defaults.baseURL ?? 'NOT SET',
             method: 'post',
             path: path,
             parameters: params,
             headers: requestHeaders
         })
+
         const axiosResponse:AxiosResponse = await this.axios.post(path, params, {
             headers: requestHeaders
         })
@@ -85,6 +94,10 @@ export class HttpClient {
         const toEncode:string = `${this.config.clientId}:${this.config.clientSecret}`
         const auth = Buffer.from(toEncode).toString('base64')
         return auth
+    }
+
+    logRequest(log: IRequestLog): void {
+        this.logger.debug(log)
     }
 
 }
