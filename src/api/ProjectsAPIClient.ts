@@ -24,8 +24,8 @@ export class ProjectsAPIClient {
     axios: any
     httpClient: HttpClient;
 
-    constructor(apiConfig:APIConfiguration) {
-        this.httpClient = new HttpClient(apiConfig, console)
+    constructor(apiConfig:APIConfiguration, logger: Console) {
+        this.httpClient = new HttpClient(apiConfig, logger)
     }
 
     async create(params:any): Promise<ICreateProjectResponse> {

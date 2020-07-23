@@ -13,17 +13,17 @@ describe('API: projects', () => {
     const projectName:string = 'a project'
     const accessToken:string = 'i am an access token'
 
-    let httpClientStub:any = null
+    let httpClientConstructorStub:any = null
     let httpClientPostStub:any = null
 
+    const apiConfig = new APIConfiguration({
+        clientId: 'client_id',
+        clientSecret: 'client_secret', 
+        baseUrl: 'https://example.com/api'
+    })
+
     function createDefaultProjectsAPI():ProjectsAPIClient {
-        return new ProjectsAPIClient(
-                    new APIConfiguration({
-                        clientId: 'client_id',
-                        clientSecret: 'client_secret', 
-                        baseUrl: 'https://example.com/api'
-                    })
-                )
+        return new ProjectsAPIClient(apiConfig, console)
     }
 
     beforeEach(() => {
@@ -33,6 +33,13 @@ describe('API: projects', () => {
 
     afterEach(() => {
         sinon.default.restore()
+    })
+
+    it('should create a HTTPClient with expected arguments', () => {
+        httpClientConstructorStub = sinon.default.stub(httpClientModule, 'HttpClient')
+        const projectsAPI:ProjectsAPIClient = new ProjectsAPIClient(apiConfig, console)
+
+        expect(httpClientConstructorStub).to.have.been.calledWith(apiConfig, console)
     })
 
     it('should make a request to create a project with the expected name', async () => {

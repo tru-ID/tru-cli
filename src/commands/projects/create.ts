@@ -49,7 +49,8 @@ Creating Project "My first project"
           clientId: this.globalConfig?.defaultWorkspaceClientId,
           clientSecret: this.globalConfig?.defaultWorkspaceClientSecret,
           baseUrl: this.globalConfig?.apiBaseUrlOverride ?? `https://${this.globalConfig?.defaultWorkspaceDataResidency}.api.4auth.io`
-      })
+      }),
+      console
     )
     
     let projectCreationResult:ICreateProjectResponse;
