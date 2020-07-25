@@ -149,6 +149,18 @@ describe('phonechecks:create', () => {
     phoneChecksApiClientConstructorStub = sinon.default.spy(phoneCheckAPIClientModules, 'PhoneChecksAPIClient')
   })
   .command(['phonechecks:create', phoneNumberToTest])
+  .it('should instantiate a PhoneChecksAPIClient object with `projects` scopes', ctx => {
+    expect(phoneChecksApiClientConstructorStub).to.have.been.calledWith(
+      sinon.default.match.has('scopes', 'phone_check'),
+      sinon.default.match.any
+    )
+  })
+
+  test
+  .do( () => {
+    phoneChecksApiClientConstructorStub = sinon.default.spy(phoneCheckAPIClientModules, 'PhoneChecksAPIClient')
+  })
+  .command(['phonechecks:create', phoneNumberToTest])
   .it('should instantiate a PhoneChecksAPIClient object with global baseUrl configuration', ctx => {
     expect(phoneChecksApiClientConstructorStub).to.have.been.calledWith(
       sinon.default.match.has('baseUrl', `https://${expectedUserConfig.defaultWorkspaceDataResidency}.api.4auth.io`),

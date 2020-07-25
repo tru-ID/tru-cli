@@ -71,7 +71,7 @@ export class HttpClient {
         const path = '/oauth2/v1/token'
         const params = qs.stringify({
             grant_type: 'client_credentials',
-            scope: 'projects',
+            scope: this.config.scopes,
             // client_id: this.clientId, // In body auth support
             // client_secret: this.clientSecret // In body auth support
         })

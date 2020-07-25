@@ -21,6 +21,7 @@ describe('APIConfiguration', () => {
         return new APIConfiguration({
             clientId: defaultClientId,
             clientSecret: defaultClientSecret,
+            scopes: ['a_scope'],
             baseUrl: defaultBaseUrl
         })
     }
@@ -148,6 +149,21 @@ describe('APIConfiguration', () => {
             )
         })
 
+        it('should get an Access Token from the /oauth2/v1/token endpoint with expected scopes', async () => {
+            const apiConfig:APIConfiguration = createDefaultAPIConfiguration()
+            const client:HttpClient = new HttpClient(apiConfig, console)
+
+            const axiosPostStub = sinon.default.stub(axios, 'post').resolves({data:{}})
+
+            await client.createAccessToken()
+
+            expect(axiosPostStub).has.been.calledWith(
+                '/oauth2/v1/token',
+                sinon.default.match(new RegExp(`scope=${apiConfig.scopes}`)),
+                sinon.default.match.any
+            )
+        })
+
         it('should use basic authentication when creating an Access Token', async () => {
             const apiConfig:APIConfiguration = createDefaultAPIConfiguration()
             const client:HttpClient = new HttpClient(apiConfig, console)
@@ -174,7 +190,7 @@ describe('APIConfiguration', () => {
             const expectedAuthString = client.generateBasicAuth()
             const expectedParams = qs.stringify({
                 grant_type: 'client_credentials',
-                scope: 'projects',
+                scope: apiConfig.scopes,
             })
 
             const debugStub = sinon.default.stub(console, 'debug')

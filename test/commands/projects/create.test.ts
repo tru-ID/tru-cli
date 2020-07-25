@@ -128,7 +128,6 @@ describe('Command: projects:create', () => {
     sinon.default.stub(fs, 'outputJson').resolves()
 
     projectConstructorStub = sinon.default.spy(projectsModule, 'ProjectsAPIClient')
-    // projectConstructorStub.create.withArgs({name: newProjectName}).resolves({data: projectConfigJson})
   })
   .command(['projects:create', newProjectName])
   .it('should instantiate a Project API object with configuration based on global configuration', ctx => {
@@ -147,11 +146,9 @@ describe('Command: projects:create', () => {
     projectConstructorStub = sinon.default.spy(projectsModule, 'ProjectsAPIClient')
   })
   .command(['projects:create', newProjectName])
-  .it('should instantiate a Project API object with configuration based on global configuration', ctx => {
+  .it('should instantiate a Project API object with scopes of `projects`', ctx => {
     expect(projectConstructorStub).to.have.been.calledWith(
-      sinon.default.match.has('clientId', expectedUserConfig.defaultWorkspaceClientId).and(
-      sinon.default.match.has('clientSecret', expectedUserConfig.defaultWorkspaceClientSecret)).and(
-      sinon.default.match.has('baseUrl', `https://${expectedUserConfig.defaultWorkspaceDataResidency}.api.4auth.io`))
+      sinon.default.match.has('scopes', 'projects')
     )
   })
 

@@ -48,6 +48,7 @@ export default class PhoneChecksCreate extends CommandWithProjectConfig {
     const phoneCheckAPIClient = new PhoneChecksAPIClient(new APIConfiguration({
           clientId: this.projectConfig?.credentials[0].client_id,
           clientSecret: this.projectConfig?.credentials[0].client_secret,
+          scopes: ['phone_check'],
           baseUrl: this.globalConfig?.apiBaseUrlOverride ?? `https://${this.globalConfig?.defaultWorkspaceDataResidency}.api.4auth.io`
       }),
       logger
