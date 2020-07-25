@@ -13,6 +13,7 @@ import * as projectsModule from '../../../src/api/ProjectsAPIClient'
 import {ICreateProjectResponse} from '../../../src/api/ProjectsAPIClient'
 import IGlobalConfiguration from '../../../src/IGlobalConfiguration'
 import * as consoleLoggerModule from '../../../src/helpers/ConsoleLogger'
+import CommandWithProjectConfig from '../../../src/helpers/CommandWithProjectConfig';
 
 let projectsApiCreateStub:any = null
 
@@ -190,7 +191,7 @@ describe('Command: projects:create', () => {
   .do( () => {
     existsSyncStub.withArgs(sinon.default.match(expectedProjectConfigFileFullPath)).returns(true)
   })
-  .command(['projects:create', 'My First Project'])
+  .command(['projects:create', newProjectName])
   .exit(1)
   .it('errors if the specific project directory already contains a 4auth.json file')
 
@@ -200,7 +201,7 @@ describe('Command: projects:create', () => {
     projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
     projectConfigFileCreationStub.throws()
   })
-  .command(['projects:create', 'My First Project'])
+  .command(['projects:create', newProjectName])
   .exit(1)
   .it('errors if an exception occurs when creating the project directory')
 
@@ -211,10 +212,27 @@ describe('Command: projects:create', () => {
     projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
     projectConfigFileCreationStub.resolves()
   })
-  .command(['projects:create', 'My First Project'])
+  .command(['projects:create', newProjectName])
   .it('creates a 4auth.json project configuration file with the Project resource contents', ctx => {
     expect(projectConfigFileCreationStub).to.have.been.calledWith(
       expectedProjectConfigFileFullPath,
+      sinon.default.match(expectedProjectConfigJson)
+    )
+  })
+
+  const customProjectDir = 'path/to/a/custom/dir'
+  const customProjectConfigFilePath = `${customProjectDir}/4auth.json`
+  test
+  .do( () => {
+    existsSyncStub.withArgs(sinon.default.match(customProjectConfigFilePath)).returns(false)
+
+    projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
+    projectConfigFileCreationStub.resolves()
+  })
+  .command(['projects:create', newProjectName, `--${CommandWithProjectConfig.projectDirFlagName}=${customProjectDir}`])
+  .it(`creates a 4auth.json project configuration file in the location specified by the ${CommandWithProjectConfig.projectDirFlagName} flag`, ctx => {
+    expect(projectConfigFileCreationStub).to.have.been.calledWith(
+      customProjectConfigFilePath,
       sinon.default.match(expectedProjectConfigJson)
     )
   })
