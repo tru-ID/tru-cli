@@ -57,7 +57,7 @@ const projectConfig:IProjectConfiguration = {
     ]
 }
 
-describe('phonecheck:check', () => {
+describe('phonechecks:create', () => {
 
   beforeEach(() => {
     existsSyncStub = sinon.default.stub(fs, 'existsSync')
@@ -88,7 +88,7 @@ describe('phonecheck:check', () => {
     existsSyncStub.withArgs(projectConfigFileLocation).returns(false)
   })
   .stdout()
-  .command(['phonecheck:check', phoneNumberToTest])
+  .command(['phonechecks:create', phoneNumberToTest])
   .exit(1)
   .it('an error is logged when the project configuration is not present', ctx => {
     expect(ctx.stdout).to.contain('The current working directory does not have a project configuration file (4auth.json)')
@@ -102,13 +102,13 @@ describe('phonecheck:check', () => {
         .resolves(customProjectConfigPath)
   })
   .stdout()
-  .command(['phonecheck:check', phoneNumberToTest, `--project-config=${customProjectConfigPath}`])
+  .command(['phonechecks:create', phoneNumberToTest, `--project-config=${customProjectConfigPath}`])
   .it('should load the project configuration from the location specified by the --project-config flag', ctx => {
     expect(readJsonStub).to.have.been.calledWith(customProjectConfigPath)
   })
 
   test
-  .command(['phonecheck:check', phoneNumberToTest])
+  .command(['phonechecks:create', phoneNumberToTest])
   .it('project configuration is read', ctx => {
     expect(readJsonStub).to.have.been.calledWith(projectConfigFileLocation)
   })
@@ -117,7 +117,7 @@ describe('phonecheck:check', () => {
   .do(() => {
     inquirerStub.resolves({'phone_number': phoneNumberToTest})
   })
-  .command(['phonecheck:check'])
+  .command(['phonechecks:create'])
   .it('prompts the user for a phone number to check when an inline argument is not provided', ctx => {
     expect(inquirerStub).to.have.been.calledWith([
       {
@@ -129,14 +129,14 @@ describe('phonecheck:check', () => {
   })
 
   test
-  .command(['phonecheck:check', phoneNumberToTest, '--debug'])
+  .command(['phonechecks:create', phoneNumberToTest, '--debug'])
   .it('calls the PhoneCheckAPIClient with the supplied phone number', ctx => {
     expect(phoneCheckAPIClientCreateStub).to.have.been.calledWith({phone_number:phoneNumberToTest})
   })
 
   test
   .stdout()
-  .command(['phonecheck:check', phoneNumberToTest, '--debug'])
+  .command(['phonechecks:create', phoneNumberToTest, '--debug'])
   .it('logs a successfully created Phone Check', ctx => {
     expect(ctx.stdout).to.contain('Phone Check ACCEPTED')
   })
@@ -151,7 +151,7 @@ describe('phonecheck:check', () => {
     })
   })
   .stdout()
-  .command(['phonecheck:check', phoneNumberToTest, '--debug'])
+  .command(['phonechecks:create', phoneNumberToTest, '--debug'])
   .exit(1)
   .it('logs a Phone Check that has status of ERROR', ctx => {
     expect(ctx.stdout).to.contain('The Phone Check could not be created. The Phone Check status is ERROR')

@@ -6,8 +6,8 @@ import CommandWithProjectConfig from '../../helpers/CommandWithProjectConfig'
 
 import * as inquirer from 'inquirer'
 
-export default class PhoneCheckTest extends CommandWithProjectConfig {
-  static description = 'describe the command here'
+export default class PhoneChecksCreate extends CommandWithProjectConfig {
+  static description = 'Creates a Phone Check'
 
   static flags = {
     ...CommandWithProjectConfig.flags,
@@ -22,7 +22,7 @@ export default class PhoneCheckTest extends CommandWithProjectConfig {
   ]
 
   async run() {
-    const result = this.parse(PhoneCheckTest)
+    const result = this.parse(PhoneChecksCreate)
     this.args = result.args
     this.flags = result.flags
     await this.loadConfig()
