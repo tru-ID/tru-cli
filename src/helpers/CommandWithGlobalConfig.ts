@@ -11,6 +11,13 @@ export default abstract class CommandWithGlobalConfig extends Command {
     }),
     help: flags.help({char: 'h'}),
   }
+
+  flags: {
+		[name: string]: any;
+	} = {}
+	args: {
+		[name: string]: any;
+	} = {}
   
   globalConfig?: IGlobalConfiguration
   

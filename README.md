@@ -33,6 +33,7 @@ USAGE
 # Commands
 <!-- commands -->
 * [`4auth help [COMMAND]`](#4auth-help-command)
+* [`4auth phonecheck:test [FILE]`](#4auth-phonechecktest-file)
 * [`4auth projects:create [NAME]`](#4auth-projectscreate-name)
 
 ## `4auth help [COMMAND]`
@@ -51,6 +52,22 @@ OPTIONS
 ```
 
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v3.1.0/src/commands/help.ts)_
+
+## `4auth phonecheck:test [FILE]`
+
+describe the command here
+
+```
+USAGE
+  $ 4auth phonecheck:test [FILE]
+
+OPTIONS
+  -f, --force
+  -h, --help       show CLI help
+  -n, --name=name  name to print
+```
+
+_See code: [src/commands/phonecheck/test.ts](https://github.com/4auth/4auth-cli/blob/v0.1.0/src/commands/phonecheck/test.ts)_
 
 ## `4auth projects:create [NAME]`
 

@@ -9,10 +9,10 @@ chai.use(sinonChai);
 import * as fs from 'fs-extra'
 import * as inquirer from 'inquirer'
 
-import * as projectsModule from '../../src/api/ProjectsAPIClient'
-import {ICreateProjectResponse} from '../../src/api/ProjectsAPIClient'
-import IGlobalConfiguration from '../../src/IGlobalConfiguration'
-import * as consoleLoggerModule from '../../src/helpers/ConsoleLogger'
+import * as projectsModule from '../../../src/api/ProjectsAPIClient'
+import {ICreateProjectResponse} from '../../../src/api/ProjectsAPIClient'
+import IGlobalConfiguration from '../../../src/IGlobalConfiguration'
+import * as consoleLoggerModule from '../../../src/helpers/ConsoleLogger'
 
 let projectsApiCreateStub:any = null
 

@@ -28,15 +28,17 @@ Creating Project "My first project"
         required: false, // caught upon running and then user is prompted
         description: 'the name of the project to create'
     }
-]
+  ]
 
   async run() {
-    const {args, flags} = this.parse(Create)
+    const result = this.parse(Create)
+    this.args = result.args
+    this.flags = result.flags
 
-    const logger = new ConsoleLogger(!flags.debug? LogLevel.info : LogLevel.debug)
+    const logger = new ConsoleLogger(!this.flags.debug? LogLevel.info : LogLevel.debug)
     logger.debug('--debug', true)
 
-    if(!args.name) {
+    if(!this.args.name) {
         const response:any = await inquirer.prompt([
           {
             name: 'projectName',
@@ -44,9 +46,9 @@ Creating Project "My first project"
             type: 'input'
           }
         ])
-        args.name = response['projectName']
+        this.args.name = response['projectName']
     }
-    this.log(`Creating Project "${args.name}"`)
+    this.log(`Creating Project "${this.args.name}"`)
 
     const projectsAPI = new ProjectsAPIClient(
       new APIConfiguration({
@@ -60,7 +62,7 @@ Creating Project "My first project"
     let projectCreationResult:ICreateProjectResponse;
     try {
       projectCreationResult = await projectsAPI.create({
-        name: args.name
+        name: this.args.name
       })
     }
     catch(error) {
@@ -69,7 +71,7 @@ Creating Project "My first project"
       this.exit(1)
     }
 
-    const directoryName = stringToSnakeCase(args.name)
+    const directoryName = stringToSnakeCase(this.args.name)
     const directoryToCreate = `${process.cwd()}/${directoryName}`
     if(fs.existsSync(directoryToCreate)) {
         this.error(`Cannot create project directory "${directoryToCreate}" because a directory with that name already exists.\n` +
