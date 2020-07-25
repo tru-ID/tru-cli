@@ -28,20 +28,87 @@ describe('APIConfiguration', () => {
 
     describe('get', () => {
 
-        it('should proxy path, params and headers on to axios.get', async () => {
-            fail('Test not implemented')
+        let apiConfig:APIConfiguration
+        let client:HttpClient
+        let axiosPostStub:any
+
+        const path = '/some/path'
+        const params = {a:'param_value'}
+        const headers = {b:'header_value'}
+        const accessToken = 'i am an access token'
+
+        beforeEach(() => {
+            sinon.default.stub(axios, 'create').returns(axios)
+            axiosPostStub = sinon.default.stub(axios, 'post')
+            axiosPostStub.resolves({data:{}}) // default handling of /token
+
+            apiConfig = createDefaultAPIConfiguration()
+            client = new HttpClient(apiConfig, console)
+        })
+    
+        afterEach(() => {
+            sinon.default.restore()
         })
 
-        it('should add Bearer Authorization to the headers', async () => {
-            fail('Test not implemented')
+        it('get/proxy should proxy path, params and headers on to axios.get', async () => {
+            const axiosGetStub = sinon.default.stub(axios, 'get').resolves({data:{}})
+
+            await client.get(path, params, headers)
+
+            expect(axiosGetStub).to.have.been.calledWith(
+                    path,
+                    sinon.default.match.has('headers', sinon.default.match.has('b', headers.b))
+                    .and(sinon.default.match.has('params', sinon.default.match.has('a', params.a)))
+            )
         })
 
-        it('should debug log the GET request', async () => {
-            fail('Test not implemented')
+        it('get/auth: should add Bearer Authorization to the headers', async () => {
+            axiosPostStub.withArgs('/oauth2/v1/token', sinon.default.match.any, sinon.default.match.any)
+                .resolves({data: {access_token: accessToken}})
+            const axiosGetStub = sinon.default.stub(axios, 'get').resolves({data:{}})
+
+            await client.get(path, params, headers)
+
+            expect(axiosGetStub).to.have.been.calledWith(
+                    path,
+                    sinon.default.match.has(
+                        'headers', sinon.default.match.has('Authorization', `Bearer ${accessToken}`)
+                    )
+            )
+                    
         })
 
-        it('should debug log the GET response', async () => {
-            fail('Test not implemented')
+        it('get/log/request: should debug log the GET request', async () => {
+            const debugStub = sinon.default.stub(console, 'debug')
+            axios.defaults.baseURL = apiConfig.baseUrl
+            axiosPostStub.withArgs('/oauth2/v1/token', sinon.default.match.any, sinon.default.match.any).resolves({data: {access_token: accessToken}})
+            axiosPostStub.resolves({data:{}})
+
+            sinon.default.stub(axios, 'get').resolves({data:{}})
+
+            await client.get(path, params, headers)
+
+            expect(debugStub).has.been.calledWith('Request:', {
+                baseUrl: apiConfig.baseUrl,
+                method: 'get',
+                path: path,
+                parameters: params,
+                headers: {
+                    ...headers,
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            })
+        })
+
+        it('get/log/response: should debug log the GET response', async () => {
+            const debugStub = sinon.default.stub(console, 'debug')
+            axios.defaults.baseURL = apiConfig.baseUrl
+            const axiosGetStub = sinon.default.stub(axios, 'get')
+            axiosGetStub.resolves({status: 200, data:{}})
+
+            await client.get(path, {}, {})
+
+            expect(debugStub).has.been.calledWith('Response:', {statusCode: 200, data: {}})
         })
         
     })
