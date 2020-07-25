@@ -34,8 +34,8 @@ let readJsonStub:any
 let consoleLoggerConstructorStub:any
 let consoleLoggerDebugStub:any
 
-let newProjectName: string = 'My First Project'
-let expectedProjectDirectoryName = 'my_first_project'
+const newProjectName: string = 'My First Project'
+const expectedProjectDirectoryName = 'my_first_project'
 const expectedProjectFullPath = `${process.cwd()}/${expectedProjectDirectoryName}`
 const expectedProjectConfigFileFullPath = `${expectedProjectFullPath}/4auth.json`
 
@@ -83,7 +83,7 @@ describe('Command: projects:create', () => {
 
   test
   .do( () => {  
-    existsSyncStub.withArgs(sinon.default.match(expectedProjectFullPath)).returns(false)
+    existsSyncStub.withArgs(sinon.default.match(expectedProjectConfigFileFullPath)).returns(false)
     projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
     projectConfigFileCreationStub.resolves()
   })
@@ -106,7 +106,7 @@ describe('Command: projects:create', () => {
   let projectConstructorStub:any
   test
   .do( () => {
-    existsSyncStub.withArgs(sinon.default.match(expectedProjectFullPath)).returns(false)
+    existsSyncStub.withArgs(sinon.default.match(expectedProjectConfigFileFullPath)).returns(false)
     sinon.default.stub(fs, 'outputJson').resolves()
 
     projectConstructorStub = sinon.default.spy(projectsModule, 'ProjectsAPIClient')
@@ -123,7 +123,7 @@ describe('Command: projects:create', () => {
 
   test
   .do( () => {
-    existsSyncStub.withArgs(sinon.default.match(expectedProjectFullPath)).returns(false)
+    existsSyncStub.withArgs(sinon.default.match(expectedProjectConfigFileFullPath)).returns(false)
     sinon.default.stub(fs, 'outputJson').resolves()
 
     projectConstructorStub = sinon.default.spy(projectsModule, 'ProjectsAPIClient')
@@ -140,7 +140,7 @@ describe('Command: projects:create', () => {
 
   test
   .do( () => {
-    existsSyncStub.withArgs(sinon.default.match(expectedProjectFullPath)).returns(false)
+    existsSyncStub.withArgs(sinon.default.match(expectedProjectConfigFileFullPath)).returns(false)
     sinon.default.stub(fs, 'outputJson').resolves()
 
     projectConstructorStub = sinon.default.spy(projectsModule, 'ProjectsAPIClient')
@@ -156,7 +156,7 @@ describe('Command: projects:create', () => {
 
   test
   .do( () => {
-    existsSyncStub.withArgs(sinon.default.match(expectedProjectFullPath)).returns(false)
+    existsSyncStub.withArgs(sinon.default.match(expectedProjectConfigFileFullPath)).returns(false)
     sinon.default.stub(fs, 'outputJson').resolves()
 
     // change default test behaviour for this specific test
@@ -188,15 +188,15 @@ describe('Command: projects:create', () => {
 
   test
   .do( () => {
-    existsSyncStub.withArgs(sinon.default.match(expectedProjectFullPath)).returns(true)
+    existsSyncStub.withArgs(sinon.default.match(expectedProjectConfigFileFullPath)).returns(true)
   })
   .command(['projects:create', 'My First Project'])
   .exit(1)
-  .it('errors if a directory matching the target project directory name already exists')
+  .it('errors if the specific project directory already contains a 4auth.json file')
 
   test
   .do( () => {
-    existsSyncStub.withArgs(sinon.default.match(expectedProjectFullPath)).returns(false)
+    existsSyncStub.withArgs(sinon.default.match(expectedProjectConfigFileFullPath)).returns(false)
     projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
     projectConfigFileCreationStub.throws()
   })
@@ -206,7 +206,7 @@ describe('Command: projects:create', () => {
 
   test
   .do( () => {
-    existsSyncStub.withArgs(sinon.default.match(expectedProjectFullPath)).returns(false)
+    existsSyncStub.withArgs(sinon.default.match(expectedProjectConfigFileFullPath)).returns(false)
 
     projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
     projectConfigFileCreationStub.resolves()
@@ -221,7 +221,7 @@ describe('Command: projects:create', () => {
 
   test
   .do( () => {
-    existsSyncStub.withArgs(expectedProjectFullPath).returns(false)
+    existsSyncStub.withArgs(expectedProjectConfigFileFullPath).returns(false)
 
     projectsApiCreateStub.withArgs({name: createProjectAPIResponse.name}).resolves(createProjectAPIResponse)
     projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
@@ -241,7 +241,7 @@ describe('Command: projects:create', () => {
 
   test
   .do( () => {
-    existsSyncStub.withArgs(sinon.default.match(expectedProjectFullPath)).returns(false)
+    existsSyncStub.withArgs(sinon.default.match(expectedProjectConfigFileFullPath)).returns(false)
 
     projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
     projectConfigFileCreationStub.resolves()
@@ -249,7 +249,7 @@ describe('Command: projects:create', () => {
   .stdout()
   .command(['projects:create', newProjectName])
   .it('informs the user of successful creation of the project', ctx => {
-    expect(ctx.stdout).to.contain(`Project created at ${expectedProjectFullPath}. Project configuration is in the 4auth.json file.`)
+    expect(ctx.stdout).to.contain(`Project configuration saved to "${expectedProjectConfigFileFullPath}".`)
   })
 
   test

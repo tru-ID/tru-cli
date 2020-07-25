@@ -2,13 +2,13 @@ import {flags} from '@oclif/command'
 import * as inquirer from 'inquirer'
 import * as fs from 'fs-extra'
 
-import CommandWithGlobalConfig from '../../helpers/CommandWithGlobalConfig'
+import CommandWithProjectConfig from '../../helpers/CommandWithProjectConfig'
 import {ProjectsAPIClient, ICreateProjectResponse} from '../../api/ProjectsAPIClient'
 import {APIConfiguration} from '../../api/APIConfiguration'
 import {stringToSnakeCase} from '../../utilities'
 import {ConsoleLogger, LogLevel} from '../../helpers/ConsoleLogger'
 
-export default class Create extends CommandWithGlobalConfig {
+export default class Create extends CommandWithProjectConfig {
   static description = 'Creates a new Project'
 
   static examples = [
@@ -19,7 +19,7 @@ Creating Project "My first project"
   ]
 
   static flags = {
-    ...CommandWithGlobalConfig.flags,
+    ...CommandWithProjectConfig.flags,
   }
 
   static args = [
@@ -71,14 +71,13 @@ Creating Project "My first project"
       this.exit(1)
     }
 
-    const directoryName = stringToSnakeCase(this.args.name)
-    const directoryToCreate = `${process.cwd()}/${directoryName}`
-    if(fs.existsSync(directoryToCreate)) {
-        this.error(`Cannot create project directory "${directoryToCreate}" because a directory with that name already exists.\n` +
-                   `Please choose another name for your project.`, {exit: 1})
+    const pathToProjectDirectory = this.flags[CommandWithProjectConfig.projectDirFlagName] ?? `${process.cwd()}/${stringToSnakeCase(this.args.name)}`
+    const configFileFullPathToCreate = `${pathToProjectDirectory}/4auth.json`
+    if(fs.existsSync(configFileFullPathToCreate)) {
+        this.error(`Cannot create project. A Project configuration file (4auth.json) already exists at "${configFileFullPathToCreate}".\n` +
+                   `Please choose another name or specify an alternative directory for your project.`, {exit: 1})
     }
     else {
-      const configFileFullPathToCreate = `${directoryToCreate}/4auth.json`
       try {
         // Save the project configuration to match the Project resource excluding the _links property
         const projectConfig = {
@@ -87,7 +86,7 @@ Creating Project "My first project"
         delete projectConfig._links
         await fs.outputJson(configFileFullPathToCreate, projectConfig, {spaces: '\t'})
 
-        this.log(`Project created at ${directoryToCreate}. Project configuration is in the 4auth.json file.`)
+        this.log(`Project configuration saved to "${configFileFullPathToCreate}".`)
       }
       catch(error) {
         this.error(`An unexpected error occurred: ${error}`, {exit: 1})

@@ -13,6 +13,7 @@ import IGlobalConfiguration from '../../../src/IGlobalConfiguration'
 import * as phoneCheckAPIClientModules from '../../../src/api/PhoneChecksAPIClient'
 import {IProjectConfiguration} from '../../../src/IProjectConfiguration'
 import * as consoleLoggerModule from '../../../src/helpers/ConsoleLogger'
+import CommandWithProjectConfig from '../../../src/helpers/CommandWithProjectConfig'
 
 let expectedUserConfig:IGlobalConfiguration = {
   defaultWorkspaceClientId: 'my client id',
@@ -91,23 +92,23 @@ describe('phonechecks:create', () => {
   .stdout()
   .command(['phonechecks:create', phoneNumberToTest])
   .exit(1)
-  .it('an error is logged when the project configuration is not present', ctx => {
-    expect(ctx.stdout).to.contain('The current working directory does not have a project configuration file (4auth.json)')
+  .it('an error is logged when the process.cwd() project configuration is not present', ctx => {
+    expect(ctx.stdout).to.contain(`A project configuration files does not exist at "${projectConfigFileLocation}"`)
   })
 
-  let customProjectConfigPath = 'alternative/path/to/project_config.json'
+  let customProjectConfigDirPath = 'alternative/path/to/'
+  let customProjectConfigFullPath = 'alternative/path/to/4auth.json'
   test
   .do(() => {
     readJsonStub.withArgs(
-      sinon.default.match(customProjectConfigPath))
+      sinon.default.match(customProjectConfigFullPath))
         .resolves(projectConfig)
   })
   .stdout()
-  .command(['phonechecks:create', phoneNumberToTest, `--project-config=${customProjectConfigPath}`])
-  .it('should load the project configuration from the location specified by the --project-config flag', ctx => {
-    expect(readJsonStub).to.have.been.calledWith(customProjectConfigPath)
+  .command(['phonechecks:create', phoneNumberToTest, `--${CommandWithProjectConfig.projectDirFlagName}=${customProjectConfigDirPath}`])
+  .it(`should load the project configuration from the location specified by the ${CommandWithProjectConfig.projectDirFlagName} flag`, ctx => {
+    expect(readJsonStub).to.have.been.calledWith(customProjectConfigFullPath)
   })
-
   test
   .command(['phonechecks:create', phoneNumberToTest])
   .it('project configuration is read', ctx => {
