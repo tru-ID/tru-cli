@@ -26,11 +26,32 @@ describe('APIConfiguration', () => {
         })
     }
 
+    describe('get', () => {
+
+        it('should proxy path, params and headers on to axios.get', async () => {
+            fail('Test not implemented')
+        })
+
+        it('should add Bearer Authorization to the headers', async () => {
+            fail('Test not implemented')
+        })
+
+        it('should debug log the GET request', async () => {
+            fail('Test not implemented')
+        })
+
+        it('should debug log the GET response', async () => {
+            fail('Test not implemented')
+        })
+        
+    })
+
     describe('post', () => {
+
         beforeEach(() => {
             sinon.default.stub(axios, 'create').returns(axios)
         })
-
+    
         afterEach(() => {
             sinon.default.restore()
         })

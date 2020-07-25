@@ -33,7 +33,8 @@ USAGE
 # Commands
 <!-- commands -->
 * [`4auth help [COMMAND]`](#4auth-help-command)
-* [`4auth phonecheck:test [FILE]`](#4auth-phonechecktest-file)
+* [`4auth phonechecks:create [PHONE_NUMBER]`](#4auth-phonecheckscreate-phone_number)
+* [`4auth phonechecks:list [CHECK_ID]`](#4auth-phonecheckslist-check_id)
 * [`4auth projects:create [NAME]`](#4auth-projectscreate-name)
 
 ## `4auth help [COMMAND]`
@@ -53,21 +54,43 @@ OPTIONS
 
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v3.1.0/src/commands/help.ts)_
 
-## `4auth phonecheck:test [FILE]`
+## `4auth phonechecks:create [PHONE_NUMBER]`
 
-describe the command here
+Creates a Phone Check
 
 ```
 USAGE
-  $ 4auth phonecheck:test [FILE]
+  $ 4auth phonechecks:create [PHONE_NUMBER]
+
+ARGUMENTS
+  PHONE_NUMBER  The phone number to perform the Phone Check on
 
 OPTIONS
-  -f, --force
-  -h, --help       show CLI help
-  -n, --name=name  name to print
+  -h, --help                 show CLI help
+  --debug                    Enables debug logging for the CLI
+  --project-dir=project-dir  The directory that contains the 4auth.json Project configuration file
 ```
 
-_See code: [src/commands/phonecheck/test.ts](https://github.com/4auth/4auth-cli/blob/v0.1.0/src/commands/phonecheck/test.ts)_
+_See code: [src/commands/phonechecks/create.ts](https://github.com/4auth/4auth-cli/blob/v0.1.0/src/commands/phonechecks/create.ts)_
+
+## `4auth phonechecks:list [CHECK_ID]`
+
+Lists details for all Phone Checks or a specific Phone Check if the a check-id argument is passed
+
+```
+USAGE
+  $ 4auth phonechecks:list [CHECK_ID]
+
+ARGUMENTS
+  CHECK_ID  The check_id for the Phone Check to list
+
+OPTIONS
+  -h, --help                 show CLI help
+  --debug                    Enables debug logging for the CLI
+  --project-dir=project-dir  The directory that contains the 4auth.json Project configuration file
+```
+
+_See code: [src/commands/phonechecks/list.ts](https://github.com/4auth/4auth-cli/blob/v0.1.0/src/commands/phonechecks/list.ts)_
 
 ## `4auth projects:create [NAME]`
 
@@ -81,8 +104,9 @@ ARGUMENTS
   NAME  the name of the project to create
 
 OPTIONS
-  -h, --help  show CLI help
-  --debug     Enables debug logging for the CLI
+  -h, --help                 show CLI help
+  --debug                    Enables debug logging for the CLI
+  --project-dir=project-dir  The directory that contains the 4auth.json Project configuration file
 
 EXAMPLE
   $ 4auth project:create

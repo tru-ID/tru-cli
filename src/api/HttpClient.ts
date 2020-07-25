@@ -67,6 +67,35 @@ export class HttpClient {
         return response.data as T
     }
 
+    async get<T>(path:string, parameters:any, headers:any): Promise<T> {
+        const accessTokenResponse = await this.createAccessToken()
+
+        const requestHeaders = {
+            ...headers,
+            'Authorization': `Bearer ${accessTokenResponse.access_token}`
+        }
+
+        this.logRequest({
+            baseUrl: this.axios.defaults.baseURL ?? 'NOT SET',
+            method: 'get',
+            path: path,
+            parameters: parameters,
+            headers: requestHeaders
+        })
+
+        const response:AxiosResponse = await this.axios.get(path, {
+                params: parameters,
+                headers: requestHeaders
+            })
+        
+        this.logResponse({
+            statusCode: response.status,
+            data: response.data
+        })
+
+        return response.data as T
+    }
+
     async createAccessToken(): Promise<ICreateTokenResponse> {
         const path = '/oauth2/v1/token'
         const params = qs.stringify({
