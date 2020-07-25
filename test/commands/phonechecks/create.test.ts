@@ -10,8 +10,9 @@ import * as fs from 'fs-extra'
 import * as inquirer from 'inquirer'
 
 import IGlobalConfiguration from '../../../src/IGlobalConfiguration'
-import * as phoneCheckAPIClientModules from '../../../src/api/PhoneCheckAPIClient'
+import * as phoneCheckAPIClientModules from '../../../src/api/PhoneChecksAPIClient'
 import {IProjectConfiguration} from '../../../src/IProjectConfiguration'
+import * as consoleLoggerModule from '../../../src/helpers/ConsoleLogger'
 
 let expectedUserConfig:IGlobalConfiguration = {
   defaultWorkspaceClientId: 'my client id',
@@ -50,8 +51,8 @@ const projectConfig:IProjectConfiguration = {
     updated_at: "2020-06-01T16:43:30+00:00",
     credentials: [
       {
-        client_id: "6779ef20e75817b79602",
-        client_secret: "dzi1v4osLNr5vv0.2mnvcKM37.",
+        client_id: "project client id",
+        client_secret: "project client secret",
         created_at: "2020-06-01T16:43:30+00:00"
       }
     ]
@@ -75,7 +76,7 @@ describe('phonechecks:create', () => {
 
     inquirerStub = sinon.default.stub(inquirer, 'prompt')
     
-    phoneCheckAPIClientCreateStub = sinon.default.stub(phoneCheckAPIClientModules.PhoneCheckAPIClient.prototype, 'create')
+    phoneCheckAPIClientCreateStub = sinon.default.stub(phoneCheckAPIClientModules.PhoneChecksAPIClient.prototype, 'create')
     phoneCheckAPIClientCreateStub.resolves(createPhoneCheckResponse)
   })
 
@@ -99,7 +100,7 @@ describe('phonechecks:create', () => {
   .do(() => {
     readJsonStub.withArgs(
       sinon.default.match(customProjectConfigPath))
-        .resolves(customProjectConfigPath)
+        .resolves(projectConfig)
   })
   .stdout()
   .command(['phonechecks:create', phoneNumberToTest, `--project-config=${customProjectConfigPath}`])
@@ -128,6 +129,44 @@ describe('phonechecks:create', () => {
     ])
   })
 
+  let phoneChecksApiClientConstructorStub:any
+  test
+  .do( () => {
+    phoneChecksApiClientConstructorStub = sinon.default.spy(phoneCheckAPIClientModules, 'PhoneChecksAPIClient')
+  })
+  .command(['phonechecks:create', phoneNumberToTest])
+  .it('should instantiate a PhoneChecksAPIClient object with project configuration', ctx => {
+    expect(phoneChecksApiClientConstructorStub).to.have.been.calledWith(
+        sinon.default.match.has('clientId', projectConfig.credentials[0].client_id).and(
+          sinon.default.match.has('clientSecret', projectConfig.credentials[0].client_secret)),
+        sinon.default.match.any
+    )
+  })
+
+  test
+  .do( () => {
+    phoneChecksApiClientConstructorStub = sinon.default.spy(phoneCheckAPIClientModules, 'PhoneChecksAPIClient')
+  })
+  .command(['phonechecks:create', phoneNumberToTest])
+  .it('should instantiate a PhoneChecksAPIClient object with global baseUrl configuration', ctx => {
+    expect(phoneChecksApiClientConstructorStub).to.have.been.calledWith(
+      sinon.default.match.has('baseUrl', `https://${expectedUserConfig.defaultWorkspaceDataResidency}.api.4auth.io`),
+      sinon.default.match.any
+    )
+  })
+
+  test
+  .do( () => {
+    phoneChecksApiClientConstructorStub = sinon.default.spy(phoneCheckAPIClientModules, 'PhoneChecksAPIClient')
+  })
+  .command(['phonechecks:create', phoneNumberToTest])
+  .it('should instantiate a PhoneChecksAPIClient object with a logger', ctx => {
+    expect(phoneChecksApiClientConstructorStub).to.have.been.calledWith(
+      sinon.default.match.any,
+      sinon.default.match.instanceOf(consoleLoggerModule.ConsoleLogger)
+    )
+  })
+
   test
   .command(['phonechecks:create', phoneNumberToTest, '--debug'])
   .it('calls the PhoneCheckAPIClient with the supplied phone number', ctx => {
@@ -144,7 +183,7 @@ describe('phonechecks:create', () => {
   test
   .do(() => {
     phoneCheckAPIClientCreateStub.restore()
-    phoneCheckAPIClientCreateStub = sinon.default.stub(phoneCheckAPIClientModules.PhoneCheckAPIClient.prototype, 'create')
+    phoneCheckAPIClientCreateStub = sinon.default.stub(phoneCheckAPIClientModules.PhoneChecksAPIClient.prototype, 'create')
     phoneCheckAPIClientCreateStub.resolves({
       ...createPhoneCheckResponse,
       status: phoneCheckAPIClientModules.PhoneCheckStatus.ERROR

@@ -31,7 +31,7 @@ export interface ICreatePhoneCheckResponse {
     snapshot_balance: number
 }
 
-export class PhoneCheckAPIClient extends AbstractAPIClient {
+export class PhoneChecksAPIClient extends AbstractAPIClient {
 
     constructor(apiConfig:APIConfiguration, logger: ILogger) {
         super(apiConfig, logger)

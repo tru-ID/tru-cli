@@ -1,7 +1,7 @@
 import {Command, flags} from '@oclif/command'
 import {ConsoleLogger, LogLevel} from '../../helpers/ConsoleLogger'
 import {APIConfiguration} from '../../api/APIConfiguration'
-import { PhoneCheckAPIClient, ICreatePhoneCheckResponse, PhoneCheckStatus } from '../../api/PhoneCheckAPIClient'
+import { PhoneChecksAPIClient, ICreatePhoneCheckResponse, PhoneCheckStatus } from '../../api/PhoneChecksAPIClient'
 import CommandWithProjectConfig from '../../helpers/CommandWithProjectConfig'
 
 import * as inquirer from 'inquirer'
@@ -45,9 +45,9 @@ export default class PhoneChecksCreate extends CommandWithProjectConfig {
 
     this.log(`Testing Phone Check for ${this.args.phone_number}`)
 
-    const phoneCheckAPIClient = new PhoneCheckAPIClient(new APIConfiguration({
-          clientId: this.globalConfig?.defaultWorkspaceClientId,
-          clientSecret: this.globalConfig?.defaultWorkspaceClientSecret,
+    const phoneCheckAPIClient = new PhoneChecksAPIClient(new APIConfiguration({
+          clientId: this.projectConfig?.credentials[0].client_id,
+          clientSecret: this.projectConfig?.credentials[0].client_secret,
           baseUrl: this.globalConfig?.apiBaseUrlOverride ?? `https://${this.globalConfig?.defaultWorkspaceDataResidency}.api.4auth.io`
       }),
       logger
