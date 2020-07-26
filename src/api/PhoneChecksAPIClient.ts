@@ -20,6 +20,9 @@ export interface ICreatePhoneCheckResponse extends IPhoneCheckResource {
     _links: {
         self: {
             href: string
+        },
+        check_url: {
+            href: string
         }
     }
     snapshot_balance: number

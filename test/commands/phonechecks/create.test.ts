@@ -33,6 +33,9 @@ let createPhoneCheckResponse:phoneCheckAPIClientModules.ICreatePhoneCheckRespons
     _links: {
       self: {
         href: "https://us.api.4auth.io/phone_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002"
+      },
+      check_url: {
+        href: "https://us.api.4auth.io/phone_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002/redirect"
       }
     },
     snapshot_balance: 100
