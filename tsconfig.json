@@ -8,7 +8,7 @@
     "strict": true,
     "target": "es2017",
     "skipLibCheck": true,
-    "composite": true
+    "composite": false
   },
   "include": [
     "src/**/*"
