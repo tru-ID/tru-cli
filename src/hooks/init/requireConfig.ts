@@ -94,10 +94,12 @@ async function promptForMissingConfig(existingConfig:IGlobalConfiguration, confi
   }
 
   if(writeRequired) {
+    cli.log('')
     cli.action.start(`Thanks! Writing your updated configuration to ${configFileLocation}`)
     await fs.outputFile(configFileLocation, JSON.stringify(existingConfig, null, 2))
     await cli.wait() // show brief working indicator for user reassurance
     cli.action.stop()
+    cli.log('')
   }
 }
 

@@ -65,6 +65,7 @@ ARGUMENTS
 
 OPTIONS
   -h, --help  show CLI help
+  --debug     Enables debug logging for the CLI
 
 EXAMPLE
   $ 4auth project:create
