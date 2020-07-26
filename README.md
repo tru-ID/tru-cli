@@ -23,7 +23,7 @@ $ npm install -g 4auth-cli
 $ 4auth COMMAND
 running command...
 $ 4auth (-v|--version|version)
-4auth-cli/0.1.0 darwin-x64 node-v14.4.0
+4auth-cli/0.1.0-202007261100 darwin-x64 node-v14.4.0
 $ 4auth --help [COMMAND]
 USAGE
   $ 4auth COMMAND
@@ -69,9 +69,10 @@ OPTIONS
   -h, --help                 show CLI help
   --debug                    Enables debug logging for the CLI
   --project-dir=project-dir  The directory that contains the 4auth.json Project configuration file
+  --workflow                 Execute the Phone Check Workflow from the CLI
 ```
 
-_See code: [src/commands/phonechecks/create.ts](https://github.com/4auth/4auth-cli/blob/v0.1.0/src/commands/phonechecks/create.ts)_
+_See code: [src/commands/phonechecks/create.ts](https://github.com/4auth/4auth-cli/blob/v0.1.0-202007261100/src/commands/phonechecks/create.ts)_
 
 ## `4auth phonechecks:list [CHECK_ID]`
 
@@ -90,7 +91,7 @@ OPTIONS
   --project-dir=project-dir  The directory that contains the 4auth.json Project configuration file
 ```
 
-_See code: [src/commands/phonechecks/list.ts](https://github.com/4auth/4auth-cli/blob/v0.1.0/src/commands/phonechecks/list.ts)_
+_See code: [src/commands/phonechecks/list.ts](https://github.com/4auth/4auth-cli/blob/v0.1.0-202007261100/src/commands/phonechecks/list.ts)_
 
 ## `4auth projects:create [NAME]`
 
@@ -114,7 +115,7 @@ EXAMPLE
   Creating Project "My first project"
 ```
 
-_See code: [src/commands/projects/create.ts](https://github.com/4auth/4auth-cli/blob/v0.1.0/src/commands/projects/create.ts)_
+_See code: [src/commands/projects/create.ts](https://github.com/4auth/4auth-cli/blob/v0.1.0-202007261100/src/commands/projects/create.ts)_
 <!-- commandsstop -->
 
 # Development
