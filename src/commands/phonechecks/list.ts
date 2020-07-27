@@ -47,7 +47,7 @@ export default class PhoneChecksList extends CommandWithProjectConfig {
         this.log(JSON.stringify(singleResource, null, 2))
       }
       catch(error) {
-        this.log('API Error - There was an error with the 4Auth API',
+        this.log('API Error:',
           `${error.toString()} ${(error.response && error.response.data? JSON.stringify(error.response.data, null, 2) : '')}`)
         this.exit(1)
       }
@@ -60,7 +60,7 @@ export default class PhoneChecksList extends CommandWithProjectConfig {
         this.log(JSON.stringify(listResource, null, 2))
       }
       catch(error) {
-        this.log('API Error - There was an error with the 4Auth API',
+        this.log('API Error:',
           `${error.toString()} ${(error.response && error.response.data? JSON.stringify(error.response.data, null, 2) : '')}`)
         this.exit(1)
       }
