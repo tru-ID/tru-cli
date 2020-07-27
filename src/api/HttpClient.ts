@@ -14,7 +14,8 @@ interface IRequestLog {
 
 interface IResponseLog {
     statusCode: number,
-    data: any
+    data: any,
+    headers: any
 }
 
 export declare interface ICreateTokenResponse {
@@ -61,7 +62,8 @@ export class HttpClient {
         
         this.logResponse({
             statusCode: response.status,
-            data: response.data
+            data: response.data,
+            headers: response.headers
         })
 
         return response.data as T
@@ -90,7 +92,8 @@ export class HttpClient {
         
         this.logResponse({
             statusCode: response.status,
-            data: response.data
+            data: response.data,
+            headers: response.headers
         })
 
         return response.data as T
@@ -124,7 +127,8 @@ export class HttpClient {
 
         this.logResponse({
             statusCode: response.status,
-            data: response.data
+            data: response.data,
+            headers: response.headers
         })
 
         return response.data as ICreateTokenResponse

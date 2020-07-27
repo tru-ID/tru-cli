@@ -104,11 +104,11 @@ describe('APIConfiguration', () => {
             const debugStub = sinon.default.stub(console, 'debug')
             axios.defaults.baseURL = apiConfig.baseUrl
             const axiosGetStub = sinon.default.stub(axios, 'get')
-            axiosGetStub.resolves({status: 200, data:{}})
+            axiosGetStub.resolves({status: 200, data:{}, headers:{}})
 
             await client.get(path, {}, {})
 
-            expect(debugStub).has.been.calledWith('Response:', {statusCode: 200, data: {}})
+            expect(debugStub).has.been.calledWith('Response:', {statusCode: 200, data: {}, headers: {}})
         })
         
     })
@@ -204,11 +204,11 @@ describe('APIConfiguration', () => {
             axios.defaults.baseURL = apiConfig.baseUrl
             const axiosPostStub = sinon.default.stub(axios, 'post')
             axiosPostStub.withArgs(path, sinon.default.match.any, sinon.default.match.any).resolves({data: {access_token: accessToken}})
-            axiosPostStub.resolves({status: 201, data:{}})
+            axiosPostStub.resolves({status: 201, data:{}, headers: {}})
 
             await client.post(path, {}, {})
 
-            expect(debugStub).has.been.calledWith('Response:', {statusCode: 201, data: {}})
+            expect(debugStub).has.been.calledWith('Response:', {statusCode: 201, data: {}, headers: {}})
         })
     })
 
@@ -305,8 +305,8 @@ describe('APIConfiguration', () => {
 
             const debugStub = sinon.default.stub(console, 'debug')
             axios.defaults.baseURL = apiConfig.baseUrl
-            const axisResponse = {status: 200, data: {}}
-            const expectedResponse = {statusCode: 200, data: {}}
+            const axisResponse = {status: 200, data: {}, headers: {}}
+            const expectedResponse = {statusCode: 200, data: {}, headers: {}}
             sinon.default.stub(axios, 'post').resolves(axisResponse)
 
             await client.createAccessToken()
