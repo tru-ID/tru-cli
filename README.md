@@ -23,7 +23,7 @@ $ npm install -g 4auth-cli
 $ 4auth COMMAND
 running command...
 $ 4auth (-v|--version|version)
-4auth-cli/0.1.0-202007261100 darwin-x64 node-v14.4.0
+4auth-cli/0.1.0 darwin-x64 node-v14.4.0
 $ 4auth --help [COMMAND]
 USAGE
   $ 4auth COMMAND
@@ -72,7 +72,7 @@ OPTIONS
   --workflow                 Execute the Phone Check Workflow from the CLI
 ```
 
-_See code: [src/commands/phonechecks/create.ts](https://github.com/4auth/4auth-cli/blob/v0.1.0-202007261100/src/commands/phonechecks/create.ts)_
+_See code: [src/commands/phonechecks/create.ts](https://github.com/4auth/4auth-cli/blob/v0.1.0/src/commands/phonechecks/create.ts)_
 
 ## `4auth phonechecks:list [CHECK_ID]`
 
@@ -91,7 +91,7 @@ OPTIONS
   --project-dir=project-dir  The directory that contains the 4auth.json Project configuration file
 ```
 
-_See code: [src/commands/phonechecks/list.ts](https://github.com/4auth/4auth-cli/blob/v0.1.0-202007261100/src/commands/phonechecks/list.ts)_
+_See code: [src/commands/phonechecks/list.ts](https://github.com/4auth/4auth-cli/blob/v0.1.0/src/commands/phonechecks/list.ts)_
 
 ## `4auth projects:create [NAME]`
 
@@ -115,10 +115,16 @@ EXAMPLE
   Creating Project "My first project"
 ```
 
-_See code: [src/commands/projects/create.ts](https://github.com/4auth/4auth-cli/blob/v0.1.0-202007261100/src/commands/projects/create.ts)_
+_See code: [src/commands/projects/create.ts](https://github.com/4auth/4auth-cli/blob/v0.1.0/src/commands/projects/create.ts)_
 <!-- commandsstop -->
 
 # Development
+
+## Commits
+
+The release process will generate/update a CHANGELOG based on commit messages. In order to do this commits should follow [Conventional Commits v1.0.0](https://www.conventionalcommits.org/en/v1.0.0/).
+
+If you forget to follow this the release process allows for manual editing of the CHANGELOG.
 
 ## Update the README
 
@@ -126,6 +132,41 @@ To update the table of contents, usage and commands run:
 
 ```
 $ npm run version
+```
+
+## Releases
+
+Releases should be performed on the `dev` branch and the related commits then merged into the `main` branch.
+
+### CHANGELOG & Package Version
+
+The CLI uses [standard-version](https://github.com/conventional-changelog/standard-version) to generate a changelog and bump the package version.
+
+To update the CHANGELOG run:
+
+```bash
+$ npm run release
+```
+
+Additional parameters supported by `standard-version` can be passed as follows:
+
+```bash
+$ npm run release -- {additional_parameters}
+```
+
+For example:
+
+```bash
+$ npm run release -- --dry-run
+```
+
+### Commit and Tag
+
+Once the CHANGELOG and version in package.json are correct ensure the file updates are staged and run the following replacing `current_version` with the version of the CLI being released:
+
+```bash
+$ git commit -m 'chore(release): v{current_version}'
+  git tag v{{currentVersion}}
 ```
 
 ## Configuration
