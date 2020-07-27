@@ -169,6 +169,16 @@ $ git commit -m 'chore(release): v{current_version}'
   git tag v{{currentVersion}}
 ```
 
+### Build Installers
+
+To create the `tar.gz` installers run:
+
+```bash
+npm run pack
+```
+
+The installers will be built into the `./dist/{cli_name}-{version}` directory.
+
 ## Configuration
 
 Every run of the CLI will check to see if all required configuration is in place. This is achieved through a [hook](https://oclif.io/docs/hooks).
