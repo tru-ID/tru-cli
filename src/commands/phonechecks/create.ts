@@ -80,8 +80,8 @@ export default class PhoneChecksCreate extends CommandWithProjectConfig {
 
       if(this.flags.workflow) {
         this.log('')
-        this.log(`Ensure the mobile phone with the phone number ${this.args.phone_number} is not connected to WiFi and is using your mobile data connection.\n` +
-        'Then scan the QR code and navigate to the check_url')
+        this.log(`Ensure the mobile phone with the phone number ${this.args.phone_number} is not connected to WiFi and is using your mobile data connection. ` +
+        'Then scan the QR code and navigate to the check_url.')
         qrcode.generate(response._links.check_url.href, {small: true})
 
         cli.action.start('Waiting for a Phone Check result')
@@ -91,9 +91,10 @@ export default class PhoneChecksCreate extends CommandWithProjectConfig {
 
           cli.action.stop()
 
+          this.log('')
           this.log(`Phone Check Workflow result:\n` +
-            `\tstatus: ${checkResponse.status}` +
-            `\tmatch: ${checkResponse.match}`)
+            `\tstatus:\t${checkResponse.status}\n` +
+            `\tmatch:\t${checkResponse.match} ${checkResponse.match?'✅':'❌'}`)
 
           this.exit(0)
         }
