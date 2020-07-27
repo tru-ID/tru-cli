@@ -18,7 +18,8 @@ describe('API: projects', () => {
 
     const apiConfig = new APIConfiguration({
         clientId: 'client_id',
-        clientSecret: 'client_secret', 
+        clientSecret: 'client_secret',
+        scopes: ['phone_check'],
         baseUrl: 'https://example.com/api'
     })
 
