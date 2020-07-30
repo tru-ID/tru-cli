@@ -181,6 +181,21 @@ npm run pack
 
 The installers will be built into the `./dist/{cli_name}-{version}` directory.
 
+### Release Installers
+
+To release the installers create a `.env` file with the following (including valid AWS credentils):
+
+```
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+```
+
+To upload to S3 run:
+
+```
+npm run aws:publish
+```
+
 ## Configuration
 
 Every run of the CLI will check to see if all required configuration is in place. This is achieved through a [hook](https://oclif.io/docs/hooks).

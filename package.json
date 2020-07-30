@@ -30,6 +30,7 @@
     "@types/mocha": "^5",
     "@types/node": "^10",
     "@types/sinon-chai": "^3.2.4",
+    "aws-sdk": "^2.721.0",
     "chai": "^4",
     "eslint": "^5.13",
     "eslint-config-oclif": "^3.1",
@@ -70,6 +71,16 @@
       "init": [
         "./lib/hooks/init/requireConfig"
       ]
+    },
+    "update": {
+      "dev_s3": {
+        "bucket": "4auth-cli-dev",
+        "acl": "private"
+      },
+      "s3": {
+        "bucket": "4auth-cli",
+        "acl": "private"
+      }
     }
   },
   "repository": "4auth/4auth-cli",
@@ -88,7 +99,8 @@
     "test": "jest",
     "version": "oclif-dev readme && git add README.md",
     "prerelease": "rm -f package-lock.json",
-    "release": "npm run version && standard-version"
+    "release": "npm run version && standard-version",
+    "aws:publish": "bin/aws-publish.sh"
   },
   "types": "lib/index.d.ts"
 }
