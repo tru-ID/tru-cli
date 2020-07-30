@@ -70,7 +70,7 @@ export default class PhoneChecksCreate extends CommandWithProjectConfig {
     }
     catch(error) {
       this.log('API Error:',
-              `${error.toString()} ${(error.response && error.response.data? JSON.stringify(error.response.data, null, '2') : '')}`)
+              `${error.toString()} ${(error.response && error.response.data? JSON.stringify(error.response.data, null, 2) : '')}`)
       this.exit(1)
     }
 
