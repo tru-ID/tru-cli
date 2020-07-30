@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 0.1.1 (2020-07-30)
+
+### Bug Fixes
+
+* Fix API error log formatting that indented with the number "2" instead of two characters
+
 ## 0.1.0 (2020-07-27)
 
 The first official early release of the 4Auth CLI 🎉

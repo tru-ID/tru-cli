@@ -167,7 +167,7 @@ Once the CHANGELOG and version in package.json are correct ensure the file updat
 ```bash
 $ git commit -m 'chore(release): v{current_version}'
   git tag v{{currentVersion}
-  git push v{{currentVersion}
+  git push origin v{{currentVersion}
   git push origin dev
 ```
 
