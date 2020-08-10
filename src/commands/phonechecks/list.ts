@@ -1,9 +1,7 @@
 import {ConsoleLogger, LogLevel} from '../../helpers/ConsoleLogger'
 import {APIConfiguration} from '../../api/APIConfiguration'
-import { PhoneChecksAPIClient, ICreatePhoneCheckResponse, PhoneCheckStatus, IPhoneCheckResource, IListPhoneCheckResponse } from '../../api/PhoneChecksAPIClient'
+import { PhoneChecksAPIClient, IPhoneCheckResource, IListPhoneCheckResponse } from '../../api/PhoneChecksAPIClient'
 import CommandWithProjectConfig from '../../helpers/CommandWithProjectConfig'
-
-import * as inquirer from 'inquirer'
 
 export default class PhoneChecksList extends CommandWithProjectConfig {
   static description = 'Lists details for all Phone Checks or a specific Phone Check if the a check-id argument is passed'
@@ -15,7 +13,7 @@ export default class PhoneChecksList extends CommandWithProjectConfig {
   static args = [
     {
         name: 'check_id',
-        required: false, // for now, only support listing a single Phone Check
+        required: false,
         description: 'The check_id for the Phone Check to list'
     }
   ]
