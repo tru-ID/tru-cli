@@ -27,12 +27,21 @@ export default class ProjectsList extends CommandWithGlobalConfig {
         description: 'The page size to return in list resource request. Ignored if the "project_id" argument is used.',
         default: 10
     })
+    static searchFlag = flags.string({
+        description: 'A RSQL search query. To ensure correct parsing put your query in quotes. For example "--search \'name=p*\'"'
+    })
+    static sortFlag = flags.string({
+        description: 'Sort query in the form "{parameter_name},{direction}". For example, "created_at,asc" or "created_at,desc".',
+        //default: 'created_at,asc' API current expects createdAt so no default at present
+    })
 
     static flags = {
         ...CommandWithGlobalConfig.flags,
         ...cli.table.flags(),
         page_number: ProjectsList.pageNumberFlag,
-        page_size: ProjectsList.pageSizeFlag
+        page_size: ProjectsList.pageSizeFlag,
+        search: ProjectsList.searchFlag,
+        sort: ProjectsList.sortFlag
     }
 
     logger?: ILogger
@@ -60,8 +69,6 @@ export default class ProjectsList extends CommandWithGlobalConfig {
             try {
                 singleResource = await projectsAPIClient.get(this.args.project_id)
 
-                this.logger.debug(JSON.stringify(singleResource, null, 2))
-
                 this.displayResults([singleResource])
             }
             catch (error) {
@@ -75,10 +82,10 @@ export default class ProjectsList extends CommandWithGlobalConfig {
             try {
                 listResource = await projectsAPIClient.list({
                     size: this.flags.page_size,
-                    page: this.flags.page_number
+                    page: this.flags.page_number,
+                    search: this.flags.search,
+                    sort: this.flags.sort
                 })
-
-                this.logger.debug(JSON.stringify(listResource, null, 2))
 
                 this.displayResults(listResource._embedded.projects)
                 this.displayPagination(listResource.page, 'Projects')

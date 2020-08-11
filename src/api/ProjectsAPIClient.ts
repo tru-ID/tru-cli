@@ -34,7 +34,9 @@ export interface IListProjectsResponse extends IListResource {
 
 export interface IListProjectsParameters {
     size?: number,
-    page?: number
+    page?: number,
+    search?: string,
+    sort?: string
 }
 
 export class ProjectsAPIClient extends AbstractAPIClient {
