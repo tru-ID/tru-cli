@@ -2,7 +2,7 @@ import {APIConfiguration} from './APIConfiguration'
 import ILogger from '../helpers/ILogger';
 import AbstractAPIClient from './AbstractAPIClient';
 import IAPICredentials from './IAPICredentails';
-import { IListResource, ILink } from './IListResource';
+import { IListResource, ILink, IListResourceParameters } from './IListResource';
 
 export interface ICreateProjectResponse {
     project_id: string
@@ -32,11 +32,7 @@ export interface IListProjectsResponse extends IListResource {
     }
 }
 
-export interface IListProjectsParameters {
-    size?: number,
-    page?: number,
-    search?: string,
-    sort?: string
+export interface IListProjectsParameters extends IListResourceParameters {
 }
 
 export class ProjectsAPIClient extends AbstractAPIClient {

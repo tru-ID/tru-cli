@@ -6,7 +6,7 @@ import { APIConfiguration } from '../../api/APIConfiguration'
 import { ProjectsAPIClient, IProjectResource, IListProjectsResponse } from '../../api/ProjectsAPIClient'
 import CommandWithGlobalConfig from '../../helpers/CommandWithGlobalConfig'
 import ILogger from '../../helpers/ILogger'
-import { IListResource, IPageNumbers } from '../../api/IListResource'
+import {displayPagination} from '../../helpers/ux'
 
 export default class ProjectsList extends CommandWithGlobalConfig {
     static description = 'Lists details for all Projects or a Projects that match a given criteria'
@@ -28,10 +28,10 @@ export default class ProjectsList extends CommandWithGlobalConfig {
         default: 10
     })
     static searchFlag = flags.string({
-        description: 'A RSQL search query. To ensure correct parsing put your query in quotes. For example "--search \'name=p*\'"'
+        description: 'A RSQL search query. To ensure correct parsing put your query in quotes. For example "--search \'name=p*\'". Ignored if the "check_id" argument is used.'
     })
     static sortFlag = flags.string({
-        description: 'Sort query in the form "{parameter_name},{direction}". For example, "created_at,asc" or "created_at,desc".',
+        description: 'Sort query in the form "{parameter_name},{direction}". For example, "created_at,asc" or "created_at,desc". Ignored if the "check_id" argument is used.',
         //default: 'created_at,asc' API current expects createdAt so no default at present
     })
 
@@ -88,7 +88,7 @@ export default class ProjectsList extends CommandWithGlobalConfig {
                 })
 
                 this.displayResults(listResource._embedded.projects)
-                this.displayPagination(listResource.page, 'Projects')
+                displayPagination(this.logger, listResource.page, 'Projects')
             }
             catch (error) {
                 this.log('API Error:',
@@ -121,15 +121,6 @@ export default class ProjectsList extends CommandWithGlobalConfig {
             printLine: (s: any) => { this.logger!.info(s) },
             ...this.flags, // parsed flags
         })
-    }
-
-    displayPagination(pagination: IPageNumbers, description: string) {
-        const startIndex = (pagination.number-1) * pagination.size
-        const start = Math.max(1, startIndex)
-        const end = (startIndex + pagination.size <= pagination.total_elements?startIndex + pagination.size:pagination.total_elements)
-        this.logger?.info('')
-        this.logger?.info(`${description}: ${start} to ${end} of ${pagination.total_elements}`)
-        this.logger?.info(`Page ${pagination.number} of ${pagination.total_pages}`)
     }
 
 }

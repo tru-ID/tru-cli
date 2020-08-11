@@ -50,7 +50,7 @@ export default class PhoneChecksCreate extends CommandWithProjectConfig {
       this.args.phone_number = response['phone_number']
     }
 
-    this.log(`Testing Phone Check for ${this.args.phone_number}`)
+    this.log(`Creating Phone Check for ${this.args.phone_number}`)
 
     const phoneCheckAPIClient = new PhoneChecksAPIClient(new APIConfiguration({
           clientId: this.projectConfig?.credentials[0].client_id,

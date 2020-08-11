@@ -7,14 +7,15 @@ import { IProjectConfiguration } from '../IProjectConfiguration'
 
 export default abstract class CommandWithProjectConfig extends CommandWithGlobalConfig {
 
-	static projectDirFlagName = 'project-dir'
+	static projectDirFlagName = 'project_dir'
+
+	static projectDirFlag = flags.string({
+		description: 'The directory that contains the 4auth.json Project configuration file'
+	})
 
 	static flags = {
 		...CommandWithGlobalConfig.flags,
-		'project-dir': flags.string({
-			description: 'The directory that contains the 4auth.json Project configuration file',
-		}),
-		
+		project_dir: CommandWithProjectConfig.projectDirFlag	
 	}
 
   	projectConfig?: IProjectConfiguration

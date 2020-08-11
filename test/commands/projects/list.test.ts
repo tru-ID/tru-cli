@@ -14,6 +14,8 @@ import { IProjectConfiguration } from '../../../src/IProjectConfiguration';
 import { APIConfiguration } from '../../../src/api/APIConfiguration';
 import {ConsoleLogger} from '../../../src/helpers/ConsoleLogger'
 
+import {buildConsoleString} from '../../test_helpers'
+
 describe('projects:list', () => {
 
 	let projectsApiClientConstructorStub:any
@@ -72,15 +74,6 @@ describe('projects:list', () => {
 			total_elements: 1,
 			total_pages: 1
 		}
-	}
-
-	const buildConsoleString = function(stub:any) {
-		let logs:string[] = []
-		for(let i = 0; i < stub.callCount; ++i) {
-			logs.push( stub.getCall(i).args.join(' ') )
-		}
-
-		return logs.join('\n')
 	}
 
 	beforeEach(() => {

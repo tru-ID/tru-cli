@@ -22,3 +22,10 @@ export interface IPageNumbers {
 export interface ILink {
     href: string
 }
+
+export interface IListResourceParameters {
+    size?: number,
+    page?: number,
+    search?: string,
+    sort?: string
+}

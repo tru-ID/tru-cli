@@ -23,7 +23,6 @@ let expectedUserConfig:IGlobalConfiguration = {
 
 let createPhoneCheckResponse:phoneCheckAPIClientModules.ICreatePhoneCheckResponse = {
     check_id: "c69bc0e6-a429-11ea-bb37-0242ac130002",
-    check_url: "https://example.com/check_url",
     status: phoneCheckAPIClientModules.PhoneCheckStatus.ACCEPTED,
     match: false,
     charge_amount: 1,
