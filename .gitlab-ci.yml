@@ -2,16 +2,32 @@ image: node:latest
 
 stages:
   - test
+  - build
 
-# cache:
-#   paths:
-#     - node_modules/
+# Cache modules in between jobs
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - .npm/
+    - node_modules/
+
+build_installers:
+  stage: build
+  only:
+    - dev
+    - main
+  artifacts:
+    paths:
+      - dist # all files
+  before_script:
+    - apt update
+    - apt install p7zip-full -y
+  script:
+    - yarn install
+    - yarn run pack
 
 unit_tests:
   stage: test
   script:
     - yarn install
     - yarn test
-  # artifacts:
-  #   paths:
-  #     - node_modules/
