@@ -106,6 +106,7 @@
     "x_posttest": "eslint . --ext .ts --config .eslintrc",
     "prepack": "rm -rf lib && tsc -b && oclif-dev manifest && oclif-dev readme",
     "test": "jest -w 3",
+    "test:coverage": "jest -w 3 --coverage --coverageDirectory coverage",
     "version": "oclif-dev readme && git add README.md",
     "prerelease": "rm -f package-lock.json",
     "release": "npm run version && standard-version",
