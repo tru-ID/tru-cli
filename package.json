@@ -63,6 +63,14 @@
   "license": "MIT",
   "main": "lib/index.js",
   "oclif": {
+    "topics": {
+      "projects": {
+        "description":"Manage your Projects within your Workspace"
+      },
+      "phonechecks": {
+        "description": "Manage Phone Checks within a Project"
+      }
+    },
     "commands": "./lib/commands",
     "bin": "4auth",
     "plugins": [
