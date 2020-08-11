@@ -97,7 +97,7 @@
     "pack": "oclif-dev pack",
     "x_posttest": "eslint . --ext .ts --config .eslintrc",
     "prepack": "rm -rf lib && tsc -b && oclif-dev manifest && oclif-dev readme",
-    "test": "jest",
+    "test": "jest -w 3",
     "version": "oclif-dev readme && git add README.md",
     "prerelease": "rm -f package-lock.json",
     "release": "npm run version && standard-version",
