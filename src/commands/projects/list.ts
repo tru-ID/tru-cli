@@ -1,18 +1,15 @@
+import { flags } from '@oclif/command'
 import { cli } from 'cli-ux'
 
 import { ConsoleLogger, LogLevel } from '../../helpers/ConsoleLogger'
 import { APIConfiguration } from '../../api/APIConfiguration'
 import { ProjectsAPIClient, IProjectResource, IListProjectsResponse } from '../../api/ProjectsAPIClient'
-import CommandWithProjectConfig from '../../helpers/CommandWithProjectConfig'
+import CommandWithGlobalConfig from '../../helpers/CommandWithGlobalConfig'
 import ILogger from '../../helpers/ILogger'
+import { IListResource, IPageNumbers } from '../../api/IListResource'
 
-export default class ProjectsList extends CommandWithProjectConfig {
+export default class ProjectsList extends CommandWithGlobalConfig {
     static description = 'Lists details for all Projects or a Projects that match a given criteria'
-
-    static flags = {
-        ...CommandWithProjectConfig.flags,
-        ...cli.table.flags()
-    }
 
     static args = [
         {
@@ -22,13 +19,28 @@ export default class ProjectsList extends CommandWithProjectConfig {
         }
     ]
 
+    static pageNumberFlag = flags.integer({
+        description: `The page number to return in the list resource. Ignored if the "project_id" argument is used.`,
+        default: 1
+    })
+    static pageSizeFlag = flags.integer({
+        description: 'The page size to return in list resource request. Ignored if the "project_id" argument is used.',
+        default: 10
+    })
+
+    static flags = {
+        ...CommandWithGlobalConfig.flags,
+        ...cli.table.flags(),
+        page_number: ProjectsList.pageNumberFlag,
+        page_size: ProjectsList.pageSizeFlag
+    }
+
     logger?: ILogger
 
     async run() {
         const result = this.parse(ProjectsList)
         this.args = result.args
         this.flags = result.flags
-        await this.loadConfig()
 
         // TODO: move to CommandWithGlobalConfig
         this.logger = new ConsoleLogger(!this.flags.debug ? LogLevel.info : LogLevel.debug)
@@ -61,14 +73,15 @@ export default class ProjectsList extends CommandWithProjectConfig {
         else {
             let listResource: IListProjectsResponse
             try {
-                listResource = await projectsAPIClient.list()
+                listResource = await projectsAPIClient.list({
+                    size: this.flags.page_size,
+                    page: this.flags.page_number
+                })
 
                 this.logger.debug(JSON.stringify(listResource, null, 2))
 
                 this.displayResults(listResource._embedded.projects)
                 this.displayPagination(listResource.page, 'Projects')
-
-                cli.table
             }
             catch (error) {
                 this.log('API Error:',
@@ -103,9 +116,12 @@ export default class ProjectsList extends CommandWithProjectConfig {
         })
     }
 
-    displayPagination(pagination: any, description: string) {
+    displayPagination(pagination: IPageNumbers, description: string) {
+        const startIndex = (pagination.number-1) * pagination.size
+        const start = Math.max(1, startIndex)
+        const end = (startIndex + pagination.size <= pagination.total_elements?startIndex + pagination.size:pagination.total_elements)
         this.logger?.info('')
-        this.logger?.info(`Total ${description}: ${pagination.total_elements}`)
+        this.logger?.info(`${description}: ${start} to ${end} of ${pagination.total_elements}`)
         this.logger?.info(`Page ${pagination.number} of ${pagination.total_pages}`)
     }
 

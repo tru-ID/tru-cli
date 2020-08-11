@@ -55,11 +55,11 @@ describe('projects:list', () => {
 
 	const projectsListResource:projectsAPIClientModules.IListProjectsResponse = {
 		_links: {
-			first: null,
-			last: null,
-			next: null,
-			prev: null,
-			self: null
+			first: {href:''},
+			last: {href:''},
+			next: {href:''},
+			prev: {href:''},
+			self: {href:''}
 		},
 		_embedded: {
 			projects: [
@@ -144,7 +144,7 @@ describe('projects:list', () => {
 			const consoleOutputString = buildConsoleString(consoleLoggerInfoStub)
 
 			expect(consoleOutputString).to.contain('Page 1 of 1')
-			expect(consoleOutputString).to.contain('Total Projects: 1')
+			expect(consoleOutputString).to.contain('Projects: 1 to 1 of 1')
 		})
 
 	test

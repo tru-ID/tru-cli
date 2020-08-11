@@ -2,7 +2,7 @@ import {APIConfiguration} from './APIConfiguration'
 import ILogger from '../helpers/ILogger';
 import AbstractAPIClient from './AbstractAPIClient';
 import IAPICredentials from './IAPICredentails';
-import { IPaginationLinks, ILink } from './IListResource';
+import { IListResource, ILink } from './IListResource';
 
 export interface ICreateProjectResponse {
     project_id: string
@@ -26,10 +26,15 @@ export interface IProjectResource {
     }    
 }
 
-export interface IListProjectsResponse extends IPaginationLinks {
+export interface IListProjectsResponse extends IListResource {
     _embedded: {
         projects: IProjectResource[]
     }
+}
+
+export interface IListProjectsParameters {
+    size?: number,
+    page?: number
 }
 
 export class ProjectsAPIClient extends AbstractAPIClient {
@@ -49,7 +54,7 @@ export class ProjectsAPIClient extends AbstractAPIClient {
         return response
     }
 
-    async list(params?:any) {
+    async list(params?:IListProjectsParameters) {
         const response:IListProjectsResponse =
             await this.httpClient.get<IListProjectsResponse>('/console/v0.1/projects', params, {})
         return response

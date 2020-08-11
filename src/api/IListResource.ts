@@ -1,18 +1,22 @@
-export interface IPaginationLinks {
-    _links: {
-        first: ILink,
-        last: ILink,
-        next: ILink,
-        prev: ILink,
-        self: ILink
-    }
+export interface IListResource {
+    _links: IPaginationLinks
 
-    page: {
-        size: number,
-        total_elements: number,
-        total_pages: number,
-        number: number
-    }
+    page: IPageNumbers
+}
+
+export interface IPaginationLinks {
+    first: ILink,
+    last: ILink,
+    next: ILink,
+    prev: ILink,
+    self: ILink
+}
+
+export interface IPageNumbers {
+    size: number,
+    total_elements: number,
+    total_pages: number,
+    number: number
 }
 
 export interface ILink {

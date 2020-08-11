@@ -32,7 +32,7 @@ export default class PhoneChecksCreate extends CommandWithProjectConfig {
     const result = this.parse(PhoneChecksCreate)
     this.args = result.args
     this.flags = result.flags
-    await this.loadConfig()
+    await this.loadProjectConfig()
 
     // TODO: move to CommandWithGlobalConfig
     const logger = new ConsoleLogger(!this.flags.debug? LogLevel.info : LogLevel.debug)

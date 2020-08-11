@@ -96,7 +96,7 @@ describe('phonechecks:create', () => {
   .command(['phonechecks:create', phoneNumberToTest])
   .exit(1)
   .it('an error is logged when the process.cwd() project configuration is not present', ctx => {
-    expect(ctx.stdout).to.contain(`A project configuration files does not exist at "${projectConfigFileLocation}"`)
+    expect(ctx.stdout).to.contain(`A project configuration file does not exist at "${projectConfigFileLocation}"`)
   })
 
   let customProjectConfigDirPath = 'alternative/path/to/'

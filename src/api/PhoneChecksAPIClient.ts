@@ -1,7 +1,7 @@
 import AbstractAPIClient from './AbstractAPIClient';
 import { APIConfiguration } from './APIConfiguration';
 import ILogger from '../helpers/ILogger';
-import { IPaginationLinks, ILink } from './IListResource';
+import { IListResource, ILink } from './IListResource';
 
 export interface ICreatePhoneCheckParameters {
     phone_number: string
@@ -39,7 +39,7 @@ export interface IPhoneCheckResource {
     }
 }
 
-export interface IListPhoneCheckResponse extends IPaginationLinks {
+export interface IListPhoneCheckResponse extends IListResource {
     _embedded: {
         checks: IPhoneCheckResource[]
     }
