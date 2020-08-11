@@ -2,6 +2,7 @@ import {APIConfiguration} from './APIConfiguration'
 import ILogger from '../helpers/ILogger';
 import AbstractAPIClient from './AbstractAPIClient';
 import IAPICredentials from './IAPICredentails';
+import { IPaginationLinks, ILink } from './IListResource';
 
 export interface ICreateProjectResponse {
     project_id: string
@@ -10,9 +11,7 @@ export interface ICreateProjectResponse {
     updated_at: string
     credentials: IAPICredentials[],
     _links: {
-        self: {
-            href: string
-        }
+        self: ILink
     }
 }
 
@@ -23,28 +22,13 @@ export interface IProjectResource {
     updated_at: string
     credentials: IAPICredentials[],
     _links: {
-        self: {
-            href: string
-        }
+        self: ILink
     }    
 }
 
-export interface IListProjectsResponse {
-    _links: {
-        first: any,
-        last: any,
-        next: any,
-        prev: any,
-        self: any
-    }
+export interface IListProjectsResponse extends IPaginationLinks {
     _embedded: {
         projects: IProjectResource[]
-    },
-    page: {
-        size: number,
-        total_elements: number,
-        total_pages: number,
-        number: number
     }
 }
 
