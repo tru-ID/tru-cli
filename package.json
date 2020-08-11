@@ -63,6 +63,14 @@
   "license": "MIT",
   "main": "lib/index.js",
   "oclif": {
+    "topics": {
+      "projects": {
+        "description":"Manage your Projects within your Workspace"
+      },
+      "phonechecks": {
+        "description": "Manage Phone Checks within a Project"
+      }
+    },
     "commands": "./lib/commands",
     "bin": "4auth",
     "plugins": [
@@ -97,7 +105,8 @@
     "pack": "oclif-dev pack",
     "x_posttest": "eslint . --ext .ts --config .eslintrc",
     "prepack": "rm -rf lib && tsc -b && oclif-dev manifest && oclif-dev readme",
-    "test": "jest",
+    "test": "jest -w 3",
+    "test:coverage": "jest -w 3 --coverage --coverageDirectory coverage",
     "version": "oclif-dev readme && git add README.md",
     "prerelease": "rm -f package-lock.json",
     "release": "npm run version && standard-version",

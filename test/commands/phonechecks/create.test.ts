@@ -23,7 +23,6 @@ let expectedUserConfig:IGlobalConfiguration = {
 
 let createPhoneCheckResponse:phoneCheckAPIClientModules.ICreatePhoneCheckResponse = {
     check_id: "c69bc0e6-a429-11ea-bb37-0242ac130002",
-    check_url: "https://example.com/check_url",
     status: phoneCheckAPIClientModules.PhoneCheckStatus.ACCEPTED,
     match: false,
     charge_amount: 1,
@@ -96,7 +95,7 @@ describe('phonechecks:create', () => {
   .command(['phonechecks:create', phoneNumberToTest])
   .exit(1)
   .it('an error is logged when the process.cwd() project configuration is not present', ctx => {
-    expect(ctx.stdout).to.contain(`A project configuration files does not exist at "${projectConfigFileLocation}"`)
+    expect(ctx.stdout).to.contain(`A project configuration file does not exist at "${projectConfigFileLocation}"`)
   })
 
   let customProjectConfigDirPath = 'alternative/path/to/'

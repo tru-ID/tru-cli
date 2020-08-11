@@ -12,6 +12,9 @@ import * as phoneCheckAPIClientModules from '../../../src/api/PhoneChecksAPIClie
 import IGlobalConfiguration from '../../../src/IGlobalConfiguration';
 import { IProjectConfiguration } from '../../../src/IProjectConfiguration';
 import { APIConfiguration } from '../../../src/api/APIConfiguration';
+import {ConsoleLogger} from '../../../src/helpers/ConsoleLogger'
+
+import {buildConsoleString} from '../../test_helpers'
 
 describe('phonechecks:list', () => {
 
@@ -19,6 +22,7 @@ describe('phonechecks:list', () => {
 	let phoneChecksApiClientListStub:any
 	let phoneChecksApiClientGetStub:any
 	let readJsonStub:any
+	let consoleLoggerInfoStub:any
 
 	let expectedUserConfig:IGlobalConfiguration = {
 		defaultWorkspaceClientId: 'my client id',
@@ -42,6 +46,45 @@ describe('phonechecks:list', () => {
 		]
 	}
 
+	const phoneCheckResource: phoneCheckAPIClientModules.IPhoneCheckResource = {
+		_links: {
+			self: {
+				href: 'https://us.api.4auth.io/phone_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002'
+			},
+			check_url: {
+				href: 'https://us.api.4auth.io/phone_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002/redirect' 
+			}
+		},
+		charge_amount: 1,
+		charge_currency: 'API',
+		check_id: 'c69bc0e6-a429-11ea-bb37-0242ac130002',
+		created_at: '2020-06-01T16:43:30+00:00',
+		match: false,
+		status: phoneCheckAPIClientModules.PhoneCheckStatus.ACCEPTED,
+		ttl: 60
+	}
+
+	const projectListResource: phoneCheckAPIClientModules.IListPhoneCheckResponse = {
+		_embedded: {
+			checks: [
+				phoneCheckResource
+			]
+		},
+		_links: {
+			first: {href:''},
+			last: {href:''},
+			next: {href:''},
+			prev: {href:''},
+			self: {href:''}
+		},
+		page: {
+			number: 1,
+			size: 1,
+			total_elements: 1,
+			total_pages: 1
+		}
+	}
+
 	beforeEach(() => {
 		sinon.default.stub(fs, 'existsSync').withArgs(sinon.default.match(new RegExp(/config.json/))).returns(true)
 
@@ -57,9 +100,13 @@ describe('phonechecks:list', () => {
 
 		phoneChecksApiClientListStub =
 			sinon.default.stub(phoneCheckAPIClientModules.PhoneChecksAPIClient.prototype, 'list')
+		phoneChecksApiClientListStub.resolves(projectListResource)
 		
 		phoneChecksApiClientGetStub =
 			sinon.default.stub(phoneCheckAPIClientModules.PhoneChecksAPIClient.prototype, 'get')
+		phoneChecksApiClientGetStub.resolves(phoneCheckResource)
+
+		consoleLoggerInfoStub = sinon.default.stub(ConsoleLogger.prototype, 'info')
 	})
 
 	afterEach(() => {
@@ -87,5 +134,53 @@ describe('phonechecks:list', () => {
 		.command(['phonechecks:list', 'check_id_value'])
 		.it('should call PhoneChecksAPIClient.get(checkId) if optional check_id argment is supplied', ctx => {
 			expect(phoneChecksApiClientGetStub).to.be.calledWith('check_id_value')
+		})
+
+	test
+		.command(['phonechecks:list'])
+		.it('should contain header table output', (ctx) => {
+			const consoleOutputString = buildConsoleString(consoleLoggerInfoStub)
+
+			expect(consoleOutputString).to.contain('ID')
+			expect(consoleOutputString).to.contain('Created at')
+			expect(consoleOutputString).to.contain('Status')
+			expect(consoleOutputString).to.contain('Match')
+			expect(consoleOutputString).to.contain('Currency')
+			expect(consoleOutputString).to.contain('Amount')
+		})
+
+	test
+		.command(['phonechecks:list'])
+		.it('should contain pagination output', (ctx) => {
+			const consoleOutputString = buildConsoleString(consoleLoggerInfoStub)
+
+			expect(consoleOutputString).to.contain('Page 1 of 1')
+			expect(consoleOutputString).to.contain('Phone Checks: 1 to 1 of 1')
+		})
+
+	test
+		.command(['phonechecks:list'])
+		.it('outputs resource list to cli.table', (ctx) => {
+			const consoleOutputString = buildConsoleString(consoleLoggerInfoStub)
+
+			expect(consoleOutputString).to.contain(phoneCheckResource.check_id)
+			expect(consoleOutputString).to.contain(phoneCheckResource.created_at)
+			expect(consoleOutputString).to.contain(phoneCheckResource.charge_amount)
+			expect(consoleOutputString).to.contain(phoneCheckResource.charge_currency)
+			expect(consoleOutputString).to.contain(phoneCheckResource.match)
+			expect(consoleOutputString).to.contain(phoneCheckResource.status)
+		})
+
+	test
+		.command(['phonechecks:list', 'check_id_value'])
+		.it('outputs result of a single resource to cli.table', (ctx) => {
+			const consoleOutputString = buildConsoleString(consoleLoggerInfoStub)
+
+			expect(consoleOutputString).to.contain(phoneCheckResource.check_id)
+			expect(consoleOutputString).to.contain(phoneCheckResource.created_at)
+			expect(consoleOutputString).to.contain(phoneCheckResource.charge_amount)
+			expect(consoleOutputString).to.contain(phoneCheckResource.charge_currency)
+			expect(consoleOutputString).to.contain(phoneCheckResource.match)
+			expect(consoleOutputString).to.contain(phoneCheckResource.status)
 		})
 })

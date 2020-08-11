@@ -32,7 +32,7 @@ export default class PhoneChecksCreate extends CommandWithProjectConfig {
     const result = this.parse(PhoneChecksCreate)
     this.args = result.args
     this.flags = result.flags
-    await this.loadConfig()
+    await this.loadProjectConfig()
 
     // TODO: move to CommandWithGlobalConfig
     const logger = new ConsoleLogger(!this.flags.debug? LogLevel.info : LogLevel.debug)
@@ -50,7 +50,7 @@ export default class PhoneChecksCreate extends CommandWithProjectConfig {
       this.args.phone_number = response['phone_number']
     }
 
-    this.log(`Testing Phone Check for ${this.args.phone_number}`)
+    this.log(`Creating Phone Check for ${this.args.phone_number}`)
 
     const phoneCheckAPIClient = new PhoneChecksAPIClient(new APIConfiguration({
           clientId: this.projectConfig?.credentials[0].client_id,

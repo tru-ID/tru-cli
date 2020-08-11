@@ -1,20 +1,38 @@
 import {APIConfiguration} from './APIConfiguration'
-import {HttpClient} from './HttpClient'
 import ILogger from '../helpers/ILogger';
 import AbstractAPIClient from './AbstractAPIClient';
 import IAPICredentials from './IAPICredentails';
+import { IListResource, ILink, IListResourceParameters } from './IListResource';
 
 export interface ICreateProjectResponse {
-        project_id: string
-        name: string
-        created_at: string
-        updated_at: string
-        credentials: IAPICredentials[],
-        _links: {
-        self: {
-            href: string
-        }
+    project_id: string
+    name: string
+    created_at: string
+    updated_at: string
+    credentials: IAPICredentials[],
+    _links: {
+        self: ILink
     }
+}
+
+export interface IProjectResource {
+    project_id: string
+    name: string
+    created_at: string
+    updated_at: string
+    credentials: IAPICredentials[],
+    _links: {
+        self: ILink
+    }    
+}
+
+export interface IListProjectsResponse extends IListResource {
+    _embedded: {
+        projects: IProjectResource[]
+    }
+}
+
+export interface IListProjectsParameters extends IListResourceParameters {
 }
 
 export class ProjectsAPIClient extends AbstractAPIClient {
@@ -28,8 +46,16 @@ export class ProjectsAPIClient extends AbstractAPIClient {
         return response
     }
 
-    list() {
-        throw new Error('Not implemeneted in the CLI')
+    async get(projectId:string): Promise<IProjectResource> {
+        const response:IProjectResource =
+            await this.httpClient.get<IProjectResource>(`/console/v0.1/projects/${projectId}`, {}, {})
+        return response
+    }
+
+    async list(params?:IListProjectsParameters) {
+        const response:IListProjectsResponse =
+            await this.httpClient.get<IListProjectsResponse>('/console/v0.1/projects', params, {})
+        return response
     }
 
     update() {
