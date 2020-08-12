@@ -102,25 +102,30 @@ export default class PhoneChecksList extends CommandWithProjectConfig {
   displayResults(resources: IPhoneCheckResource[]) {
     cli.table(resources, {
         check_id: {
-          header: 'ID'
+          header: 'check_id'
         },
         created_at: {
+          header: 'created_at'
         },
         status: {
+          header: 'status'
         },
         match: {
+          header: 'match'
         },
         charge_currency: {
-          header: 'Currency'
+          header: 'charge_currency'
         },
         charge_amount: {
-          header: 'Amount'
+          header: 'charge_amount'
         },
         updated_at: {
+          header: 'updated_at',
           extended: true
         },
         url: {
           extended: true,
+          header: '_links.self.href',
           get: row => row._links.self.href
       }
     }, {

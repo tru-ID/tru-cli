@@ -102,18 +102,21 @@ export default class ProjectsList extends CommandWithGlobalConfig {
         cli.table(resources, {
             name: {
                 minWidth: 12,
+                header: 'name'
             },
             project_id: {
-                header: 'ID'
+                header: 'project_id'
             },
             created_at: {
+                header: 'created_at'
             },
             credentials_client_id: {
-                header: '1st Credentials client_id',
+                header: 'credentials[0].client_id',
                 extended: true,
                 get: row => row.credentials[0].client_id
             },
             url: {
+                header: '_links.self.href',
                 extended: true,
                 get: row => row._links.self.href
             }

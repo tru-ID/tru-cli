@@ -126,9 +126,9 @@ describe('projects:list', () => {
 		.it('should contain header table output', (ctx) => {
 			const consoleOutputString = buildConsoleString(consoleLoggerInfoStub)
 
-			expect(consoleOutputString).to.contain('Name')
-			expect(consoleOutputString).to.contain('ID')
-			expect(consoleOutputString).to.contain('Created at')
+			expect(consoleOutputString).to.contain('name')
+			expect(consoleOutputString).to.contain('project_id')
+			expect(consoleOutputString).to.contain('created_at')
 		})
 
 	test
