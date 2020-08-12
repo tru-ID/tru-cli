@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 const { lookpath } = require('lookpath')
 
 async function run() {
