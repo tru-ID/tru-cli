@@ -100,7 +100,7 @@
     }
   },
   "scripts": {
-    "postinstall": "node bin/postinstall",
+    "postinstall": "node bin/postinstall.js",
     "postpack": "rm -f oclif.manifest.json",
     "pack": "oclif-dev pack",
     "x_posttest": "eslint . --ext .ts --config .eslintrc",
@@ -110,7 +110,8 @@
     "version": "oclif-dev readme && git add README.md",
     "prerelease": "rm -f package-lock.json",
     "release": "npm run version && standard-version",
-    "aws:publish": "bin/aws-publish.sh"
+    "dev_version_suffix": "node scripts/dev_version_suffix.js",
+    "aws:publish": "scripts/aws-publish.sh"
   },
   "types": "lib/index.d.ts"
 }
