@@ -141,12 +141,12 @@ describe('phonechecks:list', () => {
 		.it('should contain header table output', (ctx) => {
 			const consoleOutputString = buildConsoleString(consoleLoggerInfoStub)
 
-			expect(consoleOutputString).to.contain('ID')
-			expect(consoleOutputString).to.contain('Created at')
-			expect(consoleOutputString).to.contain('Status')
-			expect(consoleOutputString).to.contain('Match')
-			expect(consoleOutputString).to.contain('Currency')
-			expect(consoleOutputString).to.contain('Amount')
+			expect(consoleOutputString).to.contain('check_id')
+			expect(consoleOutputString).to.contain('created_at')
+			expect(consoleOutputString).to.contain('status')
+			expect(consoleOutputString).to.contain('match')
+			expect(consoleOutputString).to.contain('charge_currency')
+			expect(consoleOutputString).to.contain('charge_amount')
 		})
 
 	test
