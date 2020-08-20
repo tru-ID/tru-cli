@@ -1,4 +1,4 @@
-import {Command, flags} from '@oclif/command'
+import {flags} from '@oclif/command'
 import {ConsoleLogger, LogLevel} from '../../helpers/ConsoleLogger'
 import {APIConfiguration} from '../../api/APIConfiguration'
 import { PhoneChecksAPIClient, ICreatePhoneCheckResponse, PhoneCheckStatus, IPhoneCheckResource } from '../../api/PhoneChecksAPIClient'
@@ -8,6 +8,7 @@ import cli from 'cli-ux'
 import * as qrcode from 'qrcode-terminal'
 
 import * as inquirer from 'inquirer'
+import ILogger from '../../helpers/ILogger'
 
 export default class PhoneChecksCreate extends CommandWithProjectConfig {
   static description = 'Creates a Phone Check'
@@ -28,6 +29,8 @@ export default class PhoneChecksCreate extends CommandWithProjectConfig {
     }
   ]
 
+  logger?: ILogger
+
   async run() {
     const result = this.parse(PhoneChecksCreate)
     this.args = result.args
@@ -35,8 +38,8 @@ export default class PhoneChecksCreate extends CommandWithProjectConfig {
     await this.loadProjectConfig()
 
     // TODO: move to CommandWithGlobalConfig
-    const logger = new ConsoleLogger(!this.flags.debug? LogLevel.info : LogLevel.debug)
-    logger.debug('--debug', true)
+    this.logger = new ConsoleLogger(!this.flags.debug? LogLevel.info : LogLevel.debug)
+    this.logger.debug('--debug', true)
 
     if(this.args.phone_number === undefined) {
       const response = await inquirer.prompt([
@@ -58,7 +61,7 @@ export default class PhoneChecksCreate extends CommandWithProjectConfig {
           scopes: ['phone_check'],
           baseUrl: this.globalConfig?.apiBaseUrlOverride ?? `https://${this.globalConfig?.defaultWorkspaceDataResidency}.api.4auth.io`
       }),
-      logger
+      this.logger
     )
 
     let response:ICreatePhoneCheckResponse;
@@ -82,12 +85,16 @@ export default class PhoneChecksCreate extends CommandWithProjectConfig {
         this.log('')
         this.log(`Ensure the mobile phone with the phone number ${this.args.phone_number} is not connected to WiFi and is using your mobile data connection. ` +
         'Then scan the QR code and navigate to the check_url.')
-        qrcode.generate(response._links.check_url.href, {small: true})
+
+        const qrCodeUrl: string = this.globalConfig?.qrCodeUrlHandlerOverride ?? `http://r.4auth.io?u={CHECK_URL}`
+        const qrCodePopulatedUrl: string = qrCodeUrl.replace('{CHECK_URL}', `${encodeURIComponent(response._links.check_url.href)}`)
+        this.logger.debug('QR Code Link Handler:', qrCodePopulatedUrl)
+        qrcode.generate(qrCodePopulatedUrl, {small: true})
 
         cli.action.start('Waiting for a Phone Check result')
 
         try {
-          const checkResponse = await PhoneChecksCreate.waitForFinalPhoneCheckState(phoneCheckAPIClient, response)
+          const checkResponse = await this.waitForFinalPhoneCheckState(phoneCheckAPIClient, response)
 
           cli.action.stop()
 
@@ -95,8 +102,6 @@ export default class PhoneChecksCreate extends CommandWithProjectConfig {
           this.log(`Phone Check Workflow result:\n` +
             `\tstatus:\t${checkResponse.status}\n` +
             `\tmatch:\t${checkResponse.match} ${checkResponse.match?'✅':'❌'}`)
-
-          this.exit(0)
         }
         catch(error) {
           cli.action.stop(`The Phone Check match did not complete within ${response.ttl} seconds.`)
@@ -111,8 +116,9 @@ export default class PhoneChecksCreate extends CommandWithProjectConfig {
 
   }
 
-  static async waitForFinalPhoneCheckState(phoneCheckAPIClient:PhoneChecksAPIClient, phoneCheck:IPhoneCheckResource): Promise<IPhoneCheckResource> {
-    return new Promise((resolve, reject) => {
+  async waitForFinalPhoneCheckState(phoneCheckAPIClient:PhoneChecksAPIClient, phoneCheck:IPhoneCheckResource): Promise<IPhoneCheckResource> {
+    const pollingInterval = this.globalConfig?.phoneCheckWorkflowRetryMillisecondsOverride ?? 5000
+    return new Promise((resolve) => {
     
       let checkResponse:IPhoneCheckResource
       
@@ -125,17 +131,16 @@ export default class PhoneChecksCreate extends CommandWithProjectConfig {
         cli.action.status = `Phone Check expires in ${expiresInSeconds} seconds`
 
         if(checkResponse.status == PhoneCheckStatus.COMPLETED ||
-          checkResponse.status == PhoneCheckStatus.ERROR) {
+          checkResponse.status == PhoneCheckStatus.EXPIRED ||
+          checkResponse.status == PhoneCheckStatus.ERROR ||
+          expiresInSeconds <= 0) {
             cli.action.stop()
 
             resolve(checkResponse)
 
             clearInterval(intervalId)
         }
-        else if(expiresInSeconds <= 0 || checkResponse.status == PhoneCheckStatus.EXPIRED) {
-          reject('Phone Check has expired')
-        }
-      }, 5000)
+      }, pollingInterval)
     })
 
   }
