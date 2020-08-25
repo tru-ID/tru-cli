@@ -96,7 +96,8 @@
   "standard-version": {
     "skip": {
       "commit": true,
-      "tag": true
+      "tag": true,
+      "bump": true
     }
   },
   "scripts": {
@@ -109,7 +110,7 @@
     "test:coverage": "jest -w 3 --coverage --coverageDirectory coverage",
     "version": "oclif-dev readme && git add README.md",
     "prerelease": "rm -f package-lock.json",
-    "release": "npm run version && standard-version",
+    "release": "npm run version && standard-version --",
     "dev_version_suffix": "node scripts/dev_version_suffix.js",
     "aws:publish": "scripts/aws-publish.sh"
   },
