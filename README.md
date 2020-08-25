@@ -23,7 +23,7 @@ $ npm install -g 4auth-cli
 $ 4auth COMMAND
 running command...
 $ 4auth (-v|--version|version)
-4auth-cli/0.1.1 darwin-x64 node-v14.4.0
+4auth-cli/0.2.0 darwin-x64 node-v14.4.0
 $ 4auth --help [COMMAND]
 USAGE
   $ 4auth COMMAND
@@ -36,6 +36,8 @@ USAGE
 * [`4auth phonechecks:create [PHONE_NUMBER]`](#4auth-phonecheckscreate-phone_number)
 * [`4auth phonechecks:list [CHECK_ID]`](#4auth-phonecheckslist-check_id)
 * [`4auth projects:create [NAME]`](#4auth-projectscreate-name)
+* [`4auth projects:list [PROJECT_ID]`](#4auth-projectslist-project_id)
+* [`4auth workspaces`](#4auth-workspaces)
 
 ## `4auth help [COMMAND]`
 
@@ -68,11 +70,11 @@ ARGUMENTS
 OPTIONS
   -h, --help                 show CLI help
   --debug                    Enables debug logging for the CLI
-  --project-dir=project-dir  The directory that contains the 4auth.json Project configuration file
+  --project_dir=project_dir  The directory that contains the 4auth.json Project configuration file
   --workflow                 Execute the Phone Check Workflow from the CLI
 ```
 
-_See code: [src/commands/phonechecks/create.ts](https://github.com/4auth/4auth-cli/blob/v0.1.1/src/commands/phonechecks/create.ts)_
+_See code: [src/commands/phonechecks/create.ts](https://github.com/4auth/4auth-cli/blob/v0.2.0/src/commands/phonechecks/create.ts)_
 
 ## `4auth phonechecks:list [CHECK_ID]`
 
@@ -87,11 +89,31 @@ ARGUMENTS
 
 OPTIONS
   -h, --help                 show CLI help
+  -x, --extended             show extra columns
+  --columns=columns          only show provided columns (comma-separated)
+  --csv                      output is csv format [alias: --output=csv]
   --debug                    Enables debug logging for the CLI
-  --project-dir=project-dir  The directory that contains the 4auth.json Project configuration file
+  --filter=filter            filter property by partial string matching, ex: name=foo
+  --no-header                hide table header from output
+  --no-truncate              do not truncate output to fit screen
+  --output=csv|json|yaml     output in a more machine friendly format
+
+  --page_number=page_number  [default: 1] The page number to return in the list resource. Ignored if the "check_id"
+                             argument is used.
+
+  --page_size=page_size      [default: 10] The page size to return in list resource request. Ignored if the "check_id"
+                             argument is used.
+
+  --project_dir=project_dir  The directory that contains the 4auth.json Project configuration file
+
+  --search=search            A RSQL search query. To ensure correct parsing put your query in quotes. For example
+                             "--search 'status==COMPLETED'". Ignored if the "check_id" argument is used.
+
+  --sort=sort                Sort query in the form "{parameter_name},{direction}". For example, "created_at,asc" or
+                             "created_at,desc". Ignored if the "check_id" argument is used.
 ```
 
-_See code: [src/commands/phonechecks/list.ts](https://github.com/4auth/4auth-cli/blob/v0.1.1/src/commands/phonechecks/list.ts)_
+_See code: [src/commands/phonechecks/list.ts](https://github.com/4auth/4auth-cli/blob/v0.2.0/src/commands/phonechecks/list.ts)_
 
 ## `4auth projects:create [NAME]`
 
@@ -107,7 +129,7 @@ ARGUMENTS
 OPTIONS
   -h, --help                 show CLI help
   --debug                    Enables debug logging for the CLI
-  --project-dir=project-dir  The directory that contains the 4auth.json Project configuration file
+  --project_dir=project_dir  The directory that contains the 4auth.json Project configuration file
 
 EXAMPLE
   $ 4auth project:create
@@ -115,7 +137,62 @@ EXAMPLE
   Creating Project "My first project"
 ```
 
-_See code: [src/commands/projects/create.ts](https://github.com/4auth/4auth-cli/blob/v0.1.1/src/commands/projects/create.ts)_
+_See code: [src/commands/projects/create.ts](https://github.com/4auth/4auth-cli/blob/v0.2.0/src/commands/projects/create.ts)_
+
+## `4auth projects:list [PROJECT_ID]`
+
+Lists details for all Projects or a Projects that match a given criteria
+
+```
+USAGE
+  $ 4auth projects:list [PROJECT_ID]
+
+ARGUMENTS
+  PROJECT_ID  The project_id for the Project to retrieve
+
+OPTIONS
+  -h, --help                 show CLI help
+  -x, --extended             show extra columns
+  --columns=columns          only show provided columns (comma-separated)
+  --csv                      output is csv format [alias: --output=csv]
+  --debug                    Enables debug logging for the CLI
+  --filter=filter            filter property by partial string matching, ex: name=foo
+  --no-header                hide table header from output
+  --no-truncate              do not truncate output to fit screen
+  --output=csv|json|yaml     output in a more machine friendly format
+
+  --page_number=page_number  [default: 1] The page number to return in the list resource. Ignored if the "project_id"
+                             argument is used.
+
+  --page_size=page_size      [default: 10] The page size to return in list resource request. Ignored if the "project_id"
+                             argument is used.
+
+  --search=search            A RSQL search query. To ensure correct parsing put your query in quotes. For example
+                             "--search 'name=p*'". Ignored if the "check_id" argument is used.
+
+  --sort=sort                Sort query in the form "{parameter_name},{direction}". For example, "created_at,asc" or
+                             "created_at,desc". Ignored if the "check_id" argument is used.
+```
+
+_See code: [src/commands/projects/list.ts](https://github.com/4auth/4auth-cli/blob/v0.2.0/src/commands/projects/list.ts)_
+
+## `4auth workspaces`
+
+Displays default workspace information
+
+```
+USAGE
+  $ 4auth workspaces
+
+OPTIONS
+  -h, --help              show CLI help
+  --debug                 Enables debug logging for the CLI
+  --no-header             hide table header from output
+  --no-truncate           do not truncate output to fit screen
+  --output=csv|json|yaml  output in a more machine friendly format
+```
+
+_See code: [src/commands/workspaces/index.ts](https://github.com/4auth/4auth-cli/blob/v0.2.0/src/commands/workspaces/index.ts)_
 <!-- commandsstop -->
 
 # Development
@@ -160,7 +237,26 @@ For example:
 $ npm run release -- --dry-run
 ```
 
-### Build Installers
+### Commit and Tag
+
+If all goes well, we're ready to mark the release as complete.
+
+Once the CHANGELOG and version in package.json are correct ensure the file updates are staged and run the following replacing `current_version` with the version of the CLI being released:
+
+```bash
+$ git commit -m 'chore(release): v{current_version}'
+  git tag v{{currentVersion}
+  git push origin v{{currentVersion}
+  git push origin dev
+```
+
+### Build & Release
+
+Merge `dev` into `main` to release and the installers are automatically build and uploaded to AWS.
+
+#### Manual Build & Release process
+
+##### Build Installers
 
 To create the `tar.gz` installers run:
 
@@ -170,7 +266,7 @@ npm run pack
 
 The installers will be built into the `./dist/{cli_name}-{version}` directory.
 
-### Release Installers
+##### Release Installers
 
 To release the installers create a `.env` file with the following (including valid AWS credentils):
 
@@ -183,19 +279,6 @@ To upload to S3 run:
 
 ```
 npm run aws:publish
-```
-
-### Commit and Tag
-
-If all goes well, we're ready to mark the release as complete.
-
-Once the CHANGELOG and version in package.json are correct ensure the file updates are staged and run the following replacing `current_version` with the version of the CLI being released:
-
-```bash
-$ git commit -m 'chore(release): v{current_version}'
-  git tag v{{currentVersion}
-  git push origin v{{currentVersion}
-  git push origin dev
 ```
 
 ## Configuration

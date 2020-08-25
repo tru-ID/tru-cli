@@ -1,7 +1,7 @@
 {
   "name": "4auth-cli",
   "description": "The 4Auth CLI",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "author": "Phil Leggetter @leggetter",
   "bin": {
     "4auth": "./bin/run"
@@ -17,7 +17,8 @@
     "inquirer": "^7.2.0",
     "lookpath": "^1.1.0",
     "qrcode-terminal": "^0.12.0",
-    "tslib": "^1"
+    "tslib": "^1",
+    "yarn": "^1.22.4"
   },
   "devDependencies": {
     "@oclif/dev-cli": "^1",
@@ -62,6 +63,14 @@
   "license": "MIT",
   "main": "lib/index.js",
   "oclif": {
+    "topics": {
+      "projects": {
+        "description": "Manage your Projects within your Workspace"
+      },
+      "phonechecks": {
+        "description": "Manage Phone Checks within a Project"
+      }
+    },
     "commands": "./lib/commands",
     "bin": "4auth",
     "plugins": [
@@ -87,20 +96,23 @@
   "standard-version": {
     "skip": {
       "commit": true,
-      "tag": true
+      "tag": true,
+      "bump": true
     }
   },
   "scripts": {
-    "postinstall": "bin/postinstall.js",
+    "postinstall": "node bin/postinstall.js",
     "postpack": "rm -f oclif.manifest.json",
     "pack": "oclif-dev pack",
     "x_posttest": "eslint . --ext .ts --config .eslintrc",
     "prepack": "rm -rf lib && tsc -b && oclif-dev manifest && oclif-dev readme",
-    "test": "jest",
+    "test": "jest -w 3",
+    "test:coverage": "jest -w 3 --coverage --coverageDirectory coverage",
     "version": "oclif-dev readme && git add README.md",
     "prerelease": "rm -f package-lock.json",
-    "release": "npm run version && standard-version",
-    "aws:publish": "bin/aws-publish.sh"
+    "release": "npm run version && standard-version --",
+    "dev_version_suffix": "node scripts/dev_version_suffix.js",
+    "aws:publish": "scripts/aws-publish.sh"
   },
   "types": "lib/index.d.ts"
 }

@@ -1,6 +1,7 @@
 import AbstractAPIClient from './AbstractAPIClient';
 import { APIConfiguration } from './APIConfiguration';
 import ILogger from '../helpers/ILogger';
+import { IListResource, ILink, IListResourceParameters } from './IListResource';
 
 export interface ICreatePhoneCheckParameters {
     phone_number: string
@@ -18,19 +19,14 @@ export interface ICreatePhoneCheckResponse extends IPhoneCheckResource {
     status: PhoneCheckStatus.ACCEPTED | PhoneCheckStatus.ERROR
     match: false
     _links: {
-        self: {
-            href: string
-        },
-        check_url: {
-            href: string
-        }
+        self: ILink,
+        check_url: ILink
     }
     snapshot_balance: number
 }
 
 export interface IPhoneCheckResource {
     check_id: string
-    check_url: string
     status: PhoneCheckStatus
     match: boolean
     charge_amount: number
@@ -38,30 +34,18 @@ export interface IPhoneCheckResource {
     created_at: string
     ttl: number
     _links: {
-        self: {
-            href: string
-        }
+        self: ILink,
+        check_url: ILink
     }
 }
 
-export interface IListPhoneCheckResponse {
-    _links: {
-        first: any,
-        last: any,
-        next: any,
-        prev: any,
-        self: any
-    }
+export interface IListPhoneCheckResponse extends IListResource {
     _embedded: {
         checks: IPhoneCheckResource[]
     }
 }
 
-export interface IListPhoneCheckParameters {
-    check_id: string
-    status: PhoneCheckStatus
-    match: boolean
-    created_at: string
+export interface IListPhoneCheckParameters extends IListResourceParameters {
 }
 
 export class PhoneChecksAPIClient extends AbstractAPIClient {

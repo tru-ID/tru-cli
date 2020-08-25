@@ -2,16 +2,51 @@ image: node:latest
 
 stages:
   - test
+  - build
+  - publish
 
-# cache:
-#   paths:
-#     - node_modules/
+# Cache modules in between jobs
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - node_modules/
 
 unit_tests:
   stage: test
   script:
     - yarn install
     - yarn test
-  # artifacts:
-  #   paths:
-  #     - node_modules/
+    
+build_installers:
+  stage: build
+  only:
+    - dev
+    - main
+    - ci-publish-test
+  artifacts:
+    paths:
+      - dist # all files
+  before_script:
+    - apt update
+    - apt install p7zip-full -y
+  script:
+    - yarn install
+    - yarn run dev_version_suffix
+    - yarn run pack
+
+publish_installers:
+  stage: publish
+  only:
+    - dev
+    - main
+    - ci-publish-test
+  dependencies:
+    - build_installers
+  needs:
+    - job: build_installers
+      artifacts: true
+  script:
+    - ls dist
+    - yarn install
+    - yarn run dev_version_suffix
+    - yarn run aws:publish
