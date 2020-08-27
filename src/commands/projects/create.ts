@@ -99,6 +99,10 @@ Creating Project "My first project"
         // See https://oclif.io/docs/running_programmatically
         // The approach below of using `.run` is not recommended
         if(this.flags.quickstart) {
+          this.log('')
+          this.log('Ok, let\'s run your first Phone Check!')
+          this.log('')
+
           const phoneCheckRunParams = [`--${CommandWithProjectConfig.projectDirFlagName}`, pathToProjectDirectory, '--workflow']
           if(this.flags.debug) {
             phoneCheckRunParams.push('--debug')
