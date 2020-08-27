@@ -196,7 +196,9 @@ describe('phonechecks:create', () => {
       {
         name: 'phone_number',
         message: 'Please enter the phone number you would like to Phone Check',
-        type: 'input'
+        type: 'input',
+        filter: sinon.default.match.func,
+        validate: sinon.default.match.func
       }
     ])
   })
