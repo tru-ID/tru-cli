@@ -14,6 +14,7 @@ import {ICreateProjectResponse} from '../../../src/api/ProjectsAPIClient'
 import IGlobalConfiguration from '../../../src/IGlobalConfiguration'
 import * as consoleLoggerModule from '../../../src/helpers/ConsoleLogger'
 import CommandWithProjectConfig from '../../../src/helpers/CommandWithProjectConfig';
+import PhoneChecksCreate from '../../../src/commands/phonechecks/create'
 
 let projectsApiCreateStub:any = null
 
@@ -34,6 +35,7 @@ let projectConfigFileCreationStub:any
 let readJsonStub:any
 let consoleLoggerConstructorStub:any
 let consoleLoggerDebugStub:any
+let phoneCheckCreateRunStub:any
 
 const newProjectName: string = 'My First Project'
 const expectedProjectDirectoryName = 'my_first_project'
@@ -76,6 +78,8 @@ describe('Command: projects:create', () => {
     
     projectsApiCreateStub = sinon.default.stub(projectsModule.ProjectsAPIClient.prototype, 'create')
     projectsApiCreateStub.withArgs({name: newProjectName}).resolves(createProjectAPIResponse)
+
+    phoneCheckCreateRunStub = sinon.default.stub(PhoneChecksCreate, 'run')
   })
   
   afterEach(() => {
@@ -304,6 +308,54 @@ describe('Command: projects:create', () => {
   .command(['projects:create', newProjectName, `--debug`])
   .it('should log that debug is set when the --debug flag is passed', ctx => {
     expect(consoleLoggerDebugStub).to.have.been.calledWith('--debug', true)
+  })
+
+  test
+  .do( () => {
+    projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
+    projectConfigFileCreationStub.resolves()
+
+    phoneCheckCreateRunStub.resolves()
+  })
+  .command(['projects:create', newProjectName, `--quickstart`])
+  .it('should call phoneCheckParams.run if --quickstart is used', ctx => {
+    expect(phoneCheckCreateRunStub).to.have.been.called
+  })
+
+  test
+  .do( () => {
+    projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
+    projectConfigFileCreationStub.resolves()
+
+    phoneCheckCreateRunStub.resolves()
+  })
+  .command(['projects:create', newProjectName, `--quickstart`])
+  .it('should pass --project_dir to the call to phoneCheckParams.run if --quickstart is used', ctx => {
+    expect(phoneCheckCreateRunStub).to.have.been.calledWith(sinon.default.match.array.contains(['--project_dir', expectedProjectFullPath]))
+  })
+
+  test
+  .do( () => {
+    projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
+    projectConfigFileCreationStub.resolves()
+
+    phoneCheckCreateRunStub.resolves()
+  })
+  .command(['projects:create', newProjectName, `--quickstart`])
+  .it('should pass --workflow to the call to phoneCheckParams.run if --quickstart is used', ctx => {
+    expect(phoneCheckCreateRunStub).to.have.been.calledWith(sinon.default.match.array.contains(['--workflow']))
+  })
+
+  test
+  .do( () => {
+    projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
+    projectConfigFileCreationStub.resolves()
+
+    phoneCheckCreateRunStub.resolves()
+  })
+  .command(['projects:create', newProjectName, '--debug', `--quickstart`])
+  .it('should pass --debug to the call to phoneCheckParams.run if --debug was used in projects:create call', ctx => {
+    expect(phoneCheckCreateRunStub).to.have.been.calledWith(sinon.default.match.array.contains(['--project_dir', expectedProjectFullPath]))
   })
 
 })

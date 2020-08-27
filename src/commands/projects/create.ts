@@ -8,6 +8,8 @@ import {APIConfiguration} from '../../api/APIConfiguration'
 import {stringToSnakeCase} from '../../utilities'
 import {ConsoleLogger, LogLevel} from '../../helpers/ConsoleLogger'
 
+import PhoneChecksCreate from '../phonechecks/create'
+
 export default class Create extends CommandWithProjectConfig {
   static description = 'Creates a new Project'
 
@@ -20,6 +22,9 @@ Creating Project "My first project"
 
   static flags = {
     ...CommandWithProjectConfig.flags,
+    quickstart: flags.boolean({
+      description: 'Create a Project and also create a Phone Check in workflow mode.'
+    })
   }
 
   static args = [
@@ -37,6 +42,8 @@ Creating Project "My first project"
 
     const logger = new ConsoleLogger(!this.flags.debug? LogLevel.info : LogLevel.debug)
     logger.debug('--debug', true)
+    logger.debug('args', this.args)
+    logger.debug('flags', this.flags)
 
     if(!this.args.name) {
         const response:any = await inquirer.prompt([
@@ -88,6 +95,16 @@ Creating Project "My first project"
         await fs.outputJson(configFileFullPathToCreate, projectConfig, {spaces: '\t'})
 
         this.log(`Project configuration saved to "${configFileFullPathToCreate}".`)
+
+        // See https://oclif.io/docs/running_programmatically
+        // The approach below of using `.run` is not recommended
+        if(this.flags.quickstart) {
+          const phoneCheckRunParams = [`--${CommandWithProjectConfig.projectDirFlagName}`, pathToProjectDirectory, '--workflow']
+          if(this.flags.debug) {
+            phoneCheckRunParams.push('--debug')
+          }
+          await PhoneChecksCreate.run(phoneCheckRunParams)
+        }
       }
       catch(error) {
         this.error(`An unexpected error occurred: ${error}`, {exit: 1})
