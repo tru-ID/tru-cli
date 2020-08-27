@@ -89,7 +89,6 @@ export default class PhoneChecksCreate extends CommandWithProjectConfig {
 
     if(response.status === PhoneCheckStatus.ACCEPTED) {
       this.log('Phone Check ACCEPTED')
-      this.log(JSON.stringify(response, null, 2))
 
       if(this.flags.workflow) {
         const qrCodeUrl: string = this.globalConfig?.qrCodeUrlHandlerOverride ?? `http://r.4auth.io?u={CHECK_URL}`
