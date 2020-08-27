@@ -9,6 +9,7 @@ import {stringToSnakeCase} from '../../utilities'
 import {ConsoleLogger, LogLevel} from '../../helpers/ConsoleLogger'
 
 import PhoneChecksCreate from '../phonechecks/create'
+import * as chalk from 'chalk'
 
 export default class Create extends CommandWithProjectConfig {
   static description = 'Creates a new Project'
@@ -100,7 +101,7 @@ Creating Project "My first project"
         // The approach below of using `.run` is not recommended
         if(this.flags.quickstart) {
           this.log('')
-          this.log('Ok, let\'s run your first Phone Check!')
+          this.log(chalk.green.visible('Ok, let\'s run your first Phone Check!'))
           this.log('')
 
           const phoneCheckRunParams = [`--${CommandWithProjectConfig.projectDirFlagName}`, pathToProjectDirectory, '--workflow']
