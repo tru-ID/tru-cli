@@ -880,6 +880,11 @@
   resolved "https://registry.yarnpkg.com/@types/normalize-package-data/-/normalize-package-data-2.4.0.tgz#e486d0d97396d79beedd0a6e33f4534ff6b4973e"
   integrity sha512-f5j5b/Gf71L+dbqxIpQ4Z2WlmI/mPJ0fOkGGmFgtb6sAu97EPczzbS3/tJKxmcYDj55OX6ssqwDAWOHIYDRDGA==
 
+"@types/phone@^2.4.0":
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/@types/phone/-/phone-2.4.0.tgz#8c02c0513884136fef5948b7781b76e6c7c44997"
+  integrity sha512-oClvNb2ATpf3fmDMuJOzRBRWjUwssc+cTfMPTXf5YmeSnveadSMmuwd3CjpJtU24Mg3VvpA9uNWwh5f75dgCLg==
+
 "@types/prettier@^2.0.0":
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/@types/prettier/-/prettier-2.0.2.tgz#5bb52ee68d0f8efa9cc0099920e56be6cc4e37f3"
@@ -1545,7 +1550,7 @@ chalk@^3.0.0:
     ansi-styles "^4.1.0"
     supports-color "^7.1.0"
 
-chalk@^4.0.0:
+chalk@^4.0.0, chalk@^4.1.0:
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/chalk/-/chalk-4.1.0.tgz#4e14870a618d9e2edd97dd8345fd9d9dc315646a"
   integrity sha512-qwx12AxXe2Q5xQ43Ac//I6v5aXTipYrSESdOgzrN+9XjgEpyjpKuvSGaN4qE93f7TQTlerQQ8S+EQ0EyDoVL1A==
@@ -5107,6 +5112,11 @@ performance-now@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/performance-now/-/performance-now-2.1.0.tgz#6309f4e0e5fa913ec1c69307ae364b4b377c9e7b"
   integrity sha1-Ywn04OX6kT7BxpMHrjZLSzd8nns=
+
+phone@^2.4.15:
+  version "2.4.15"
+  resolved "https://registry.yarnpkg.com/phone/-/phone-2.4.15.tgz#4ab158ac011c8107e873d7b1d12abcc88fda6bf3"
+  integrity sha512-C1/0wWjwSOxoqYcwMtnb8KhxaFUhBIg0srDa9WZ5mBeCMkmUhC9jJIrWzUQnJdaM5bagLp9wmNHzKPVjLCF0kg==
 
 picomatch@^2.0.4, picomatch@^2.0.5, picomatch@^2.2.1:
   version "2.2.2"
