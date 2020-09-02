@@ -23,7 +23,7 @@ $ npm install -g 4auth-cli
 $ 4auth COMMAND
 running command...
 $ 4auth (-v|--version|version)
-4auth-cli/0.2.0 darwin-x64 node-v14.4.0
+4auth-cli/0.2.1 darwin-x64 node-v14.4.0
 $ 4auth --help [COMMAND]
 USAGE
   $ 4auth COMMAND
@@ -74,7 +74,7 @@ OPTIONS
   --workflow                 Execute the Phone Check Workflow from the CLI
 ```
 
-_See code: [src/commands/phonechecks/create.ts](https://github.com/4auth/4auth-cli/blob/v0.2.0/src/commands/phonechecks/create.ts)_
+_See code: [src/commands/phonechecks/create.ts](https://github.com/4auth/4auth-cli/blob/v0.2.1/src/commands/phonechecks/create.ts)_
 
 ## `4auth phonechecks:list [CHECK_ID]`
 
@@ -113,7 +113,7 @@ OPTIONS
                              "created_at,desc". Ignored if the "check_id" argument is used.
 ```
 
-_See code: [src/commands/phonechecks/list.ts](https://github.com/4auth/4auth-cli/blob/v0.2.0/src/commands/phonechecks/list.ts)_
+_See code: [src/commands/phonechecks/list.ts](https://github.com/4auth/4auth-cli/blob/v0.2.1/src/commands/phonechecks/list.ts)_
 
 ## `4auth projects:create [NAME]`
 
@@ -130,6 +130,7 @@ OPTIONS
   -h, --help                 show CLI help
   --debug                    Enables debug logging for the CLI
   --project_dir=project_dir  The directory that contains the 4auth.json Project configuration file
+  --quickstart               Create a Project and also create a Phone Check in workflow mode.
 
 EXAMPLE
   $ 4auth project:create
@@ -137,7 +138,7 @@ EXAMPLE
   Creating Project "My first project"
 ```
 
-_See code: [src/commands/projects/create.ts](https://github.com/4auth/4auth-cli/blob/v0.2.0/src/commands/projects/create.ts)_
+_See code: [src/commands/projects/create.ts](https://github.com/4auth/4auth-cli/blob/v0.2.1/src/commands/projects/create.ts)_
 
 ## `4auth projects:list [PROJECT_ID]`
 
@@ -174,7 +175,7 @@ OPTIONS
                              "created_at,desc". Ignored if the "check_id" argument is used.
 ```
 
-_See code: [src/commands/projects/list.ts](https://github.com/4auth/4auth-cli/blob/v0.2.0/src/commands/projects/list.ts)_
+_See code: [src/commands/projects/list.ts](https://github.com/4auth/4auth-cli/blob/v0.2.1/src/commands/projects/list.ts)_
 
 ## `4auth workspaces`
 
@@ -192,7 +193,7 @@ OPTIONS
   --output=csv|json|yaml  output in a more machine friendly format
 ```
 
-_See code: [src/commands/workspaces/index.ts](https://github.com/4auth/4auth-cli/blob/v0.2.0/src/commands/workspaces/index.ts)_
+_See code: [src/commands/workspaces/index.ts](https://github.com/4auth/4auth-cli/blob/v0.2.1/src/commands/workspaces/index.ts)_
 <!-- commandsstop -->
 
 # Development
