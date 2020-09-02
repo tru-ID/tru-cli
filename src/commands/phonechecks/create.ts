@@ -4,6 +4,8 @@ import {APIConfiguration} from '../../api/APIConfiguration'
 import { PhoneChecksAPIClient, ICreatePhoneCheckResponse, PhoneCheckStatus, IPhoneCheckResource } from '../../api/PhoneChecksAPIClient'
 import CommandWithProjectConfig from '../../helpers/CommandWithProjectConfig'
 import cli from 'cli-ux'
+import * as chalk from 'chalk'
+import { validate, transform } from '../../helpers/phone'
 
 import * as qrcode from 'qrcode-terminal'
 
@@ -46,7 +48,15 @@ export default class PhoneChecksCreate extends CommandWithProjectConfig {
         {
           name: 'phone_number',
           message: 'Please enter the phone number you would like to Phone Check',
-          type: 'input'
+          type: 'input',
+          validate: (input) => {
+            if( validate(input) ) {
+              return true
+            }
+            return  ('The phone number needs to be in E.164 format. For example, +447700900000 or +14155550100. ' +
+                     'Or a format that can be converted to E164. For example, 44 7700 900000 or 1 (415) 555-0100.')
+          },
+          filter: transform
         }
       ])
 
@@ -79,18 +89,17 @@ export default class PhoneChecksCreate extends CommandWithProjectConfig {
 
     if(response.status === PhoneCheckStatus.ACCEPTED) {
       this.log('Phone Check ACCEPTED')
-      this.log(JSON.stringify(response, null, 2))
 
       if(this.flags.workflow) {
-        this.log('')
-        this.log(`Ensure the mobile phone with the phone number ${this.args.phone_number} is not connected to WiFi and is using your mobile data connection. ` +
-        'Then scan the QR code and navigate to the check_url.')
-
         const qrCodeUrl: string = this.globalConfig?.qrCodeUrlHandlerOverride ?? `http://r.4auth.io?u={CHECK_URL}`
         const qrCodePopulatedUrl: string = qrCodeUrl.replace('{CHECK_URL}', `${encodeURIComponent(response._links.check_url.href)}`)
         this.logger.debug('QR Code Link Handler:', qrCodePopulatedUrl)
         qrcode.generate(qrCodePopulatedUrl, {small: true})
-
+        
+        this.log(chalk.white.bgRed.visible(`Please ensure the mobile phone with the phone number ${this.args.phone_number} is disconnected from WiFi and is using your mobile data connection.`))
+        this.log('')
+        this.log('Then scan the QR code and navigate to the check_url.')
+        this.log('')
         cli.action.start('Waiting for a Phone Check result')
 
         try {

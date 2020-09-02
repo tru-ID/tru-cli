@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 0.2.1 (2020-09-02)
+
+### Features
+
+* Improvements for `phonechecks:create` and `--workflow`:
+    * Validate phone number if provided interactively
+    * Emphasise turning off WiFi with `--workflow`
+* New `projects:create --quickstart` flag:
+    * Create a Project and run a Phone Check in a single command
+
 ## 0.2.0 (2020-08-25)
 
 ### Features
