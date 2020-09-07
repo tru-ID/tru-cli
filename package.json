@@ -1,7 +1,7 @@
 {
   "name": "4auth-cli",
   "description": "The 4Auth CLI",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "author": "Phil Leggetter @leggetter",
   "bin": {
     "4auth": "./bin/run"
