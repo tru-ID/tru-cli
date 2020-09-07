@@ -301,28 +301,37 @@ describe('phonechecks:create', () => {
     .it('creates a QR code with expected URL', () => {
       expect(qrCodeGenerateSpy).to.have.been.calledWith(`http://r.4auth.io?u=${encodeURIComponent(createPhoneCheckResponse._links.check_url.href)}`, sinon.default.match.any)
     })
-
+    
     test
     .do( () => {
       readJsonStub.restore()
       readJsonStub = sinon.default.stub(fs, 'readJson')
-
+    
       readJsonStub.withArgs(
         sinon.default.match(sinon.default.match(new RegExp(/config.json/))))
-          .resolves(overrideQrCodeHandlerConfig)
-  
+        .resolves(overrideQrCodeHandlerConfig)
+      
       readJsonStub.withArgs(
         sinon.default.match(projectConfigFileLocation))
-          .resolves(projectConfig)
-
-      phoneCheckAPIClientGetStub.resolves(phoneCheckMatchedResource)
+        .resolves(projectConfig)
+        
+        phoneCheckAPIClientGetStub.resolves(phoneCheckMatchedResource)
     })
     .command(['phonechecks:create', phoneNumberToTest, '--workflow'])
     .it('creates a QR code with expected URL override', () => {
       const expectedUrl = overrideQrCodeHandlerConfig.qrCodeUrlHandlerOverride.replace('{CHECK_URL}', `${encodeURIComponent(createPhoneCheckResponse._links.check_url.href)}`)
       expect(qrCodeGenerateSpy).to.have.been.calledWith(expectedUrl, sinon.default.match.any)
     })
-
+        
+    test
+    .do( () => {
+      phoneCheckAPIClientGetStub.resolves(phoneCheckMatchedResource)
+    })
+    .command(['phonechecks:create', phoneNumberToTest, '--workflow', '--skip-qrcode-handler'])
+    .it('creates a QR code with expected URL skipping r.4auth.io', () => {
+      expect(qrCodeGenerateSpy).to.have.been.calledWith(createPhoneCheckResponse._links.check_url.href, sinon.default.match.any)
+    })
+        
     test
     .do( () => {
       phoneCheckAPIClientGetStub.resolves(phoneCheckMatchedResource)
