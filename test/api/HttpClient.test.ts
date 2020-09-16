@@ -2,11 +2,13 @@ import * as sinon from 'ts-sinon'
 import * as chai from 'chai';
 import * as sinonChai from 'sinon-chai'
 
-import axios from 'axios'
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 
 import {APIConfiguration} from '../../src/api/APIConfiguration'
 import {HttpClient, ICreateTokenResponse} from '../../src/api/HttpClient';
 import * as qs from 'querystring'
+import { request } from 'http';
+import { debug } from 'console';
 
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -25,6 +27,82 @@ describe('APIConfiguration', () => {
             baseUrl: defaultBaseUrl
         })
     }
+
+    describe('logging', () => {
+        let apiConfig:APIConfiguration
+        let client:HttpClient
+        let axiosPostStub:any
+        let debugStub:any
+
+        const path = '/some/path'
+        const params = {a:'param_value'}
+        const headers = {b:'header_value'}
+
+        beforeEach(() => {
+            sinon.default.stub(axios, 'create').returns(axios)
+            axiosPostStub = sinon.default.stub(axios, 'post')
+            axiosPostStub.resolves({data:{}}) // default handling of /token
+
+            debugStub = sinon.default.stub(console, 'debug')
+            apiConfig = createDefaultAPIConfiguration()
+            client = new HttpClient(apiConfig, console)
+        })
+    
+        afterEach(() => {
+            sinon.default.restore()
+        })
+
+
+        it('logRequest should debug log the request', async () => {
+
+            const requestConfig: AxiosRequestConfig = {
+                baseURL: apiConfig.baseUrl,
+                method: 'get',
+                url: path,
+                headers: headers,
+                params: params,
+            }
+
+            client.logRequest(requestConfig)
+
+            expect(debugStub).has.been.calledWith('Request:', {
+                baseUrl: requestConfig.baseURL,
+                method: requestConfig.method,
+                url: requestConfig.url,
+                body: requestConfig.data,
+                parameters: requestConfig.params,
+                headers: requestConfig.headers
+            })
+        })
+
+        it('logResponse: should debug log the response', async () => {
+
+            const response: AxiosResponse = {
+                status: 200,
+                statusText: 'OK',
+                data: {},
+                headers: {},
+                config: {}
+            }
+            const expectedLog = {
+                statusCode: response.status,
+                headers: response.headers,
+                data: response.data
+            }
+
+            client.logResponse(response)
+
+            expect(debugStub).has.been.calledWith('Response:', expectedLog)
+        })
+
+        it('logError: should debug log the error', async () => {
+
+            const error = new Error()
+            client.logError(error)
+
+            expect(debugStub).has.been.calledWith('Error:', error)
+        })
+    })
 
     describe('get', () => {
 
@@ -76,39 +154,6 @@ describe('APIConfiguration', () => {
                     )
             )
                     
-        })
-
-        it('get/log/request: should debug log the GET request', async () => {
-            const debugStub = sinon.default.stub(console, 'debug')
-            axios.defaults.baseURL = apiConfig.baseUrl
-            axiosPostStub.withArgs('/oauth2/v1/token', sinon.default.match.any, sinon.default.match.any).resolves({data: {access_token: accessToken}})
-            axiosPostStub.resolves({data:{}})
-
-            sinon.default.stub(axios, 'get').resolves({data:{}})
-
-            await client.get(path, params, headers)
-
-            expect(debugStub).has.been.calledWith('Request:', {
-                baseUrl: apiConfig.baseUrl,
-                method: 'get',
-                path: path,
-                parameters: params,
-                headers: {
-                    ...headers,
-                    'Authorization': `Bearer ${accessToken}`
-                }
-            })
-        })
-
-        it('get/log/response: should debug log the GET response', async () => {
-            const debugStub = sinon.default.stub(console, 'debug')
-            axios.defaults.baseURL = apiConfig.baseUrl
-            const axiosGetStub = sinon.default.stub(axios, 'get')
-            axiosGetStub.resolves({status: 200, data:{}, headers:{}})
-
-            await client.get(path, {}, {})
-
-            expect(debugStub).has.been.calledWith('Response:', {statusCode: 200, data: {}, headers: {}})
         })
         
     })
@@ -162,53 +207,6 @@ describe('APIConfiguration', () => {
                     sinon.default.match.has('headers', sinon.default.match.has('Authorization', `Bearer ${accessToken}`)
                 )
             )
-        })
-
-        it('should debug log the POST request', async () => {   
-            const accessToken = 'i am an access token'
-            const path = '/some/path'
-            const params = {a:'param'}
-            const headers = {b:'header'}
-            
-            const apiConfig:APIConfiguration = createDefaultAPIConfiguration()
-            const client:HttpClient = new HttpClient(apiConfig, console)
-
-            const debugStub = sinon.default.stub(console, 'debug')
-            axios.defaults.baseURL = apiConfig.baseUrl
-            const axiosPostStub = sinon.default.stub(axios, 'post')
-            axiosPostStub.withArgs('/oauth2/v1/token', sinon.default.match.any, sinon.default.match.any).resolves({data: {access_token: accessToken}})
-            axiosPostStub.resolves({data:{}})
-
-            await client.post(path, params, headers)
-
-            expect(debugStub).has.been.calledWith('Request:', {
-                baseUrl: apiConfig.baseUrl,
-                method: 'post',
-                path: path,
-                parameters: params,
-                headers: {
-                    ...headers,
-                    'Authorization': `Bearer ${accessToken}`
-                }
-            })
-        })
-
-        it('should debug log the POST response', async () => {            
-            const accessToken = 'i am an access token'
-            const path = '/some/path'
-            
-            const apiConfig:APIConfiguration = createDefaultAPIConfiguration()
-            const client:HttpClient = new HttpClient(apiConfig, console)
-
-            const debugStub = sinon.default.stub(console, 'debug')
-            axios.defaults.baseURL = apiConfig.baseUrl
-            const axiosPostStub = sinon.default.stub(axios, 'post')
-            axiosPostStub.withArgs(path, sinon.default.match.any, sinon.default.match.any).resolves({data: {access_token: accessToken}})
-            axiosPostStub.resolves({status: 201, data:{}, headers: {}})
-
-            await client.post(path, {}, {})
-
-            expect(debugStub).has.been.calledWith('Response:', {statusCode: 201, data: {}, headers: {}})
         })
     })
 
@@ -269,49 +267,6 @@ describe('APIConfiguration', () => {
                     'headers', sinon.default.match.has('Authorization', `Basic ${authString}`)
                 )
             )
-        })
-
-        it('should debug log the Access Token request', async () => {            
-            const apiConfig:APIConfiguration = createDefaultAPIConfiguration()
-            const client:HttpClient = new HttpClient(apiConfig, console)
-
-            const expectedAuthString = client.generateBasicAuth()
-            const expectedParams = qs.stringify({
-                grant_type: 'client_credentials',
-                scope: apiConfig.scopes,
-            })
-
-            const debugStub = sinon.default.stub(console, 'debug')
-            axios.defaults.baseURL = apiConfig.baseUrl
-            const axiosPostStub = sinon.default.stub(axios, 'post').resolves({data:{}})
-
-            await client.createAccessToken()
-
-            expect(debugStub).has.been.calledWith('Request:', {
-                baseUrl: apiConfig.baseUrl,
-                method: 'post',
-                path: '/oauth2/v1/token',
-                parameters: expectedParams,
-                headers: {
-                    'Authorization': `Basic ${expectedAuthString}`,
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                }
-            })
-        })
-
-        it('should debug log the Access Token response', async () => {            
-            const apiConfig:APIConfiguration = createDefaultAPIConfiguration()
-            const client:HttpClient = new HttpClient(apiConfig, console)
-
-            const debugStub = sinon.default.stub(console, 'debug')
-            axios.defaults.baseURL = apiConfig.baseUrl
-            const axisResponse = {status: 200, data: {}, headers: {}}
-            const expectedResponse = {statusCode: 200, data: {}, headers: {}}
-            sinon.default.stub(axios, 'post').resolves(axisResponse)
-
-            await client.createAccessToken()
-
-            expect(debugStub).has.been.calledWith('Response:', expectedResponse)
         })
 
         it('should return a ICreateTokenResponse with all populated properties', async () => {
