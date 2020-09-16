@@ -210,6 +210,73 @@ describe('APIConfiguration', () => {
         })
     })
 
+    describe('patch', () => {
+
+        let axiosPostStub:any
+
+        beforeEach(() => {
+            sinon.default.stub(axios, 'create').returns(axios)
+
+            axiosPostStub = sinon.default.stub(axios, 'post')
+            axiosPostStub.resolves({data:{}}) // default handling of /token
+        })
+    
+        afterEach(() => {
+            sinon.default.restore()
+        })
+
+        it('should proxy path, operations and headers on to axios.patch', async () => {
+            const axiosPatchStub = sinon.default.stub(axios, 'patch').resolves({data:{}})
+
+            const apiConfig:APIConfiguration = createDefaultAPIConfiguration()
+            const client:HttpClient = new HttpClient(apiConfig, console)
+
+            const path = '/some/path'
+            const operations = [
+                {
+                    op: 'replace',
+                    path: '/configuration/phone_check/callback_url'
+                }
+            ]
+            const headers = {b:'header'}
+            await client.patch(path, operations, headers)
+
+            expect(axiosPatchStub).to.have.been.calledWith(
+                    path,
+                    operations,
+                    sinon.default.match.has('headers', sinon.default.match.has('b', headers.b)
+                )
+            )
+        })
+
+        it('should add Bearer Authorization to the headers', async () => {
+            const accessToken = 'i am an access token'
+            axiosPostStub.withArgs('/oauth2/v1/token', sinon.default.match.any, sinon.default.match.any).resolves({data: {access_token: accessToken}})
+
+            const axiosPatchStub = sinon.default.stub(axios, 'patch').resolves({data:{}})
+
+            const apiConfig:APIConfiguration = createDefaultAPIConfiguration()
+            const client:HttpClient = new HttpClient(apiConfig, console)
+
+            const path = '/some/path'
+            const operations = [
+                {
+                    op: 'replace',
+                    path: '/configuration/phone_check/callback_url'
+                }
+            ]
+            const headers = {b:'header'}
+            await client.patch(path, operations, headers)
+
+            expect(axiosPatchStub).to.have.been.calledWith(
+                    sinon.default.match.any,
+                    sinon.default.match.any,
+                    sinon.default.match.has('headers', sinon.default.match.has('Authorization', `Bearer ${accessToken}`)
+                )
+            )
+        })
+    })
+
     describe('createAccessToken', () => {
 
         beforeEach(() => {

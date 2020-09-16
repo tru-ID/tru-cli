@@ -72,6 +72,21 @@ export class HttpClient {
         return response.data as T
     }
 
+    async patch<T>(path:string, operations:any[], headers:any): Promise<T> {
+        const accessTokenResponse = await this.createAccessToken()
+
+        const requestHeaders = {
+            ...headers,
+            'Authorization': `Bearer ${accessTokenResponse.access_token}`
+        }
+
+        const response: AxiosResponse = await this.axios.patch(path, operations, {
+                headers: requestHeaders
+            })
+
+        return response.data as T
+    }
+
     async get<T>(path:string, parameters:any, headers:any): Promise<T> {
         const accessTokenResponse = await this.createAccessToken()
 
