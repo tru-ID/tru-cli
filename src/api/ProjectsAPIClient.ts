@@ -4,6 +4,15 @@ import AbstractAPIClient from './AbstractAPIClient';
 import IAPICredentials from './IAPICredentails';
 import { IListResource, ILink, IListResourceParameters } from './IListResource';
 
+export interface ICreateProjectPayload {
+    name: string,
+    configuration?: {
+        phone_check: {
+            callback_url: string
+        }
+    }
+}
+
 export interface ICreateProjectResponse {
     project_id: string
     name: string

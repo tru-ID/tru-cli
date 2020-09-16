@@ -3,7 +3,7 @@ import * as inquirer from 'inquirer'
 import * as fs from 'fs-extra'
 
 import CommandWithProjectConfig from '../../helpers/CommandWithProjectConfig'
-import {ProjectsAPIClient, ICreateProjectResponse} from '../../api/ProjectsAPIClient'
+import {ProjectsAPIClient, ICreateProjectResponse, ICreateProjectPayload} from '../../api/ProjectsAPIClient'
 import {APIConfiguration} from '../../api/APIConfiguration'
 import {stringToSnakeCase} from '../../utilities'
 import {ConsoleLogger, LogLevel} from '../../helpers/ConsoleLogger'
@@ -25,6 +25,9 @@ Creating Project "My first project"
     ...CommandWithProjectConfig.flags,
     quickstart: flags.boolean({
       description: 'Create a Project and also create a Phone Check in workflow mode.'
+    }),
+    'phonecheck-callback-url': flags.string({
+      description: 'callback to be invoked when a Phone Check reaches an end state',
     })
   }
 
@@ -45,6 +48,20 @@ Creating Project "My first project"
     logger.debug('--debug', true)
     logger.debug('args', this.args)
     logger.debug('flags', this.flags)
+
+    if(this.flags['phonecheck-callback-url']) {
+      try{
+        const callbackUrl = new URL(this.flags['phonecheck-callback-url'])
+
+        if(callbackUrl.protocol === 'http:') {
+          logger.warn('"phonecheck-callback-url" was detected to be HTTP. Please consider updated to be HTTPS.')
+        }
+      }
+      catch(error) {
+        logger.error('"phonecheck-callback-url" must be a valid URL')
+        this.exit()
+      }
+    }
 
     if(!this.args.name) {
         const response:any = await inquirer.prompt([
@@ -70,9 +87,18 @@ Creating Project "My first project"
     
     let projectCreationResult:ICreateProjectResponse;
     try {
-      projectCreationResult = await projectsAPI.create({
+      const createPayload: ICreateProjectPayload = {
         name: this.args.name
-      })
+      }
+      if(this.flags['phonecheck-callback-url']) {
+        createPayload.configuration = {
+          phone_check: {
+            callback_url: this.flags['phonecheck-callback-url']
+          }
+        }
+      }
+
+      projectCreationResult = await projectsAPI.create(createPayload)
     }
     catch(error) {
       this.log('API Error:',
