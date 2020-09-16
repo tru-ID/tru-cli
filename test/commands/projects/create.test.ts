@@ -332,8 +332,8 @@ describe('Command: projects:create', () => {
     phoneCheckCreateRunStub.resolves()
   })
   .command(['projects:create', newProjectName, `--quickstart`])
-  .it('should pass --project_dir to the call to phoneCheckParams.run if --quickstart is used', ctx => {
-    expect(phoneCheckCreateRunStub).to.have.been.calledWith(sinon.default.match.array.contains(['--project_dir', expectedProjectFullPath]))
+  .it('should pass --project-dir to the call to phoneCheckParams.run if --quickstart is used', ctx => {
+    expect(phoneCheckCreateRunStub).to.have.been.calledWith(sinon.default.match.array.contains(['--project-dir', expectedProjectFullPath]))
   })
 
   test
@@ -357,7 +357,7 @@ describe('Command: projects:create', () => {
   })
   .command(['projects:create', newProjectName, '--debug', `--quickstart`])
   .it('should pass --debug to the call to phoneCheckParams.run if --debug was used in projects:create call', ctx => {
-    expect(phoneCheckCreateRunStub).to.have.been.calledWith(sinon.default.match.array.contains(['--project_dir', expectedProjectFullPath]))
+    expect(phoneCheckCreateRunStub).to.have.been.calledWith(sinon.default.match.array.contains(['--project-dir', expectedProjectFullPath]))
   })
 
   test
