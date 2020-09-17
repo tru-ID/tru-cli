@@ -422,4 +422,41 @@ describe('Command: projects:create', () => {
     })
   })
 
+  test
+  .do( () => {
+    projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
+    projectConfigFileCreationStub.resolves()
+  })
+  .command(['projects:create', newProjectName, '--mode', `cheese`])
+  .exit(2)
+  .it('should exit if an invalid --mode value is supplied')
+
+  test
+  .do( () => {
+    projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
+    projectConfigFileCreationStub.resolves()
+  })
+  .command(['projects:create', newProjectName, '--mode', `sandbox`])
+  .it('should create a Project with mode=sandbox', ctx => {
+    expect(projectsApiCreateStub).to.have.been.calledWith({
+      name: newProjectName,
+      mode: 'sandbox'
+    })
+  })
+
+  test
+  .do( () => {
+    projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
+    projectConfigFileCreationStub.resolves()
+
+    phoneCheckCreateRunStub.resolves()
+  })
+  .command(['projects:create', newProjectName, '--mode', `live`])
+  .it('should create a Project with mode=live', ctx => {
+    expect(projectsApiCreateStub).to.have.been.calledWith({
+      name: newProjectName,
+      mode: 'live'
+    })
+  })
+
 })

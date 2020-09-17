@@ -158,6 +158,13 @@ describe('Command: projects:update', () => {
 
   test
   .do( () => {
+  })
+  .command(['projects:update', createProjectAPIResponse.project_id, '--mode', `cheese`])
+  .exit(2)
+  .it('should exit if an invalid --mode value is supplied')
+
+  test
+  .do( () => {
     projectsApiUpdateStub.resolves(createProjectAPIResponse)
   })
   .command(['projects:update', createProjectAPIResponse.project_id, '--mode', 'sandbox'])

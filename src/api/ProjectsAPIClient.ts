@@ -16,6 +16,7 @@ export interface IProjectResourceBase {
 
 export interface ICreateProjectPayload {
     name: string,
+    mode?: 'live' | 'sandbox'
     configuration?: {
         phone_check: {
             callback_url: string
