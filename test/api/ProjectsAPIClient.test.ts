@@ -36,6 +36,7 @@ describe('API: projects', () => {
         return {
             "project_id": "c69bc0e6-a429-11ea-bb37-0242ac130003",
             "name": "my project",
+            "mode": "live",
             "created_at": "2020-06-01T16:43:30+00:00",
             "updated_at": "2020-06-01T16:43:30+00:00",
             "credentials": [
@@ -236,6 +237,62 @@ describe('API: projects', () => {
             {
                 op: 'remove',
                 path: '/configuration/phone_check/callback_url'
+            }
+        ],
+        sinon.default.match.any)
+    })
+
+    it('should make a request to patch a project with an replace operation for "mode" -> "sandbox"', async () => {
+        const projectsAPI:ProjectsAPIClient = createDefaultProjectsAPI()
+
+        const project = getProjectObject()
+        httpClientGetStub.resolves(project)
+
+        const projectId = 'f0f5fb8e-db1c-4e75-bae8-cvxcvxcv'
+        await projectsAPI.update(projectId, {
+            mode: 'sandbox'
+        })
+
+        expect(httpClientPatchStub).to.have.been.calledWith(sinon.default.match.any, [
+            {
+                op: 'replace',
+                path: '/mode',
+                value: 'sandbox'
+            }
+        ],
+        sinon.default.match.any)
+    })
+
+    it('should make a request with multiple patch operations', async () => {
+        const projectsAPI:ProjectsAPIClient = createDefaultProjectsAPI()
+
+        const project = getProjectObject()
+        httpClientGetStub.resolves(project)
+
+        const projectId = 'f0f5fb8e-db1c-4e75-bae8-cvxcvxcv'
+        await projectsAPI.update(projectId, {
+            mode: 'sandbox',
+            configuration: {
+                phone_check: {
+                    callback_url: 'https://example.com/updated_callback'
+                }
+            }
+        })
+
+        expect(httpClientPatchStub).to.have.been.calledWith(sinon.default.match.any, [
+            {
+                op: 'replace',
+                path: '/mode',
+                value: 'sandbox'
+            },
+            {
+                op: 'add',
+                path: '/configuration',
+                value: {
+                    phone_check: {
+                        callback_url: 'https://example.com/updated_callback'
+                    }
+                }
             }
         ],
         sinon.default.match.any)

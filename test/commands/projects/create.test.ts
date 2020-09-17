@@ -48,6 +48,7 @@ const expectedProjectConfigFileFullPath = `${expectedProjectFullPath}/4auth.json
 const createProjectAPIResponse: ICreateProjectResponse = {
   "project_id": "c69bc0e6-a429-11ea-bb37-0242ac130003",
   "name": newProjectName,
+  "mode": "live",
   "created_at": "2020-06-01T16:43:30+00:00",
   "updated_at": "2020-06-01T16:43:30+00:00",
   "credentials": [

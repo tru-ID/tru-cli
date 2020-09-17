@@ -3,20 +3,23 @@ import {ProjectsAPIClient, ICreateProjectResponse, ICreateProjectPayload, IUpdat
 import {APIConfiguration} from '../../api/APIConfiguration'
 import {ConsoleLogger, LogLevel} from '../../helpers/ConsoleLogger'
 
-import { phoneCheckCallbackUrlFlag, phoneCheckCallbackUrlFlagValidation, removePhoneCheckCallbackFlag } from '../../helpers/ProjectFlags'
+import { phoneCheckCallbackUrlFlag, phoneCheckCallbackUrlFlagValidation, projectModeFlag, removePhoneCheckCallbackFlag } from '../../helpers/ProjectFlags'
 
 export default class Create extends CommandWithProjectConfig {
   static description = 'Update an existing Project'
 
   static examples = [
     `$ 4auth project:update --phonecheck-callback https://example.com/callback`,
-    `$ 4auth project:update --remove-phonecheck-callback`
+    `$ 4auth project:update --remove-phonecheck-callback`,
+    `$ 4auth project:update --mode sandbox`,
+    `$ 4auth project:update --mode live`,
   ]
 
   static flags = {
     ...CommandWithProjectConfig.flags,
     ...phoneCheckCallbackUrlFlag.flag,
     ...removePhoneCheckCallbackFlag.flag,
+    ...projectModeFlag.flag
   }
 
   static args = [
@@ -42,7 +45,8 @@ export default class Create extends CommandWithProjectConfig {
         this.exit(1)
       }
     }
-    else if(this.flags[removePhoneCheckCallbackFlag.flagName] === false) {
+    else if(this.flags[removePhoneCheckCallbackFlag.flagName] === false &&
+            this.flags[projectModeFlag.flagName] === undefined) {
       logger.error('At least one flag must be supplied to indicate the update to be applied to the Project')
       this.exit(1)
     }
@@ -74,6 +78,9 @@ export default class Create extends CommandWithProjectConfig {
         updatePayload.configuration = {
           phone_check: {}
         }
+      }
+      if(this.flags[projectModeFlag.flagName]) {
+        updatePayload.mode = this.flags[projectModeFlag.flagName]
       }
 
       projectCreationResult = await projectsAPI.update(this.args['project-id'], updatePayload)
