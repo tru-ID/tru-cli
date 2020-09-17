@@ -5,6 +5,7 @@ const os = require('os')
 const devBuildBranches = ['dev', 'ci-publish-test']
 
 const buildBranch = process.env.CI_COMMIT_BRANCH
+const buildCommitSHA = process.env.CI_COMMIT_SHORT_SHA
 const packageFilePath = path.join(__dirname, '..', 'package.json')
 const packageJson = require(packageFilePath)
 
@@ -13,7 +14,7 @@ if( isDevBuildBranch(buildBranch) &&
     
     console.log('Is Dev Build Branch. Appending "-dev" to package.json version for build...')
     
-    const devVersion = `${packageJson.version}-dev`
+    const devVersion = `${packageJson.version}-dev.${buildCommitSHA}`
     console.log('writing package.json with version', devVersion)
 
     packageJson.version = devVersion

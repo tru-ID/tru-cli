@@ -47,5 +47,6 @@ publish_installers:
       artifacts: true
   script:
     - ls dist
+    - yarn install
     - yarn run dev_version_suffix
     - yarn run aws:publish

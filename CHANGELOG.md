@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 0.2.1 (2020-09-02)
+
+### Features
+
+* Improvements for `phonechecks:create` and `--workflow`:
+    * Validate phone number if provided interactively
+    * Emphasise turning off WiFi with `--workflow`
+* New `projects:create --quickstart` flag:
+    * Create a Project and run a Phone Check in a single command
+
+## 0.2.0 (2020-08-25)
+
+### Features
+
+* List Projects: `4auth projects:list`
+    * Includes flags for searching and sorting: `--search` and `--sort`
+    * And for pagination: `--page_number` and `--page_size`
+* List Phone Checks: `4auth phonechecks:list flags
+* Use improved URL endpoint for QR code: `4auth phonechecks:create --workflow` generated QR codes now link to r.4auth.io to handle the `GET check_url` request
+* Workspaces command to show details such as balance: `4auth workspaces`
+
+### Bug Fixes
+
+* Show full property headers in list table names instead of JSON payloads
+
 ### 0.1.2 (2020-07-30)
 
 ### Bug Fixes

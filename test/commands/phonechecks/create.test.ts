@@ -8,6 +8,7 @@ chai.use(sinonChai);
 
 import * as fs from 'fs-extra'
 import * as inquirer from 'inquirer'
+import * as qrcode from 'qrcode-terminal'
 
 import IGlobalConfiguration from '../../../src/IGlobalConfiguration'
 import * as phoneCheckAPIClientModules from '../../../src/api/PhoneChecksAPIClient'
@@ -15,10 +16,16 @@ import {IProjectConfiguration} from '../../../src/IProjectConfiguration'
 import * as consoleLoggerModule from '../../../src/helpers/ConsoleLogger'
 import CommandWithProjectConfig from '../../../src/helpers/CommandWithProjectConfig'
 
-let expectedUserConfig:IGlobalConfiguration = {
+let globalConfig:IGlobalConfiguration = {
   defaultWorkspaceClientId: 'my client id',
   defaultWorkspaceClientSecret: 'my client secret',
-  defaultWorkspaceDataResidency: 'eu'
+  defaultWorkspaceDataResidency: 'eu',
+  phoneCheckWorkflowRetryMillisecondsOverride: 500 // override to speed up tests
+}
+
+const overrideQrCodeHandlerConfig = {
+  ...globalConfig,
+  qrCodeUrlHandlerOverride: 'http://example.com/thing/blah?x={CHECK_URL}'
 }
 
 let createPhoneCheckResponse:phoneCheckAPIClientModules.ICreatePhoneCheckResponse = {
@@ -40,10 +47,66 @@ let createPhoneCheckResponse:phoneCheckAPIClientModules.ICreatePhoneCheckRespons
     snapshot_balance: 100
 }
 
+let phoneCheckMatchedResource:phoneCheckAPIClientModules.IPhoneCheckResource = {
+  check_id: "c69bc0e6-a429-11ea-bb37-0242ac130002",
+  status: phoneCheckAPIClientModules.PhoneCheckStatus.COMPLETED,
+  match: true,
+  charge_amount: 1,
+  charge_currency: "API",
+  created_at: "2020-06-01T16:43:30+00:00",
+  ttl: 60,
+  _links: {
+    self: {
+      href: "https://us.api.4auth.io/phone_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002"
+    },
+    check_url: {
+      href: "https://us.api.4auth.io/phone_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002/redirect"
+    }
+  }
+}
+
+let phoneCheckExpiredResource:phoneCheckAPIClientModules.IPhoneCheckResource = {
+  check_id: "c69bc0e6-a429-11ea-bb37-0242ac130002",
+  status: phoneCheckAPIClientModules.PhoneCheckStatus.EXPIRED,
+  match: false,
+  charge_amount: 1,
+  charge_currency: "API",
+  created_at: "2020-06-01T16:43:30+00:00",
+  ttl: 60,
+  _links: {
+    self: {
+      href: "https://us.api.4auth.io/phone_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002"
+    },
+    check_url: {
+      href: "https://us.api.4auth.io/phone_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002/redirect"
+    }
+  }
+}
+
+let phoneCheckPendingResource:phoneCheckAPIClientModules.IPhoneCheckResource = {
+  check_id: "c69bc0e6-a429-11ea-bb37-0242ac130002",
+  status: phoneCheckAPIClientModules.PhoneCheckStatus.PENDING,
+  match: false,
+  charge_amount: 1,
+  charge_currency: "API",
+  created_at: "2020-06-01T16:43:30+00:00",
+  ttl: 60,
+  _links: {
+    self: {
+      href: "https://us.api.4auth.io/phone_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002"
+    },
+    check_url: {
+      href: "https://us.api.4auth.io/phone_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002/redirect"
+    }
+  }
+}
+
 let existsSyncStub:any
 let readJsonStub:any
 let inquirerStub:any
 let phoneCheckAPIClientCreateStub:any
+let phoneCheckAPIClientGetStub:any
+let qrCodeGenerateSpy:any
 
 const phoneNumberToTest = '447700900000'
 const projectConfigFileLocation = `${process.cwd()}/4auth.json`
@@ -71,7 +134,7 @@ describe('phonechecks:create', () => {
 
     readJsonStub.withArgs(
       sinon.default.match(sinon.default.match(new RegExp(/config.json/))))
-        .resolves(expectedUserConfig)
+        .resolves(globalConfig)
 
     readJsonStub.withArgs(
       sinon.default.match(projectConfigFileLocation))
@@ -79,8 +142,14 @@ describe('phonechecks:create', () => {
 
     inquirerStub = sinon.default.stub(inquirer, 'prompt')
     
+    // PhoneCheckClient
     phoneCheckAPIClientCreateStub = sinon.default.stub(phoneCheckAPIClientModules.PhoneChecksAPIClient.prototype, 'create')
     phoneCheckAPIClientCreateStub.resolves(createPhoneCheckResponse)
+
+    phoneCheckAPIClientGetStub = sinon.default.stub(phoneCheckAPIClientModules.PhoneChecksAPIClient.prototype, 'get')
+
+    // QR Code
+    qrCodeGenerateSpy = sinon.default.spy(qrcode, 'generate')
   })
 
   afterEach(() => {
@@ -127,7 +196,9 @@ describe('phonechecks:create', () => {
       {
         name: 'phone_number',
         message: 'Please enter the phone number you would like to Phone Check',
-        type: 'input'
+        type: 'input',
+        filter: sinon.default.match.func,
+        validate: sinon.default.match.func
       }
     ])
   })
@@ -165,7 +236,7 @@ describe('phonechecks:create', () => {
   .command(['phonechecks:create', phoneNumberToTest])
   .it('should instantiate a PhoneChecksAPIClient object with global baseUrl configuration', ctx => {
     expect(phoneChecksApiClientConstructorStub).to.have.been.calledWith(
-      sinon.default.match.has('baseUrl', `https://${expectedUserConfig.defaultWorkspaceDataResidency}.api.4auth.io`),
+      sinon.default.match.has('baseUrl', `https://${globalConfig.defaultWorkspaceDataResidency}.api.4auth.io`),
       sinon.default.match.any
     )
   })
@@ -209,6 +280,98 @@ describe('phonechecks:create', () => {
   .exit(1)
   .it('logs a Phone Check that has status of ERROR', ctx => {
     expect(ctx.stdout).to.contain('The Phone Check could not be created. The Phone Check status is ERROR')
+  })
+
+  describe('phonechecks:create --workflow', () => {
+
+    test
+    .do( () => {
+      phoneCheckAPIClientGetStub.resolves(phoneCheckMatchedResource)
+    })
+    .command(['phonechecks:create', phoneNumberToTest, '--workflow'])
+    .it('creates a QR code', () => {
+      expect(qrCodeGenerateSpy).to.have.been.called
+    })
+
+    test
+    .do( () => {
+      phoneCheckAPIClientGetStub.resolves(phoneCheckMatchedResource)
+    })
+    .command(['phonechecks:create', phoneNumberToTest, '--workflow'])
+    .it('creates a QR code with expected URL', () => {
+      expect(qrCodeGenerateSpy).to.have.been.calledWith(`http://r.4auth.io?u=${encodeURIComponent(createPhoneCheckResponse._links.check_url.href)}`, sinon.default.match.any)
+    })
+    
+    test
+    .do( () => {
+      readJsonStub.restore()
+      readJsonStub = sinon.default.stub(fs, 'readJson')
+    
+      readJsonStub.withArgs(
+        sinon.default.match(sinon.default.match(new RegExp(/config.json/))))
+        .resolves(overrideQrCodeHandlerConfig)
+      
+      readJsonStub.withArgs(
+        sinon.default.match(projectConfigFileLocation))
+        .resolves(projectConfig)
+        
+        phoneCheckAPIClientGetStub.resolves(phoneCheckMatchedResource)
+    })
+    .command(['phonechecks:create', phoneNumberToTest, '--workflow'])
+    .it('creates a QR code with expected URL override', () => {
+      const expectedUrl = overrideQrCodeHandlerConfig.qrCodeUrlHandlerOverride.replace('{CHECK_URL}', `${encodeURIComponent(createPhoneCheckResponse._links.check_url.href)}`)
+      expect(qrCodeGenerateSpy).to.have.been.calledWith(expectedUrl, sinon.default.match.any)
+    })
+        
+    test
+    .do( () => {
+      phoneCheckAPIClientGetStub.resolves(phoneCheckMatchedResource)
+    })
+    .command(['phonechecks:create', phoneNumberToTest, '--workflow', '--skip-qrcode-handler'])
+    .it('creates a QR code with expected URL skipping r.4auth.io', () => {
+      expect(qrCodeGenerateSpy).to.have.been.calledWith(createPhoneCheckResponse._links.check_url.href, sinon.default.match.any)
+    })
+        
+    test
+    .do( () => {
+      phoneCheckAPIClientGetStub.resolves(phoneCheckMatchedResource)
+    })
+    .command(['phonechecks:create', phoneNumberToTest, '--workflow'])
+    .it('checks the status of the PhoneCheck', () => {
+      expect(phoneCheckAPIClientGetStub).to.have.been.calledWith(createPhoneCheckResponse.check_id)
+    })
+
+    test
+    .do( () => {
+      phoneCheckAPIClientGetStub.resolves(phoneCheckMatchedResource)
+    })
+    .stdout()
+    .command(['phonechecks:create', phoneNumberToTest, '--workflow'])
+    .it('completed status and match result are logged', (ctx) => {
+      expect(ctx.stdout).to.contain(`match:\ttrue`)
+      expect(ctx.stdout).to.contain(`status:\tCOMPLETED`)
+    })
+
+    test
+    .do( () => {
+      phoneCheckAPIClientGetStub.onCall(0).resolves(phoneCheckPendingResource)
+      phoneCheckAPIClientGetStub.onCall(1).resolves(phoneCheckMatchedResource)
+    })
+    .command(['phonechecks:create', phoneNumberToTest, '--workflow'])
+    .it('checks the status of the PhoneCheck again if the first check status is not a final state', () => {
+      expect(phoneCheckAPIClientGetStub).to.have.been.calledTwice
+    })
+
+    test
+    .do( () => {
+      phoneCheckAPIClientGetStub.resolves(phoneCheckExpiredResource)
+    })
+    .stdout()
+    .command(['phonechecks:create', phoneNumberToTest, '--workflow'])
+    .it('exits if the phone check expires', (ctx) => {
+      expect(ctx.stdout).to.contain(`status:\tEXPIRED`)
+    })
+
   })
 
 })
