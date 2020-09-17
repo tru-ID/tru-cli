@@ -17,6 +17,19 @@ export default class CreateToken extends CommandWithProjectConfig {
         "no-truncate": cli.table.flags()["no-truncate"]
     }
 
+    static examples = [
+        `# use workspace credentials to create token
+$ 4auth oauth2:token
+`,
+        `# use project credentials to create token
+$ 4auth oauth2:token --${CommandWithProjectConfig.projectDirFlagName} path/to/project
+`,
+`# assign a token to a variable in shell
+$ TOKEN=$(4auth oauth2:token --project_dir ~/tmp/bbb --no-header)                                                                                                                                                               ~/4auth/git/4auth-cli
+$ echo $TOKEN                                                                                                                                                                                                                     ~/4auth/git/4auth-cli
+Emesua0F7gj3qOaav7UaKaBwefaaefaAxlrdGom_mb3U.78Od2d9XpvTQbd44eM1Uf7nzz9e9nezs5TRjPmpDnMc`
+    ]
+
     logger?: ILogger
 
     async run() {
@@ -37,9 +50,7 @@ export default class CreateToken extends CommandWithProjectConfig {
         const clientSecret = runningInProjectContext ? this.projectConfig?.credentials[0].client_secret : this.globalConfig?.defaultWorkspaceClientSecret
         const scopes = runningInProjectContext ? ['phone_check'] : ['projects']
 
-        console.log(clientId, clientId)
-
-        this.logger.info(`Creating a token for a ${runningInProjectContext ? 'Project' : 'Workspace'} with the scopes "${scopes.join(' ')}"`)
+        this.logger.debug(`Creating a token for a ${runningInProjectContext ? 'Project' : 'Workspace'} with the scope "${scopes.join(' ')}"`)
 
         const apiClient = new OAuth2APIClient(
             new APIConfiguration({
