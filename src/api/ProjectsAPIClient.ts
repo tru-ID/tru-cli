@@ -1,3 +1,5 @@
+import * as jsonpatch from 'fast-json-patch'
+
 import {APIConfiguration} from './APIConfiguration'
 import ILogger from '../helpers/ILogger';
 import AbstractAPIClient from './AbstractAPIClient';
@@ -13,6 +15,23 @@ export interface ICreateProjectPayload {
     }
 }
 
+export interface IUpdateProjectPayload {
+    /**
+     * `configuration` can only be added.
+     */
+    configuration?: {
+        /**
+         * `phone_check` alone cannot be manipulated. If `configuration` is present it `phone_check` must also be present.
+         */
+        phone_check: {
+            /**
+             * `callback_url` can be updated or deleted. To delete set to and empty string.
+             */
+            callback_url: string
+        }
+    }
+}
+
 export interface ICreateProjectResponse {
     project_id: string
     name: string
@@ -21,7 +40,12 @@ export interface ICreateProjectResponse {
     credentials: IAPICredentials[],
     _links: {
         self: ILink
-    }
+    },
+    configuration?: {
+        phone_check?: {
+            callback_url?: string
+        }
+    } 
 }
 
 export interface IProjectResource {
@@ -32,7 +56,12 @@ export interface IProjectResource {
     credentials: IAPICredentials[],
     _links: {
         self: ILink
-    }    
+    },
+    configuration?: {
+        phone_check?: {
+            callback_url?: string
+        }
+    } 
 }
 
 export interface IListProjectsResponse extends IListResource {
@@ -67,8 +96,30 @@ export class ProjectsAPIClient extends AbstractAPIClient {
         return response
     }
 
-    update() {
-        throw new Error('Not supported by the API')
+    async update(projectId: string, params: IUpdateProjectPayload) {
+        let existingProject:IProjectResource = await this.get(projectId)
+
+        let observer:any = jsonpatch.observe(existingProject);
+
+        this.logger.debug('Existing project', existingProject)
+        this.logger.debug('Project update', params)
+
+        if(params.configuration?.phone_check.callback_url.length === 0 &&
+           existingProject.configuration?.phone_check?.callback_url) {
+            delete existingProject.configuration.phone_check?.callback_url
+        }
+        else if (params.configuration?.phone_check.callback_url) {
+            existingProject = Object.assign(existingProject, params)
+        }
+
+        const operations = jsonpatch.generate(observer)
+
+        this.logger.debug('patch operations', operations)
+
+        const response:ICreateProjectResponse = await this.httpClient.patch<ICreateProjectResponse>(`/console/v0.1/projects/${projectId}`, operations, {
+            'Content-Type': 'application/json-patch+json'
+        })
+        return response
     }
 
     delete() {

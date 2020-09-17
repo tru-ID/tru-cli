@@ -1,0 +1,127 @@
+import {test} from '@oclif/test'
+import * as sinon from 'ts-sinon'
+import * as chai from 'chai';
+import * as sinonChai from 'sinon-chai'
+
+const expect = chai.expect;
+chai.use(sinonChai);
+
+import * as fs from 'fs-extra'
+
+import * as projectsModule from '../../../src/api/ProjectsAPIClient'
+import {ICreateProjectResponse} from '../../../src/api/ProjectsAPIClient'
+import IGlobalConfiguration from '../../../src/IGlobalConfiguration'
+import * as consoleLoggerModule from '../../../src/helpers/ConsoleLogger'
+
+let projectsApiUpdateStub:any = null
+
+let expectedUserConfig:IGlobalConfiguration = {
+  defaultWorkspaceClientId: 'my client id',
+  defaultWorkspaceClientSecret: 'my client secret',
+  defaultWorkspaceDataResidency: 'eu'
+}
+
+// Stubs
+let existsSyncStub:any
+let readJsonStub:any
+let consoleLoggerInfoStub:any
+let consoleLoggerWarnStub:any
+let consoleLoggerErrorStub:any
+
+const createProjectAPIResponse: ICreateProjectResponse = {
+  "project_id": "c69bc0e6-a429-11ea-bb37-0242ac130003",
+  "name": "my project",
+  "created_at": "2020-06-01T16:43:30+00:00",
+  "updated_at": "2020-06-01T16:43:30+00:00",
+  "credentials": [
+    {
+      "client_id": "6779ef20e75817b79602",
+      "client_secret": "dzi1v4osLNr5vv0.2mnvcKM37.",
+      "created_at": "2020-06-01T16:43:30+00:00"
+    }
+  ],
+  "_links": {
+    "self": {
+      "href": "https://eu.api.4auth.io/console/v1/projects/c69bc0e6-a429-11ea-bb37-0242ac130003"
+    }
+  }
+}
+
+const expectedProjectConfigJson: any = {
+  ... createProjectAPIResponse,
+}
+delete expectedProjectConfigJson._links
+
+describe('Command: projects:update', () => {
+
+  beforeEach(() => {
+    existsSyncStub = sinon.default.stub(fs, 'existsSync').withArgs(sinon.default.match(new RegExp(/config.json/))).returns(true)
+
+    readJsonStub = sinon.default.stub(fs, 'readJson')
+    readJsonStub.resolves(expectedUserConfig)
+
+    projectsApiUpdateStub = sinon.default.stub(projectsModule.ProjectsAPIClient.prototype, 'update')
+  })
+  
+  afterEach(() => {
+    sinon.default.restore()
+  });
+
+  test
+  .do( () => {  
+    consoleLoggerErrorStub = sinon.default.stub(consoleLoggerModule.ConsoleLogger.prototype, 'error')
+  })
+  .command(['projects:update', 'f0f5fb8e-db1c-4e75-bae8-cvxcvxcv'])
+  .exit()
+  .it('shows error message if no update flags are provided', ctx => {
+    expect(consoleLoggerErrorStub).to.have.been.calledWith('At least one flag must be supplied to indicate the update to be applied to the Project')
+  })
+
+  test
+  .do( () => {
+    consoleLoggerErrorStub = sinon.default.stub(consoleLoggerModule.ConsoleLogger.prototype, 'error')
+  })
+  .command(['projects:update', createProjectAPIResponse.project_id, '--phonecheck-callback-url', `i am not a url`])
+  .exit()
+  .it('should show an error message if an invalid URL is supplied for the --phonecheck-callback-url flag', () => {
+    expect(consoleLoggerErrorStub).to.have.been.calledWith('"phonecheck-callback-url" must be a valid URL')
+  })
+
+  test
+  .do( () => {
+    consoleLoggerWarnStub = sinon.default.stub(consoleLoggerModule.ConsoleLogger.prototype, 'warn')
+
+    projectsApiUpdateStub.resolves()
+  })
+  .command(['projects:update', createProjectAPIResponse.project_id, '--phonecheck-callback-url', `http://example.com/callback`])
+  .it('should log a warning if the URL provided is HTTP and not HTTPS', ctx => {
+    expect(consoleLoggerWarnStub).to.have.been.calledWith('"phonecheck-callback-url" was detected to be HTTP. Please consider updated to be HTTPS.')
+  })
+
+  test
+  .do( () => {
+    projectsApiUpdateStub.resolves(createProjectAPIResponse)
+  })
+  .command(['projects:update', createProjectAPIResponse.project_id, '--phonecheck-callback-url', 'https://example.com/callback'])
+  .it('should call the API client `update` is called to update existing project', ctx => {
+    expect(projectsApiUpdateStub).to.have.been.calledWith(createProjectAPIResponse.project_id, {
+      configuration: {
+        phone_check: {
+          callback_url: 'https://example.com/callback'
+        }
+      }
+    })
+  })
+
+  test
+  .do( () => {
+    projectsApiUpdateStub.resolves(createProjectAPIResponse)
+
+    consoleLoggerInfoStub = sinon.default.stub(consoleLoggerModule.ConsoleLogger.prototype, 'info')
+  })
+  .command(['projects:update', createProjectAPIResponse.project_id, '--phonecheck-callback-url', 'https://example.com/callback'])
+  .it('should inform the user that the update was successful', ctx => {
+    expect(consoleLoggerInfoStub).to.have.been.calledWith('✅ Project updated')
+  })
+
+})

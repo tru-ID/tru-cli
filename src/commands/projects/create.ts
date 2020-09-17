@@ -10,6 +10,7 @@ import {ConsoleLogger, LogLevel} from '../../helpers/ConsoleLogger'
 
 import PhoneChecksCreate from '../phonechecks/create'
 import * as chalk from 'chalk'
+import { phoneCheckCallbackUrlFlag, phoneCheckCallbackUrlFlagValidation } from '../../helpers/ProjectFlags'
 
 export default class Create extends CommandWithProjectConfig {
   static description = 'Creates a new Project'
@@ -26,9 +27,7 @@ Creating Project "My first project"
     quickstart: flags.boolean({
       description: 'Create a Project and also create a Phone Check in workflow mode.'
     }),
-    'phonecheck-callback-url': flags.string({
-      description: 'callback to be invoked when a Phone Check reaches an end state',
-    })
+    ...phoneCheckCallbackUrlFlag
   }
 
   static args = [
@@ -50,16 +49,10 @@ Creating Project "My first project"
     logger.debug('flags', this.flags)
 
     if(this.flags['phonecheck-callback-url']) {
-      try{
-        const callbackUrl = new URL(this.flags['phonecheck-callback-url'])
-
-        if(callbackUrl.protocol === 'http:') {
-          logger.warn('"phonecheck-callback-url" was detected to be HTTP. Please consider updated to be HTTPS.')
+      if(this.flags['phonecheck-callback-url']) {
+        if(phoneCheckCallbackUrlFlagValidation(this.flags['phonecheck-callback-url'], logger) === false) {
+          this.exit()
         }
-      }
-      catch(error) {
-        logger.error('"phonecheck-callback-url" must be a valid URL')
-        this.exit()
       }
     }
 

@@ -2,7 +2,7 @@ import * as sinon from 'ts-sinon'
 import * as chai from 'chai';
 import * as sinonChai from 'sinon-chai'
 
-import {ProjectsAPIClient} from '../../src/api/ProjectsAPIClient'
+import {ICreateProjectResponse, ProjectsAPIClient} from '../../src/api/ProjectsAPIClient'
 import {APIConfiguration} from '../../src/api/APIConfiguration';
 import * as httpClientModule from '../../src/api/HttpClient'
 
@@ -15,6 +15,7 @@ describe('API: projects', () => {
 
     let httpClientConstructorStub:any = null
     let httpClientPostStub:any = null
+    let httpClientPatchStub:any = null
     let httpClientGetStub:any = null
 
     const apiConfig = new APIConfiguration({
@@ -24,13 +25,39 @@ describe('API: projects', () => {
         baseUrl: 'https://example.com/api'
     })
 
+
     function createDefaultProjectsAPI():ProjectsAPIClient {
         return new ProjectsAPIClient(apiConfig, console)
+    }
+
+    // ensure a new object instance is returned for each usage
+    // this is important when determining at PATCH operations
+    function getProjectObject(): ICreateProjectResponse {
+        return {
+            "project_id": "c69bc0e6-a429-11ea-bb37-0242ac130003",
+            "name": "my project",
+            "created_at": "2020-06-01T16:43:30+00:00",
+            "updated_at": "2020-06-01T16:43:30+00:00",
+            "credentials": [
+              {
+                "client_id": "6779ef20e75817b79602",
+                "client_secret": "dzi1v4osLNr5vv0.2mnvcKM37.",
+                "created_at": "2020-06-01T16:43:30+00:00"
+              }
+            ],
+            "_links": {
+              "self": {
+                "href": "https://eu.api.4auth.io/console/v1/projects/c69bc0e6-a429-11ea-bb37-0242ac130003"
+              }
+            }
+          }
     }
 
     beforeEach(() => {
         httpClientPostStub = sinon.default.stub(httpClientModule.HttpClient.prototype, 'post')
         httpClientPostStub.withArgs('/console/v0.1/projects', sinon.default.match.any, sinon.default.match.any).resolves({name: projectName})
+
+        httpClientPatchStub = sinon.default.stub(httpClientModule.HttpClient.prototype, 'patch')
 
         httpClientGetStub = sinon.default.stub(httpClientModule.HttpClient.prototype, 'get')
     })
@@ -62,6 +89,129 @@ describe('API: projects', () => {
         await projectsAPI.create({name: projectName})
 
         expect(httpClientPostStub).to.have.been.calledWith('/console/v0.1/projects', sinon.default.match.any, sinon.default.match.any)
+    })
+
+    it('should make a request to get the existing project with the provided project_id', async () => {
+        const projectsAPI:ProjectsAPIClient = createDefaultProjectsAPI() 
+
+        httpClientGetStub.resolves(getProjectObject())
+
+        const projectId = 'f0f5fb8e-db1c-4e75-bae8-cvxcvxcv'
+        await projectsAPI.update(projectId, {
+            configuration: {
+                phone_check: {
+                    callback_url: 'https://example.com/callback'
+                }
+            }
+        })
+
+        expect(httpClientGetStub).to.have.been.calledWith(`/console/v0.1/projects/${projectId}`, sinon.default.match.any, sinon.default.match.any)
+    })
+
+    it('should make a request to patch a project with the expected API endpoint path', async () => {
+        const projectsAPI:ProjectsAPIClient = createDefaultProjectsAPI()
+
+        httpClientGetStub.resolves(getProjectObject())
+
+        const projectId = 'f0f5fb8e-db1c-4e75-bae8-cvxcvxcv'
+        await projectsAPI.update(projectId, {
+            configuration: {
+                phone_check: {
+                    callback_url: 'https://example.com/callback'
+                }
+            }
+        })
+
+        expect(httpClientPatchStub).to.have.been.calledWith(`/console/v0.1/projects/${projectId}`, sinon.default.match.any, sinon.default.match.any)
+    })
+
+
+    it('should make a request to patch a project with an add operation', async () => {
+        const projectsAPI:ProjectsAPIClient = createDefaultProjectsAPI()
+
+        httpClientGetStub.resolves(getProjectObject())
+
+        const projectId = 'f0f5fb8e-db1c-4e75-bae8-cvxcvxcv'
+        await projectsAPI.update(projectId, {
+            configuration: {
+                phone_check: {
+                    callback_url: 'https://example.com/callback'
+                }
+            }
+        })
+
+        expect(httpClientPatchStub).to.have.been.calledWith(sinon.default.match.any, [
+            {
+                op: 'add',
+                path: '/configuration',
+                value: {
+                    phone_check: {
+                        callback_url: 'https://example.com/callback'
+                    }
+                }
+            }
+        ],
+        sinon.default.match.any)
+    })
+
+    it('should make a request to patch a project with a replace operation', async () => {
+        const projectsAPI:ProjectsAPIClient = createDefaultProjectsAPI()
+
+        const project = getProjectObject()
+        project.configuration = {
+            phone_check: {
+                callback_url: 'https://example.com/callback'
+            }
+        }
+        httpClientGetStub.resolves(project)
+
+        const projectId = 'f0f5fb8e-db1c-4e75-bae8-cvxcvxcv'
+        await projectsAPI.update(projectId, {
+            configuration: {
+                phone_check: {
+                    callback_url: 'https://example.com/updated_callback'
+                }
+            }
+        })
+
+        expect(httpClientPatchStub).to.have.been.calledWith(sinon.default.match.any, [
+            {
+                op: 'replace',
+                path: '/configuration/phone_check/callback_url',
+                value: 'https://example.com/updated_callback'
+            }
+        ],
+        sinon.default.match.any)
+    })
+
+    it('should make a request to patch a project with a replace operation', async () => {
+        const projectsAPI:ProjectsAPIClient = createDefaultProjectsAPI()
+
+        const project = getProjectObject()
+        project.configuration = {
+            phone_check: {
+                callback_url: 'https://example.com/callback'
+            }
+        }
+        httpClientGetStub.resolves(project)
+
+        const projectId = 'f0f5fb8e-db1c-4e75-bae8-cvxcvxcv'
+        await projectsAPI.update(projectId, {
+            configuration: {
+                phone_check: {
+                    callback_url: 'https://example.com/updated_callback'
+                }
+            }
+        })
+
+        expect(httpClientPatchStub).to.have.been.calledWith(sinon.default.match.any, [
+            {
+                op: 'replace',
+                path: '/configuration/phone_check/callback_url',
+                value: 'https://example.com/updated_callback'
+            }
+        ],
+        sinon.default.match.any)
     })
 
     it('should query project resources', async () => {
