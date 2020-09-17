@@ -151,8 +151,32 @@ export class HttpClient {
         this.logger.debug('Response:', log)
     }
 
+    _filterRequest(request: any) {
+        const allowed = ['string', 'object', 'number']
+        const filtered = Object.keys(request)
+            .filter(key => allowed.includes(typeof request[key]))
+            .reduce((obj: any, key: string) => {
+                obj[key] = request[key];
+                return obj;
+            }, {});
+        return filtered
+    }
+
     logError(error: any): void {
-        this.logger.debug('Error:', error)
+        let toLog: any = error
+
+        // Axios errors have a lot of information so strip it down
+        // to something more useful
+        if(error.isAxiosError) {
+            toLog = {
+                statusCode: error.response.status,
+                statusText: error.response.statusText,
+                headers: error.response.headers,
+                request: this._filterRequest(error.response.config),
+                data: error.response?.data || null
+            }
+        }
+        this.logger.debug('Error:', toLog)
     }
 
 }
