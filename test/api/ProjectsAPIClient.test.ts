@@ -214,6 +214,33 @@ describe('API: projects', () => {
         sinon.default.match.any)
     })
 
+    it('should make a request to patch a project with a remove operation', async () => {
+        const projectsAPI:ProjectsAPIClient = createDefaultProjectsAPI()
+
+        const project = getProjectObject()
+        project.configuration = {
+            phone_check: {
+                callback_url: 'https://example.com/updated_callback'
+            }
+        }
+        httpClientGetStub.resolves(project)
+
+        const projectId = 'f0f5fb8e-db1c-4e75-bae8-cvxcvxcv'
+        await projectsAPI.update(projectId, {
+            configuration: {
+                phone_check: {}
+            }
+        })
+
+        expect(httpClientPatchStub).to.have.been.calledWith(sinon.default.match.any, [
+            {
+                op: 'remove',
+                path: '/configuration/phone_check/callback_url'
+            }
+        ],
+        sinon.default.match.any)
+    })
+
     it('should query project resources', async () => {
         const projectsAPI:ProjectsAPIClient = createDefaultProjectsAPI()
 

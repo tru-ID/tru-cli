@@ -25,27 +25,11 @@ export interface IUpdateProjectPayload {
          */
         phone_check: {
             /**
-             * `callback_url` can be updated or deleted. To delete set to and empty string.
+             * The `callback_url` for Phone Check.
              */
-            callback_url: string
-        }
-    }
-}
-
-export interface ICreateProjectResponse {
-    project_id: string
-    name: string
-    created_at: string
-    updated_at: string
-    credentials: IAPICredentials[],
-    _links: {
-        self: ILink
-    },
-    configuration?: {
-        phone_check?: {
             callback_url?: string
         }
-    } 
+    }
 }
 
 export interface IProjectResource {
@@ -62,6 +46,9 @@ export interface IProjectResource {
             callback_url?: string
         }
     } 
+}
+
+export interface ICreateProjectResponse extends IProjectResource {
 }
 
 export interface IListProjectsResponse extends IListResource {
@@ -104,14 +91,7 @@ export class ProjectsAPIClient extends AbstractAPIClient {
         this.logger.debug('Existing project', existingProject)
         this.logger.debug('Project update', params)
 
-        if(params.configuration?.phone_check.callback_url.length === 0 &&
-           existingProject.configuration?.phone_check?.callback_url) {
-            delete existingProject.configuration.phone_check?.callback_url
-        }
-        else if (params.configuration?.phone_check.callback_url) {
-            existingProject = Object.assign(existingProject, params)
-        }
-
+        existingProject = Object.assign(existingProject, params)
         const operations = jsonpatch.generate(observer)
 
         this.logger.debug('patch operations', operations)

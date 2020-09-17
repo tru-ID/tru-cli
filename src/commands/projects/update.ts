@@ -3,19 +3,20 @@ import {ProjectsAPIClient, ICreateProjectResponse, ICreateProjectPayload, IUpdat
 import {APIConfiguration} from '../../api/APIConfiguration'
 import {ConsoleLogger, LogLevel} from '../../helpers/ConsoleLogger'
 
-import { phoneCheckCallbackUrlFlag, phoneCheckCallbackUrlFlagValidation } from '../../helpers/ProjectFlags'
+import { phoneCheckCallbackUrlFlag, phoneCheckCallbackUrlFlagValidation, removePhoneCheckCallbackFlag } from '../../helpers/ProjectFlags'
 
 export default class Create extends CommandWithProjectConfig {
   static description = 'Update an existing Project'
 
   static examples = [
-    `$ 4auth project:update --phonecheck-callback-url https://example.com/callback
-`,
+    `$ 4auth project:update --phonecheck-callback https://example.com/callback`,
+    `$ 4auth project:update --remove-phonecheck-callback`
   ]
 
   static flags = {
     ...CommandWithProjectConfig.flags,
-    ...phoneCheckCallbackUrlFlag,
+    ...phoneCheckCallbackUrlFlag.flag,
+    ...removePhoneCheckCallbackFlag.flag,
   }
 
   static args = [
@@ -36,14 +37,14 @@ export default class Create extends CommandWithProjectConfig {
     logger.debug('args', this.args)
     logger.debug('flags', this.flags)
 
-    if(this.flags['phonecheck-callback-url'] !== undefined) {
-      if(phoneCheckCallbackUrlFlagValidation(this.flags['phonecheck-callback-url'], logger) === false) {
-        this.exit()
+    if(this.flags[phoneCheckCallbackUrlFlag.flagName] !== undefined) {
+      if(phoneCheckCallbackUrlFlagValidation(this.flags[phoneCheckCallbackUrlFlag.flagName], logger) === false) {
+        this.exit(1)
       }
     }
-    else {
+    else if(this.flags[removePhoneCheckCallbackFlag.flagName] === false) {
       logger.error('At least one flag must be supplied to indicate the update to be applied to the Project')
-      this.exit()
+      this.exit(1)
     }
 
     this.log(`Updated Project with project_id "${this.args['project-id']}"`)
@@ -62,11 +63,16 @@ export default class Create extends CommandWithProjectConfig {
     try {
       const updatePayload: IUpdateProjectPayload = {}
 
-      if(this.flags['phonecheck-callback-url']?.length !== undefined) {
+      if(this.flags[phoneCheckCallbackUrlFlag.flagName]) {
         updatePayload.configuration = {
           phone_check: {
-            callback_url: this.flags['phonecheck-callback-url']
+            callback_url: this.flags[phoneCheckCallbackUrlFlag.flagName]
           }
+        }
+      }
+      if(this.flags[removePhoneCheckCallbackFlag.flagName]) {
+        updatePayload.configuration = {
+          phone_check: {}
         }
       }
 

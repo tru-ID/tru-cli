@@ -27,7 +27,7 @@ Creating Project "My first project"
     quickstart: flags.boolean({
       description: 'Create a Project and also create a Phone Check in workflow mode.'
     }),
-    ...phoneCheckCallbackUrlFlag
+    ...phoneCheckCallbackUrlFlag.flag
   }
 
   static args = [
@@ -48,9 +48,9 @@ Creating Project "My first project"
     logger.debug('args', this.args)
     logger.debug('flags', this.flags)
 
-    if(this.flags['phonecheck-callback-url']) {
-      if(this.flags['phonecheck-callback-url']) {
-        if(phoneCheckCallbackUrlFlagValidation(this.flags['phonecheck-callback-url'], logger) === false) {
+    if(this.flags[phoneCheckCallbackUrlFlag.flagName]) {
+      if(this.flags[phoneCheckCallbackUrlFlag.flagName]) {
+        if(phoneCheckCallbackUrlFlagValidation(this.flags[phoneCheckCallbackUrlFlag.flagName], logger) === false) {
           this.exit()
         }
       }
@@ -83,10 +83,10 @@ Creating Project "My first project"
       const createPayload: ICreateProjectPayload = {
         name: this.args.name
       }
-      if(this.flags['phonecheck-callback-url']) {
+      if(this.flags[phoneCheckCallbackUrlFlag.flagName]) {
         createPayload.configuration = {
           phone_check: {
-            callback_url: this.flags['phonecheck-callback-url']
+            callback_url: this.flags[phoneCheckCallbackUrlFlag.flagName]
           }
         }
       }

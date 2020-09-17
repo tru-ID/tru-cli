@@ -72,7 +72,7 @@ describe('Command: projects:update', () => {
     consoleLoggerErrorStub = sinon.default.stub(consoleLoggerModule.ConsoleLogger.prototype, 'error')
   })
   .command(['projects:update', 'f0f5fb8e-db1c-4e75-bae8-cvxcvxcv'])
-  .exit()
+  .exit(1)
   .it('shows error message if no update flags are provided', ctx => {
     expect(consoleLoggerErrorStub).to.have.been.calledWith('At least one flag must be supplied to indicate the update to be applied to the Project')
   })
@@ -81,10 +81,20 @@ describe('Command: projects:update', () => {
   .do( () => {
     consoleLoggerErrorStub = sinon.default.stub(consoleLoggerModule.ConsoleLogger.prototype, 'error')
   })
-  .command(['projects:update', createProjectAPIResponse.project_id, '--phonecheck-callback-url', `i am not a url`])
-  .exit()
-  .it('should show an error message if an invalid URL is supplied for the --phonecheck-callback-url flag', () => {
-    expect(consoleLoggerErrorStub).to.have.been.calledWith('"phonecheck-callback-url" must be a valid URL')
+  .command(['projects:update', createProjectAPIResponse.project_id, '--phonecheck-callback', `i am not a url`])
+  .exit(1)
+  .it('should show an error message if an invalid URL is supplied for the --phonecheck-callback flag', () => {
+    expect(consoleLoggerErrorStub).to.have.been.calledWith('"phonecheck-callback" must be a valid URL')
+  })
+
+  test
+  .do( () => {
+    consoleLoggerErrorStub = sinon.default.stub(consoleLoggerModule.ConsoleLogger.prototype, 'error')
+  })
+  .command(['projects:update', createProjectAPIResponse.project_id, '--phonecheck-callback', ``])
+  .exit(1)
+  .it('should show an error message if an empty string is supplied for the --phonecheck-callback flag', () => {
+    expect(consoleLoggerErrorStub).to.have.been.calledWith('"phonecheck-callback" must be a valid URL')
   })
 
   test
@@ -93,16 +103,16 @@ describe('Command: projects:update', () => {
 
     projectsApiUpdateStub.resolves()
   })
-  .command(['projects:update', createProjectAPIResponse.project_id, '--phonecheck-callback-url', `http://example.com/callback`])
+  .command(['projects:update', createProjectAPIResponse.project_id, '--phonecheck-callback', `http://example.com/callback`])
   .it('should log a warning if the URL provided is HTTP and not HTTPS', ctx => {
-    expect(consoleLoggerWarnStub).to.have.been.calledWith('"phonecheck-callback-url" was detected to be HTTP. Please consider updated to be HTTPS.')
+    expect(consoleLoggerWarnStub).to.have.been.calledWith('"phonecheck-callback" was detected to be HTTP. Please consider updated to be HTTPS.')
   })
 
   test
   .do( () => {
     projectsApiUpdateStub.resolves(createProjectAPIResponse)
   })
-  .command(['projects:update', createProjectAPIResponse.project_id, '--phonecheck-callback-url', 'https://example.com/callback'])
+  .command(['projects:update', createProjectAPIResponse.project_id, '--phonecheck-callback', 'https://example.com/callback'])
   .it('should call the API client `update` is called to update existing project', ctx => {
     expect(projectsApiUpdateStub).to.have.been.calledWith(createProjectAPIResponse.project_id, {
       configuration: {
@@ -119,9 +129,32 @@ describe('Command: projects:update', () => {
 
     consoleLoggerInfoStub = sinon.default.stub(consoleLoggerModule.ConsoleLogger.prototype, 'info')
   })
-  .command(['projects:update', createProjectAPIResponse.project_id, '--phonecheck-callback-url', 'https://example.com/callback'])
+  .command(['projects:update', createProjectAPIResponse.project_id, '--phonecheck-callback', 'https://example.com/callback'])
   .it('should inform the user that the update was successful', ctx => {
     expect(consoleLoggerInfoStub).to.have.been.calledWith('✅ Project updated')
+  })
+
+  test
+  .do( () => {
+    projectsApiUpdateStub.resolves(createProjectAPIResponse)
+  })
+  .command(['projects:update', createProjectAPIResponse.project_id, '--phonecheck-callback', 'https://example.com/callback', '--remove-phonecheck-callback'])
+  .exit(2)
+  .it('should error if --phonecheck-callback and --remove-phonecheck-callback are used together')
+
+  test
+  .do( () => {
+    projectsApiUpdateStub.resolves(createProjectAPIResponse)
+
+    consoleLoggerInfoStub = sinon.default.stub(consoleLoggerModule.ConsoleLogger.prototype, 'info')
+  })
+  .command(['projects:update', createProjectAPIResponse.project_id, '--remove-phonecheck-callback'])
+  .it('should call the API client with the callback_url removed', ctx => {
+    expect(projectsApiUpdateStub).to.have.been.calledWith(createProjectAPIResponse.project_id, {
+      configuration: {
+        phone_check: {}
+      }
+    })
   })
 
 })

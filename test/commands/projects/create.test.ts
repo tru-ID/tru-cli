@@ -15,6 +15,7 @@ import IGlobalConfiguration from '../../../src/IGlobalConfiguration'
 import * as consoleLoggerModule from '../../../src/helpers/ConsoleLogger'
 import CommandWithProjectConfig from '../../../src/helpers/CommandWithProjectConfig';
 import PhoneChecksCreate from '../../../src/commands/phonechecks/create'
+import {phoneCheckCallbackUrlFlag} from '../../../src/helpers/ProjectFlags'
 
 let projectsApiCreateStub:any = null
 
@@ -367,10 +368,10 @@ describe('Command: projects:create', () => {
 
     consoleLoggerErrorStub = sinon.default.stub(consoleLoggerModule.ConsoleLogger.prototype, 'error')
   })
-  .command(['projects:create', newProjectName, '--phonecheck-callback-url', `i am not a url`])
+  .command(['projects:create', newProjectName, '--phonecheck-callback', `i am not a url`])
   .exit()
-  .it('should show an error message if an invalid URL is supplied for the --phonecheck-callback-url flag', () => {
-    expect(consoleLoggerErrorStub).to.have.been.calledWith('"phonecheck-callback-url" must be a valid URL')
+  .it('should show an error message if an invalid URL is supplied for the --phonecheck-callback flag', () => {
+    expect(consoleLoggerErrorStub).to.have.been.calledWith(`"${phoneCheckCallbackUrlFlag.flagName}" must be a valid URL`)
   })
 
   test
@@ -382,9 +383,9 @@ describe('Command: projects:create', () => {
 
     phoneCheckCreateRunStub.resolves()
   })
-  .command(['projects:create', newProjectName, '--phonecheck-callback-url', `http://example.com/callback`])
+  .command(['projects:create', newProjectName, '--phonecheck-callback', `http://example.com/callback`])
   .it('should log a warning if the URL provided is HTTP and not HTTPS', ctx => {
-    expect(consoleLoggerWarnStub).to.have.been.calledWith('"phonecheck-callback-url" was detected to be HTTP. Please consider updated to be HTTPS.')
+    expect(consoleLoggerWarnStub).to.have.been.calledWith(`"${phoneCheckCallbackUrlFlag.flagName}" was detected to be HTTP. Please consider updated to be HTTPS.`)
   })
 
   test
@@ -396,9 +397,9 @@ describe('Command: projects:create', () => {
 
     phoneCheckCreateRunStub.resolves()
   })
-  .command(['projects:create', newProjectName, '--phonecheck-callback-url', `http://example.com/callback`])
+  .command(['projects:create', newProjectName, '--phonecheck-callback', `http://example.com/callback`])
   .it('should log a warning if the URL provided is HTTP and not HTTPS', ctx => {
-    expect(consoleLoggerWarnStub).to.have.been.calledWith('"phonecheck-callback-url" was detected to be HTTP. Please consider updated to be HTTPS.')
+    expect(consoleLoggerWarnStub).to.have.been.calledWith('"phonecheck-callback" was detected to be HTTP. Please consider updated to be HTTPS.')
   })
 
   test
@@ -408,7 +409,7 @@ describe('Command: projects:create', () => {
 
     phoneCheckCreateRunStub.resolves()
   })
-  .command(['projects:create', newProjectName, '--phonecheck-callback-url', `https://example.com/callback`])
+  .command(['projects:create', newProjectName, '--phonecheck-callback', `https://example.com/callback`])
   .it('should create a Project with the expected callback_url configuration', ctx => {
     expect(projectsApiCreateStub).to.have.been.calledWith({
       name: newProjectName,
