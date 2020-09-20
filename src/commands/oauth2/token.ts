@@ -38,14 +38,17 @@ Emesua0F7gj3qOaav7UaKaBwefaaefaAxlrdGom_mb3U.78Od2d9XpvTQbd44eM1Uf7nzz9e9nezs5TR
         this.args = result.args
         this.flags = result.flags
 
-        await this.loadProjectConfig()
-
         this.logger = new ConsoleLogger(!this.flags.debug ? LogLevel.info : LogLevel.debug)
         this.logger.debug('--debug', true)
 
         // if --projects_dir has been supplied running in the context of the project
         // otherwise, running in the context of the workspaces
         const runningInProjectContext = !!this.flags[CommandWithProjectConfig.projectDirFlagName]
+
+        if(runningInProjectContext) {
+            await this.loadProjectConfig()
+        }
+
         const clientId = runningInProjectContext ? this.projectConfig?.credentials[0].client_id : this.globalConfig?.defaultWorkspaceClientId
         const clientSecret = runningInProjectContext ? this.projectConfig?.credentials[0].client_secret : this.globalConfig?.defaultWorkspaceClientSecret
         const scopes = runningInProjectContext ? ['phone_check'] : ['projects']

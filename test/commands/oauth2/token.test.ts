@@ -47,6 +47,7 @@ const newProjectName: string = 'My First Project'
 const expectedProjectDirectoryName = 'my_first_project'
 const expectedProjectFullPath = `${process.cwd()}/${expectedProjectDirectoryName}`
 const expectedProjectConfigFileFullPath = `${expectedProjectFullPath}/4auth.json`
+const expectedCurrentWorkingDirectoryConfig = `${process.cwd()}/4auth.json`
 
 const createProjectAPIResponse: ICreateProjectResponse = {
   "project_id": "c69bc0e6-a429-11ea-bb37-0242ac130003",
@@ -75,13 +76,14 @@ delete expectedProjectConfigJson._links
 describe('Command: oauth2:create', () => {
 
   beforeEach(() => {
-    existsSyncStub = sinon.default.stub(fs, 'existsSync').withArgs(sinon.default.match(new RegExp(/config.json/))).returns(true)
+    existsSyncStub = sinon.default.stub(fs, 'existsSync')
+    existsSyncStub.withArgs(sinon.default.match(new RegExp(/config.json/))).returns(true)
 
     apiClientStub = sinon.default.stub(OAuth2APIClient.prototype, 'create')
     apiClientStub.resolves(accessToken)
 
     readJsonStub = sinon.default.stub(fs, 'readJson')
-    readJsonStub.resolves(expectedUserConfig)
+    readJsonStub.withArgs(sinon.default.match(new RegExp(/config.json/))).resolves(expectedUserConfig)
   })
   
   afterEach(() => {
@@ -89,7 +91,8 @@ describe('Command: oauth2:create', () => {
   });
 
   test
-  .do( () => {  
+  .do( () => {
+    existsSyncStub.withArgs(expectedCurrentWorkingDirectoryConfig).returns(false)
     constructorStub = sinon.default.spy(apiModule, 'OAuth2APIClient')
   })
   .command(['oauth2:token'])
