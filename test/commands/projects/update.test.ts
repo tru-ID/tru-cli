@@ -28,6 +28,8 @@ let consoleLoggerInfoStub:any
 let consoleLoggerWarnStub:any
 let consoleLoggerErrorStub:any
 
+const workingDirectoryProjectConfigPath = `${process.cwd()}/4auth.json`
+
 const createProjectAPIResponse: ICreateProjectResponse = {
   "project_id": "c69bc0e6-a429-11ea-bb37-0242ac130003",
   "name": "my project",
@@ -56,10 +58,11 @@ delete expectedProjectConfigJson._links
 describe('Command: projects:update', () => {
 
   beforeEach(() => {
-    existsSyncStub = sinon.default.stub(fs, 'existsSync').withArgs(sinon.default.match(new RegExp(/config.json/))).returns(true)
+    existsSyncStub = sinon.default.stub(fs, 'existsSync')
+    existsSyncStub.withArgs( sinon.default.match( new RegExp(/config.json/)) ).returns(true)
 
     readJsonStub = sinon.default.stub(fs, 'readJson')
-    readJsonStub.resolves(expectedUserConfig)
+    readJsonStub.withArgs( sinon.default.match( new RegExp(/config.json/)) ).resolves(expectedUserConfig)
 
     projectsApiUpdateStub = sinon.default.stub(projectsModule.ProjectsAPIClient.prototype, 'update')
   })
@@ -67,6 +70,38 @@ describe('Command: projects:update', () => {
   afterEach(() => {
     sinon.default.restore()
   });
+
+  test
+  .do( () => {
+    existsSyncStub.withArgs(workingDirectoryProjectConfigPath).returns(false)
+    consoleLoggerErrorStub = sinon.default.stub(consoleLoggerModule.ConsoleLogger.prototype, 'error')
+  })
+  .command(['projects:update'])
+  .exit(1)
+  .it('should exit if no project ID arg has been passed and there is no local project configuration')
+
+  test
+  .do( () => {
+    existsSyncStub.withArgs(workingDirectoryProjectConfigPath).returns(true)
+    readJsonStub.withArgs(workingDirectoryProjectConfigPath).resolves(expectedProjectConfigJson)
+    consoleLoggerErrorStub = sinon.default.stub(consoleLoggerModule.ConsoleLogger.prototype, 'error')
+  })
+  .command(['projects:update', '--phonecheck-callback', `https://example.com/callback`])
+  .it('should load local project configuration if no project ID arg is provided', () => {
+    expect(existsSyncStub).to.have.been.calledWith(workingDirectoryProjectConfigPath)
+  })
+
+  test
+  .do( () => {
+    existsSyncStub.withArgs(workingDirectoryProjectConfigPath).returns(true)
+    readJsonStub.withArgs(workingDirectoryProjectConfigPath).resolves(expectedProjectConfigJson)
+    consoleLoggerErrorStub = sinon.default.stub(consoleLoggerModule.ConsoleLogger.prototype, 'error')
+  })
+  .command(['projects:update', 'f0f5fb8e-db1c-4e75-bae8-cvxcvxcv'])
+  .exit(1)
+  .it('shows error message if local config is loaded but no update flags are provided', ctx => {
+    expect(consoleLoggerErrorStub).to.have.been.calledWith('At least one flag must be supplied to indicate the update to be applied to the Project')
+  })
 
   test
   .do( () => {  

@@ -25,7 +25,7 @@ export default class Create extends CommandWithProjectConfig {
   static args = [
     {
         name: 'project-id',
-        required: true,
+        required: false,
         description: 'the ID of the project to update'
     }
   ]
@@ -39,6 +39,10 @@ export default class Create extends CommandWithProjectConfig {
     logger.debug('--debug', true)
     logger.debug('args', this.args)
     logger.debug('flags', this.flags)
+
+    if(!this.args['project-id']) {
+      await this.loadProjectConfig()
+    }
 
     if(this.flags[phoneCheckCallbackUrlFlag.flagName] !== undefined) {
       if(phoneCheckCallbackUrlFlagValidation(this.flags[phoneCheckCallbackUrlFlag.flagName], logger) === false) {
