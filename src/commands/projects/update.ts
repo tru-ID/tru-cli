@@ -42,6 +42,8 @@ export default class Create extends CommandWithProjectConfig {
 
     if(!this.args['project-id']) {
       await this.loadProjectConfig()
+
+      this.args['project-id'] = this.projectConfig!.project_id
     }
 
     if(this.flags[phoneCheckCallbackUrlFlag.flagName] !== undefined) {
