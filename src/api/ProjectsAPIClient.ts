@@ -1,17 +1,34 @@
+import * as jsonpatch from 'fast-json-patch'
+
 import {APIConfiguration} from './APIConfiguration'
 import ILogger from '../helpers/ILogger';
 import AbstractAPIClient from './AbstractAPIClient';
 import IAPICredentials from './IAPICredentails';
 import { IListResource, ILink, IListResourceParameters } from './IListResource';
 
-export interface ICreateProjectResponse {
-    project_id: string
-    name: string
-    created_at: string
-    updated_at: string
-    credentials: IAPICredentials[],
-    _links: {
-        self: ILink
+export interface ICreateProjectPayload {
+    name: string,
+    configuration?: {
+        phone_check: {
+            callback_url: string
+        }
+    }
+}
+
+export interface IUpdateProjectPayload {
+    /**
+     * `configuration` can only be added.
+     */
+    configuration?: {
+        /**
+         * `phone_check` alone cannot be manipulated. If `configuration` is present it `phone_check` must also be present.
+         */
+        phone_check: {
+            /**
+             * The `callback_url` for Phone Check.
+             */
+            callback_url?: string
+        }
     }
 }
 
@@ -23,7 +40,15 @@ export interface IProjectResource {
     credentials: IAPICredentials[],
     _links: {
         self: ILink
-    }    
+    },
+    configuration?: {
+        phone_check?: {
+            callback_url?: string
+        }
+    } 
+}
+
+export interface ICreateProjectResponse extends IProjectResource {
 }
 
 export interface IListProjectsResponse extends IListResource {
@@ -58,8 +83,23 @@ export class ProjectsAPIClient extends AbstractAPIClient {
         return response
     }
 
-    update() {
-        throw new Error('Not supported by the API')
+    async update(projectId: string, params: IUpdateProjectPayload) {
+        let existingProject:IProjectResource = await this.get(projectId)
+
+        let observer:any = jsonpatch.observe(existingProject);
+
+        this.logger.debug('Existing project', existingProject)
+        this.logger.debug('Project update', params)
+
+        existingProject = Object.assign(existingProject, params)
+        const operations = jsonpatch.generate(observer)
+
+        this.logger.debug('patch operations', operations)
+
+        const response:ICreateProjectResponse = await this.httpClient.patch<ICreateProjectResponse>(`/console/v0.1/projects/${projectId}`, operations, {
+            'Content-Type': 'application/json-patch+json'
+        })
+        return response
     }
 
     delete() {

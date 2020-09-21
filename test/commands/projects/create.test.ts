@@ -15,6 +15,7 @@ import IGlobalConfiguration from '../../../src/IGlobalConfiguration'
 import * as consoleLoggerModule from '../../../src/helpers/ConsoleLogger'
 import CommandWithProjectConfig from '../../../src/helpers/CommandWithProjectConfig';
 import PhoneChecksCreate from '../../../src/commands/phonechecks/create'
+import {phoneCheckCallbackUrlFlag} from '../../../src/helpers/ProjectFlags'
 
 let projectsApiCreateStub:any = null
 
@@ -35,6 +36,8 @@ let projectConfigFileCreationStub:any
 let readJsonStub:any
 let consoleLoggerConstructorStub:any
 let consoleLoggerDebugStub:any
+let consoleLoggerWarnStub:any
+let consoleLoggerErrorStub:any
 let phoneCheckCreateRunStub:any
 
 const newProjectName: string = 'My First Project'
@@ -330,8 +333,8 @@ describe('Command: projects:create', () => {
     phoneCheckCreateRunStub.resolves()
   })
   .command(['projects:create', newProjectName, `--quickstart`])
-  .it('should pass --project_dir to the call to phoneCheckParams.run if --quickstart is used', ctx => {
-    expect(phoneCheckCreateRunStub).to.have.been.calledWith(sinon.default.match.array.contains(['--project_dir', expectedProjectFullPath]))
+  .it('should pass --project-dir to the call to phoneCheckParams.run if --quickstart is used', ctx => {
+    expect(phoneCheckCreateRunStub).to.have.been.calledWith(sinon.default.match.array.contains(['--project-dir', expectedProjectFullPath]))
   })
 
   test
@@ -355,7 +358,67 @@ describe('Command: projects:create', () => {
   })
   .command(['projects:create', newProjectName, '--debug', `--quickstart`])
   .it('should pass --debug to the call to phoneCheckParams.run if --debug was used in projects:create call', ctx => {
-    expect(phoneCheckCreateRunStub).to.have.been.calledWith(sinon.default.match.array.contains(['--project_dir', expectedProjectFullPath]))
+    expect(phoneCheckCreateRunStub).to.have.been.calledWith(sinon.default.match.array.contains(['--project-dir', expectedProjectFullPath]))
+  })
+
+  test
+  .do( () => {
+    projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
+    projectConfigFileCreationStub.resolves()
+
+    consoleLoggerErrorStub = sinon.default.stub(consoleLoggerModule.ConsoleLogger.prototype, 'error')
+  })
+  .command(['projects:create', newProjectName, '--phonecheck-callback', `i am not a url`])
+  .exit()
+  .it('should show an error message if an invalid URL is supplied for the --phonecheck-callback flag', () => {
+    expect(consoleLoggerErrorStub).to.have.been.calledWith(`"${phoneCheckCallbackUrlFlag.flagName}" must be a valid URL`)
+  })
+
+  test
+  .do( () => {
+    projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
+    projectConfigFileCreationStub.resolves()
+
+    consoleLoggerWarnStub = sinon.default.stub(consoleLoggerModule.ConsoleLogger.prototype, 'warn')
+
+    phoneCheckCreateRunStub.resolves()
+  })
+  .command(['projects:create', newProjectName, '--phonecheck-callback', `http://example.com/callback`])
+  .it('should log a warning if the URL provided is HTTP and not HTTPS', ctx => {
+    expect(consoleLoggerWarnStub).to.have.been.calledWith(`"${phoneCheckCallbackUrlFlag.flagName}" was detected to be HTTP. Please consider updated to be HTTPS.`)
+  })
+
+  test
+  .do( () => {
+    projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
+    projectConfigFileCreationStub.resolves()
+
+    consoleLoggerWarnStub = sinon.default.stub(consoleLoggerModule.ConsoleLogger.prototype, 'warn')
+
+    phoneCheckCreateRunStub.resolves()
+  })
+  .command(['projects:create', newProjectName, '--phonecheck-callback', `http://example.com/callback`])
+  .it('should log a warning if the URL provided is HTTP and not HTTPS', ctx => {
+    expect(consoleLoggerWarnStub).to.have.been.calledWith('"phonecheck-callback" was detected to be HTTP. Please consider updated to be HTTPS.')
+  })
+
+  test
+  .do( () => {
+    projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
+    projectConfigFileCreationStub.resolves()
+
+    phoneCheckCreateRunStub.resolves()
+  })
+  .command(['projects:create', newProjectName, '--phonecheck-callback', `https://example.com/callback`])
+  .it('should create a Project with the expected callback_url configuration', ctx => {
+    expect(projectsApiCreateStub).to.have.been.calledWith({
+      name: newProjectName,
+      configuration: {
+        phone_check: {
+          callback_url: 'https://example.com/callback'
+        }
+      }
+    })
   })
 
 })

@@ -119,6 +119,11 @@ export default class ProjectsList extends CommandWithGlobalConfig {
                 header: '_links.self.href',
                 extended: true,
                 get: row => row._links.self.href
+            },
+            phonecheck_callback_url: {
+                header: 'configuration.phone_check.callback_url',
+                extended: true,
+                get: row => row.configuration?.phone_check?.callback_url
             }
         }, {
             printLine: (s: any) => { this.logger!.info(s) },
