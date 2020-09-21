@@ -98,8 +98,8 @@ describe('Command: projects:update', () => {
     consoleLoggerErrorStub = sinon.default.stub(consoleLoggerModule.ConsoleLogger.prototype, 'error')
   })
   .command(['projects:update', '--phonecheck-callback', `https://example.com/callback`])
-  .it('should use project ID from local project configuration if no project ID arg is provided', () => {
-    expect(projectsApiUpdateStub).to.have.been.calledWith(sinon.default.match.has('project_id', createProjectAPIResponse.project_id), sinon.default.match.any)
+  .it('YYY should use project ID from local project configuration if no project ID arg is provided', () => {
+    expect(projectsApiUpdateStub).to.have.been.calledWith(createProjectAPIResponse.project_id, sinon.default.match.any)
   })
 
   test
