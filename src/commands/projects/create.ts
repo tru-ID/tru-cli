@@ -10,7 +10,7 @@ import {ConsoleLogger, LogLevel} from '../../helpers/ConsoleLogger'
 
 import PhoneChecksCreate from '../phonechecks/create'
 import * as chalk from 'chalk'
-import { phoneCheckCallbackUrlFlag, phoneCheckCallbackUrlFlagValidation } from '../../helpers/ProjectFlags'
+import { phoneCheckCallbackUrlFlag, phoneCheckCallbackUrlFlagValidation, projectModeFlag } from '../../helpers/ProjectFlags'
 
 export default class Create extends CommandWithProjectConfig {
   static description = 'Creates a new Project'
@@ -20,6 +20,9 @@ export default class Create extends CommandWithProjectConfig {
 What is the name of the project?: My first project
 Creating Project "My first project"
 `,
+  `$ 4auth project:create --${phoneCheckCallbackUrlFlag.flagName} https://example.com/callback`,
+  `$ 4auth project:create --${projectModeFlag.flagName} sandbox`,
+  `$ 4auth project:create --${projectModeFlag.flagName} live`,
   ]
 
   static flags = {
@@ -27,7 +30,8 @@ Creating Project "My first project"
     quickstart: flags.boolean({
       description: 'Create a Project and also create a Phone Check in workflow mode.'
     }),
-    ...phoneCheckCallbackUrlFlag.flag
+    ...phoneCheckCallbackUrlFlag.flag,
+    ...projectModeFlag.flag
   }
 
   static args = [
@@ -48,12 +52,9 @@ Creating Project "My first project"
     logger.debug('args', this.args)
     logger.debug('flags', this.flags)
 
-    if(this.flags[phoneCheckCallbackUrlFlag.flagName]) {
-      if(this.flags[phoneCheckCallbackUrlFlag.flagName]) {
-        if(phoneCheckCallbackUrlFlagValidation(this.flags[phoneCheckCallbackUrlFlag.flagName], logger) === false) {
-          this.exit()
-        }
-      }
+    if(this.flags[phoneCheckCallbackUrlFlag.flagName] && 
+       phoneCheckCallbackUrlFlagValidation(this.flags[phoneCheckCallbackUrlFlag.flagName], logger) === false) {
+      this.exit()
     }
 
     if(!this.args.name) {
@@ -89,6 +90,10 @@ Creating Project "My first project"
             callback_url: this.flags[phoneCheckCallbackUrlFlag.flagName]
           }
         }
+      }
+
+      if(this.flags[projectModeFlag.flagName]) {
+        createPayload.mode = this.flags[projectModeFlag.flagName]
       }
 
       projectCreationResult = await projectsAPI.create(createPayload)

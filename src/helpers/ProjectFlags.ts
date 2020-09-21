@@ -3,6 +3,7 @@ import ILogger from './ILogger'
 
 const PHONECHECK_CALLBACK_URL_FLAG_NAME = 'phonecheck-callback'
 const REMOVE_PHONECHECK_CALLBACK_URL_FLAG_NAME = 'remove-phonecheck-callback'
+const PROJECT_MODE_FLAG_NAME = 'mode'
 
 export const phoneCheckCallbackUrlFlag = {
   flagName: PHONECHECK_CALLBACK_URL_FLAG_NAME,
@@ -39,4 +40,14 @@ export const phoneCheckCallbackUrlFlagValidation = (url: string, logger: ILogger
       validated = false
     }
     return validated
+}
+
+export const projectModeFlag = {
+  flagName: PROJECT_MODE_FLAG_NAME,
+  flag: {
+    'mode': flags.string({
+      description: 'Set the project mode to "live" or "sandbox"',
+      options: ['live', 'sandbox']
+    })
+  }
 }

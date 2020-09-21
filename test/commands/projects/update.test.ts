@@ -31,6 +31,7 @@ let consoleLoggerErrorStub:any
 const createProjectAPIResponse: ICreateProjectResponse = {
   "project_id": "c69bc0e6-a429-11ea-bb37-0242ac130003",
   "name": "my project",
+  "mode": "live",
   "created_at": "2020-06-01T16:43:30+00:00",
   "updated_at": "2020-06-01T16:43:30+00:00",
   "credentials": [
@@ -145,8 +146,6 @@ describe('Command: projects:update', () => {
   test
   .do( () => {
     projectsApiUpdateStub.resolves(createProjectAPIResponse)
-
-    consoleLoggerInfoStub = sinon.default.stub(consoleLoggerModule.ConsoleLogger.prototype, 'info')
   })
   .command(['projects:update', createProjectAPIResponse.project_id, '--remove-phonecheck-callback'])
   .it('should call the API client with the callback_url removed', ctx => {
@@ -154,6 +153,36 @@ describe('Command: projects:update', () => {
       configuration: {
         phone_check: {}
       }
+    })
+  })
+
+  test
+  .do( () => {
+  })
+  .command(['projects:update', createProjectAPIResponse.project_id, '--mode', `cheese`])
+  .exit(2)
+  .it('should exit if an invalid --mode value is supplied')
+
+  test
+  .do( () => {
+    projectsApiUpdateStub.resolves(createProjectAPIResponse)
+  })
+  .command(['projects:update', createProjectAPIResponse.project_id, '--mode', 'sandbox'])
+  .it('should call the API client with mode of sandbox', ctx => {
+    expect(projectsApiUpdateStub).to.have.been.calledWith(createProjectAPIResponse.project_id, {
+      mode: 'sandbox'
+    })
+  })
+
+
+  test
+  .do( () => {
+    projectsApiUpdateStub.resolves(createProjectAPIResponse)
+  })
+  .command(['projects:update', createProjectAPIResponse.project_id, '--mode', 'live'])
+  .it('should call the API client with mode of live', ctx => {
+    expect(projectsApiUpdateStub).to.have.been.calledWith(createProjectAPIResponse.project_id, {
+      mode: 'live'
     })
   })
 

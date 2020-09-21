@@ -6,8 +6,17 @@ import AbstractAPIClient from './AbstractAPIClient';
 import IAPICredentials from './IAPICredentails';
 import { IListResource, ILink, IListResourceParameters } from './IListResource';
 
+export interface IProjectResourceBase {
+    configuration?: {
+        phone_check?: {
+            callback_url?: string
+        }
+    } 
+}
+
 export interface ICreateProjectPayload {
     name: string,
+    mode?: 'live' | 'sandbox'
     configuration?: {
         phone_check: {
             callback_url: string
@@ -15,7 +24,27 @@ export interface ICreateProjectPayload {
     }
 }
 
-export interface IUpdateProjectPayload {
+export interface IProjectResource extends IProjectResourceBase {
+    name: string
+    project_id: string
+    mode: 'live' | 'sandbox'
+    created_at: string
+    updated_at: string
+    credentials: IAPICredentials[],
+    _links: {
+        self: ILink
+    },
+}
+
+export interface ICreateProjectResponse extends IProjectResource {
+}
+
+export interface IUpdateProjectPayload extends IProjectResourceBase {
+    /**
+     * Update the mode of the Project.
+     */
+    mode?: 'live' | 'sandbox',
+
     /**
      * `configuration` can only be added.
      */
@@ -32,24 +61,7 @@ export interface IUpdateProjectPayload {
     }
 }
 
-export interface IProjectResource {
-    project_id: string
-    name: string
-    created_at: string
-    updated_at: string
-    credentials: IAPICredentials[],
-    _links: {
-        self: ILink
-    },
-    configuration?: {
-        phone_check?: {
-            callback_url?: string
-        }
-    } 
-}
 
-export interface ICreateProjectResponse extends IProjectResource {
-}
 
 export interface IListProjectsResponse extends IListResource {
     _embedded: {
@@ -83,7 +95,7 @@ export class ProjectsAPIClient extends AbstractAPIClient {
         return response
     }
 
-    async update(projectId: string, params: IUpdateProjectPayload) {
+    async update(projectId: string, params: IUpdateProjectPayload): Promise<IProjectResource> {
         let existingProject:IProjectResource = await this.get(projectId)
 
         let observer:any = jsonpatch.observe(existingProject);
@@ -96,7 +108,7 @@ export class ProjectsAPIClient extends AbstractAPIClient {
 
         this.logger.debug('patch operations', operations)
 
-        const response:ICreateProjectResponse = await this.httpClient.patch<ICreateProjectResponse>(`/console/v0.1/projects/${projectId}`, operations, {
+        const response:IProjectResource = await this.httpClient.patch<IProjectResource>(`/console/v0.1/projects/${projectId}`, operations, {
             'Content-Type': 'application/json-patch+json'
         })
         return response

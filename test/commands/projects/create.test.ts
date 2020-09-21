@@ -48,6 +48,7 @@ const expectedProjectConfigFileFullPath = `${expectedProjectFullPath}/4auth.json
 const createProjectAPIResponse: ICreateProjectResponse = {
   "project_id": "c69bc0e6-a429-11ea-bb37-0242ac130003",
   "name": newProjectName,
+  "mode": "live",
   "created_at": "2020-06-01T16:43:30+00:00",
   "updated_at": "2020-06-01T16:43:30+00:00",
   "credentials": [
@@ -418,6 +419,43 @@ describe('Command: projects:create', () => {
           callback_url: 'https://example.com/callback'
         }
       }
+    })
+  })
+
+  test
+  .do( () => {
+    projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
+    projectConfigFileCreationStub.resolves()
+  })
+  .command(['projects:create', newProjectName, '--mode', `cheese`])
+  .exit(2)
+  .it('should exit if an invalid --mode value is supplied')
+
+  test
+  .do( () => {
+    projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
+    projectConfigFileCreationStub.resolves()
+  })
+  .command(['projects:create', newProjectName, '--mode', `sandbox`])
+  .it('should create a Project with mode=sandbox', ctx => {
+    expect(projectsApiCreateStub).to.have.been.calledWith({
+      name: newProjectName,
+      mode: 'sandbox'
+    })
+  })
+
+  test
+  .do( () => {
+    projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
+    projectConfigFileCreationStub.resolves()
+
+    phoneCheckCreateRunStub.resolves()
+  })
+  .command(['projects:create', newProjectName, '--mode', `live`])
+  .it('should create a Project with mode=live', ctx => {
+    expect(projectsApiCreateStub).to.have.been.calledWith({
+      name: newProjectName,
+      mode: 'live'
     })
   })
 

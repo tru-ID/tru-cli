@@ -48,6 +48,7 @@ describe('projects:list', () => {
 
 	const projectResource: projectsAPIClientModules.IProjectResource = {
 		...projectConfig,
+		mode: 'live',
 		_links: {
 			self: {
 				href: 'https://eu.api.4auth.io/console/v0.1/projects/c69bc0e6-a429-11ea-bb37-0242ac130003'
