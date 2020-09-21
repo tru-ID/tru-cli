@@ -11,7 +11,7 @@ import * as inquirer from 'inquirer'
 
 import * as apiModule from '../../../src/api/OAuth2APIClient'
 import { OAuth2APIClient } from '../../../src/api/OAuth2APIClient'
-import {ICreateProjectResponse} from '../../../src/api/ProjectsAPIClient'
+import { IProjectResource } from '../../../src/api/ProjectsAPIClient'
 import IGlobalConfiguration from '../../../src/IGlobalConfiguration'
 import * as consoleLoggerModule from '../../../src/helpers/ConsoleLogger'
 import CommandWithProjectConfig from '../../../src/helpers/CommandWithProjectConfig';
@@ -49,9 +49,10 @@ const expectedProjectFullPath = `${process.cwd()}/${expectedProjectDirectoryName
 const expectedProjectConfigFileFullPath = `${expectedProjectFullPath}/4auth.json`
 const expectedCurrentWorkingDirectoryConfig = `${process.cwd()}/4auth.json`
 
-const createProjectAPIResponse: ICreateProjectResponse = {
+const projectAPIResponse: IProjectResource = {
   "project_id": "c69bc0e6-a429-11ea-bb37-0242ac130003",
   "name": newProjectName,
+  "mode": "live",
   "created_at": "2020-06-01T16:43:30+00:00",
   "updated_at": "2020-06-01T16:43:30+00:00",
   "credentials": [
@@ -69,7 +70,7 @@ const createProjectAPIResponse: ICreateProjectResponse = {
 }
 
 const expectedProjectConfigJson: any = {
-  ... createProjectAPIResponse,
+  ... projectAPIResponse,
 }
 delete expectedProjectConfigJson._links
 
