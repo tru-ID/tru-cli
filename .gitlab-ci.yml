@@ -50,3 +50,10 @@ publish_installers:
     - yarn install
     - yarn run dev_version_suffix
     - yarn run aws:publish
+
+notify_release:
+  stage: publish
+  only:
+    - main
+  script:
+    - scripts/notify_release.sh

@@ -3,13 +3,14 @@ import * as inquirer from 'inquirer'
 import * as fs from 'fs-extra'
 
 import CommandWithProjectConfig from '../../helpers/CommandWithProjectConfig'
-import {ProjectsAPIClient, ICreateProjectResponse} from '../../api/ProjectsAPIClient'
+import {ProjectsAPIClient, ICreateProjectResponse, ICreateProjectPayload} from '../../api/ProjectsAPIClient'
 import {APIConfiguration} from '../../api/APIConfiguration'
 import {stringToSnakeCase} from '../../utilities'
 import {ConsoleLogger, LogLevel} from '../../helpers/ConsoleLogger'
 
 import PhoneChecksCreate from '../phonechecks/create'
 import * as chalk from 'chalk'
+import { phoneCheckCallbackUrlFlag, phoneCheckCallbackUrlFlagValidation, projectModeFlag } from '../../helpers/ProjectFlags'
 
 export default class Create extends CommandWithProjectConfig {
   static description = 'Creates a new Project'
@@ -19,13 +20,18 @@ export default class Create extends CommandWithProjectConfig {
 What is the name of the project?: My first project
 Creating Project "My first project"
 `,
+  `$ 4auth project:create --${phoneCheckCallbackUrlFlag.flagName} https://example.com/callback`,
+  `$ 4auth project:create --${projectModeFlag.flagName} sandbox`,
+  `$ 4auth project:create --${projectModeFlag.flagName} live`,
   ]
 
   static flags = {
     ...CommandWithProjectConfig.flags,
     quickstart: flags.boolean({
       description: 'Create a Project and also create a Phone Check in workflow mode.'
-    })
+    }),
+    ...phoneCheckCallbackUrlFlag.flag,
+    ...projectModeFlag.flag
   }
 
   static args = [
@@ -45,6 +51,11 @@ Creating Project "My first project"
     logger.debug('--debug', true)
     logger.debug('args', this.args)
     logger.debug('flags', this.flags)
+
+    if(this.flags[phoneCheckCallbackUrlFlag.flagName] && 
+       phoneCheckCallbackUrlFlagValidation(this.flags[phoneCheckCallbackUrlFlag.flagName], logger) === false) {
+      this.exit()
+    }
 
     if(!this.args.name) {
         const response:any = await inquirer.prompt([
@@ -70,9 +81,22 @@ Creating Project "My first project"
     
     let projectCreationResult:ICreateProjectResponse;
     try {
-      projectCreationResult = await projectsAPI.create({
+      const createPayload: ICreateProjectPayload = {
         name: this.args.name
-      })
+      }
+      if(this.flags[phoneCheckCallbackUrlFlag.flagName]) {
+        createPayload.configuration = {
+          phone_check: {
+            callback_url: this.flags[phoneCheckCallbackUrlFlag.flagName]
+          }
+        }
+      }
+
+      if(this.flags[projectModeFlag.flagName]) {
+        createPayload.mode = this.flags[projectModeFlag.flagName]
+      }
+
+      projectCreationResult = await projectsAPI.create(createPayload)
     }
     catch(error) {
       this.log('API Error:',

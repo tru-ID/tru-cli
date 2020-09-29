@@ -1,8 +1,10 @@
 import ILogger from './ILogger'
 
 export enum LogLevel {
-    info = 0,
-    debug = 1,
+    error = 0,
+    warn = 1,
+    info = 2,
+    debug = 3,
 }
 
 /**
@@ -16,6 +18,12 @@ export class ConsoleLogger implements ILogger {
     constructor(loglevel:LogLevel = LogLevel.info) {
         this.loglevel = loglevel
     }
+    
+    debug(message?: any, ...optionalParams: any[]): void {
+        if(this.loglevel >= LogLevel.debug) {
+            global.console.debug(message, ...optionalParams)
+        }
+    }
 
     info(message?: any, ...optionalParams: any[]): void {
         if(this.loglevel >= LogLevel.info) {
@@ -23,9 +31,16 @@ export class ConsoleLogger implements ILogger {
         }
     }
 
-    debug(message?: any, ...optionalParams: any[]): void {
-        if(this.loglevel >= LogLevel.debug) {
-            global.console.debug(message, ...optionalParams)
+    warn(message?: any, ...optionalParams: any[]): void {
+        if(this.loglevel >= LogLevel.warn) {
+            global.console.warn(message, ...optionalParams)
         }
     }
+
+    error(message?: any, ...optionalParams: any[]): void {
+        if(this.loglevel >= LogLevel.error) {
+            global.console.error(message, ...optionalParams)
+        }
+    }
+
 }

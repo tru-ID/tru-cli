@@ -1,7 +1,7 @@
 {
   "name": "4auth-cli",
   "description": "The 4Auth CLI",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "author": "Phil Leggetter @leggetter",
   "bin": {
     "4auth": "./bin/run"
@@ -13,6 +13,7 @@
     "axios": "^0.19.2",
     "chalk": "^4.1.0",
     "cli-ux": "^5.4.9",
+    "fast-json-patch": "^3.0.0-1",
     "figlet": "^1.5.0",
     "fs-extra": "^9.0.1",
     "inquirer": "^7.2.0",
@@ -72,6 +73,9 @@
       },
       "phonechecks": {
         "description": "Manage Phone Checks within a Project"
+      },
+      "oauth2": {
+        "description": "OAuth2 helpers. For example, creating Access Tokens."
       }
     },
     "commands": "./lib/commands",

@@ -20,6 +20,11 @@ export default class PhoneChecksCreate extends CommandWithProjectConfig {
     'workflow': flags.boolean({
       description: 'Execute the Phone Check Workflow from the CLI',
       required: false
+    }),
+    'skip-qrcode-handler': flags.boolean({
+      description: 'Skips using the 4Auth hosted QR code handler with the `check_url`',
+      required: false,
+      dependsOn: ['workflow']
     })
   }
 
@@ -91,10 +96,15 @@ export default class PhoneChecksCreate extends CommandWithProjectConfig {
       this.log('Phone Check ACCEPTED')
 
       if(this.flags.workflow) {
-        const qrCodeUrl: string = this.globalConfig?.qrCodeUrlHandlerOverride ?? `http://r.4auth.io?u={CHECK_URL}`
-        const qrCodePopulatedUrl: string = qrCodeUrl.replace('{CHECK_URL}', `${encodeURIComponent(response._links.check_url.href)}`)
-        this.logger.debug('QR Code Link Handler:', qrCodePopulatedUrl)
-        qrcode.generate(qrCodePopulatedUrl, {small: true})
+        let urlForQrCode = response._links.check_url.href
+        
+        console.log(this.flags)
+        if(!this.flags['skip-qrcode-handler']) {
+          const handlerUrl: string = this.globalConfig?.qrCodeUrlHandlerOverride ?? `http://r.4auth.io?u={CHECK_URL}`
+          urlForQrCode = handlerUrl.replace('{CHECK_URL}', `${encodeURIComponent(urlForQrCode)}`)
+        }
+        this.logger.debug('QR Code Link Handler:', urlForQrCode)
+        qrcode.generate(urlForQrCode, {small: true})
         
         this.log(chalk.white.bgRed.visible(`Please ensure the mobile phone with the phone number ${this.args.phone_number} is disconnected from WiFi and is using your mobile data connection.`))
         this.log('')

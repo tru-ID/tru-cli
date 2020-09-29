@@ -1,30 +1,67 @@
+import * as jsonpatch from 'fast-json-patch'
+
 import {APIConfiguration} from './APIConfiguration'
 import ILogger from '../helpers/ILogger';
 import AbstractAPIClient from './AbstractAPIClient';
 import IAPICredentials from './IAPICredentails';
 import { IListResource, ILink, IListResourceParameters } from './IListResource';
 
-export interface ICreateProjectResponse {
-    project_id: string
-    name: string
-    created_at: string
-    updated_at: string
-    credentials: IAPICredentials[],
-    _links: {
-        self: ILink
+export interface IProjectResourceBase {
+    configuration?: {
+        phone_check?: {
+            callback_url?: string
+        }
+    } 
+}
+
+export interface ICreateProjectPayload {
+    name: string,
+    mode?: 'live' | 'sandbox'
+    configuration?: {
+        phone_check: {
+            callback_url: string
+        }
     }
 }
 
-export interface IProjectResource {
-    project_id: string
+export interface IProjectResource extends IProjectResourceBase {
     name: string
+    project_id: string
+    mode: 'live' | 'sandbox'
     created_at: string
     updated_at: string
     credentials: IAPICredentials[],
     _links: {
         self: ILink
-    }    
+    },
 }
+
+export interface ICreateProjectResponse extends IProjectResource {
+}
+
+export interface IUpdateProjectPayload extends IProjectResourceBase {
+    /**
+     * Update the mode of the Project.
+     */
+    mode?: 'live' | 'sandbox',
+
+    /**
+     * `configuration` can only be added.
+     */
+    configuration?: {
+        /**
+         * `phone_check` alone cannot be manipulated. If `configuration` is present it `phone_check` must also be present.
+         */
+        phone_check: {
+            /**
+             * The `callback_url` for Phone Check.
+             */
+            callback_url?: string
+        }
+    }
+}
+
+
 
 export interface IListProjectsResponse extends IListResource {
     _embedded: {
@@ -58,8 +95,23 @@ export class ProjectsAPIClient extends AbstractAPIClient {
         return response
     }
 
-    update() {
-        throw new Error('Not supported by the API')
+    async update(projectId: string, params: IUpdateProjectPayload): Promise<IProjectResource> {
+        let existingProject:IProjectResource = await this.get(projectId)
+
+        let observer:any = jsonpatch.observe(existingProject);
+
+        this.logger.debug('Existing project', existingProject)
+        this.logger.debug('Project update', params)
+
+        existingProject = Object.assign(existingProject, params)
+        const operations = jsonpatch.generate(observer)
+
+        this.logger.debug('patch operations', operations)
+
+        const response:IProjectResource = await this.httpClient.patch<IProjectResource>(`/console/v0.1/projects/${projectId}`, operations, {
+            'Content-Type': 'application/json-patch+json'
+        })
+        return response
     }
 
     delete() {
