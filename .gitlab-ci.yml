@@ -4,6 +4,7 @@ stages:
   - test
   - build
   - publish
+  - notify
 
 # Cache modules in between jobs
 cache:
@@ -52,7 +53,7 @@ publish_installers:
     - yarn run aws:publish
 
 notify_release:
-  stage: publish
+  stage: notify
   only:
     - main
   script:
