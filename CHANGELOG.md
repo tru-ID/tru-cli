@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 0.2.2 (2020-09-29)
+
+### ⚠ BREAKING CHANGES
+
+* `--project_dir` flag changed to `--project-dir`
+
+### Features
+
+* Added `--skip-qrcode-handler` flag to `phonechecks:create --workflow` to directly use the `/redirect` Check URL which shows the MNO URL instead of the 4Auth redirect handler
+* Added `oauth2:token` command to create OAuth2 Access tokens. Tokens can be created for a Workspace or a Project.
+* Added `projects:create --mode sandbox|live` to create a Project in a given `mode`
+* Added `projects:create --phonecheck-callback {url}` to create a Project with Phone Check `callback_url` configuration
+* Added `projects:update --mode live | sandbox` to support updating the `mode` of a Project
+* Added `projects:update --remove-phonecheck-callback` to allow Phone Check `callback_url` configuration to be removed from a Project
+
 ### 0.2.1 (2020-09-02)
 
 ### Features

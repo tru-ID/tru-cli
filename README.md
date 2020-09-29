@@ -23,7 +23,7 @@ $ npm install -g 4auth-cli
 $ 4auth COMMAND
 running command...
 $ 4auth (-v|--version|version)
-4auth-cli/0.2.1 darwin-x64 node-v14.4.0
+4auth-cli/0.2.2 darwin-x64 node-v14.4.0
 $ 4auth --help [COMMAND]
 USAGE
   $ 4auth COMMAND
@@ -33,10 +33,12 @@ USAGE
 # Commands
 <!-- commands -->
 * [`4auth help [COMMAND]`](#4auth-help-command)
+* [`4auth oauth2:token`](#4auth-oauth2token)
 * [`4auth phonechecks:create [PHONE_NUMBER]`](#4auth-phonecheckscreate-phone_number)
 * [`4auth phonechecks:list [CHECK_ID]`](#4auth-phonecheckslist-check_id)
 * [`4auth projects:create [NAME]`](#4auth-projectscreate-name)
 * [`4auth projects:list [PROJECT_ID]`](#4auth-projectslist-project_id)
+* [`4auth projects:update [PROJECT-ID]`](#4auth-projectsupdate-project-id)
 * [`4auth workspaces`](#4auth-workspaces)
 
 ## `4auth help [COMMAND]`
@@ -56,6 +58,41 @@ OPTIONS
 
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v3.1.0/src/commands/help.ts)_
 
+## `4auth oauth2:token`
+
+Creates an OAuth2 token
+
+```
+USAGE
+  $ 4auth oauth2:token
+
+OPTIONS
+  -h, --help                 show CLI help
+  --debug                    Enables debug logging for the CLI
+  --no-header                hide table header from output
+  --no-truncate              do not truncate output to fit screen
+  --output=csv|json|yaml     output in a more machine friendly format
+  --project-dir=project-dir  The directory that contains the 4auth.json Project configuration file
+
+EXAMPLES
+  # use workspace credentials to create token
+  $ 4auth oauth2:token
+
+  # use project credentials to create token
+  $ 4auth oauth2:token --project-dir path/to/project
+
+  # assign a token to a variable in shell
+  $ TOKEN=$(4auth oauth2:token --project_dir ~/tmp/bbb --no-header)                                                      
+                                                                                                         
+  ~/4auth/git/4auth-cli
+  $ echo $TOKEN                                                                                                          
+                                                                                                           
+  ~/4auth/git/4auth-cli
+  Emesua0F7gj3qOaav7UaKaBwefaaefaAxlrdGom_mb3U.78Od2d9XpvTQbd44eM1Uf7nzz9e9nezs5TRjPmpDnMc
+```
+
+_See code: [src/commands/oauth2/token.ts](https://github.com/4auth/4auth-cli/blob/v0.2.2/src/commands/oauth2/token.ts)_
+
 ## `4auth phonechecks:create [PHONE_NUMBER]`
 
 Creates a Phone Check
@@ -70,11 +107,12 @@ ARGUMENTS
 OPTIONS
   -h, --help                 show CLI help
   --debug                    Enables debug logging for the CLI
-  --project_dir=project_dir  The directory that contains the 4auth.json Project configuration file
+  --project-dir=project-dir  The directory that contains the 4auth.json Project configuration file
+  --skip-qrcode-handler      Skips using the 4Auth hosted QR code handler with the `check_url`
   --workflow                 Execute the Phone Check Workflow from the CLI
 ```
 
-_See code: [src/commands/phonechecks/create.ts](https://github.com/4auth/4auth-cli/blob/v0.2.1/src/commands/phonechecks/create.ts)_
+_See code: [src/commands/phonechecks/create.ts](https://github.com/4auth/4auth-cli/blob/v0.2.2/src/commands/phonechecks/create.ts)_
 
 ## `4auth phonechecks:list [CHECK_ID]`
 
@@ -104,7 +142,7 @@ OPTIONS
   --page_size=page_size      [default: 10] The page size to return in list resource request. Ignored if the "check_id"
                              argument is used.
 
-  --project_dir=project_dir  The directory that contains the 4auth.json Project configuration file
+  --project-dir=project-dir  The directory that contains the 4auth.json Project configuration file
 
   --search=search            A RSQL search query. To ensure correct parsing put your query in quotes. For example
                              "--search 'status==COMPLETED'". Ignored if the "check_id" argument is used.
@@ -113,7 +151,7 @@ OPTIONS
                              "created_at,desc". Ignored if the "check_id" argument is used.
 ```
 
-_See code: [src/commands/phonechecks/list.ts](https://github.com/4auth/4auth-cli/blob/v0.2.1/src/commands/phonechecks/list.ts)_
+_See code: [src/commands/phonechecks/list.ts](https://github.com/4auth/4auth-cli/blob/v0.2.2/src/commands/phonechecks/list.ts)_
 
 ## `4auth projects:create [NAME]`
 
@@ -127,18 +165,24 @@ ARGUMENTS
   NAME  the name of the project to create
 
 OPTIONS
-  -h, --help                 show CLI help
-  --debug                    Enables debug logging for the CLI
-  --project_dir=project_dir  The directory that contains the 4auth.json Project configuration file
-  --quickstart               Create a Project and also create a Phone Check in workflow mode.
+  -h, --help                                 show CLI help
+  --debug                                    Enables debug logging for the CLI
+  --mode=live|sandbox                        Set the project mode to "live" or "sandbox"
+  --phonecheck-callback=phonecheck-callback  set a callback to be invoked when a Phone Check reaches an end state
+  --project-dir=project-dir                  The directory that contains the 4auth.json Project configuration file
+  --quickstart                               Create a Project and also create a Phone Check in workflow mode.
 
-EXAMPLE
+EXAMPLES
   $ 4auth project:create
   What is the name of the project?: My first project
   Creating Project "My first project"
+
+  $ 4auth project:create --phonecheck-callback https://example.com/callback
+  $ 4auth project:create --mode sandbox
+  $ 4auth project:create --mode live
 ```
 
-_See code: [src/commands/projects/create.ts](https://github.com/4auth/4auth-cli/blob/v0.2.1/src/commands/projects/create.ts)_
+_See code: [src/commands/projects/create.ts](https://github.com/4auth/4auth-cli/blob/v0.2.2/src/commands/projects/create.ts)_
 
 ## `4auth projects:list [PROJECT_ID]`
 
@@ -175,7 +219,35 @@ OPTIONS
                              "created_at,desc". Ignored if the "check_id" argument is used.
 ```
 
-_See code: [src/commands/projects/list.ts](https://github.com/4auth/4auth-cli/blob/v0.2.1/src/commands/projects/list.ts)_
+_See code: [src/commands/projects/list.ts](https://github.com/4auth/4auth-cli/blob/v0.2.2/src/commands/projects/list.ts)_
+
+## `4auth projects:update [PROJECT-ID]`
+
+Update an existing Project
+
+```
+USAGE
+  $ 4auth projects:update [PROJECT-ID]
+
+ARGUMENTS
+  PROJECT-ID  the ID of the project to update
+
+OPTIONS
+  -h, --help                                 show CLI help
+  --debug                                    Enables debug logging for the CLI
+  --mode=live|sandbox                        Set the project mode to "live" or "sandbox"
+  --phonecheck-callback=phonecheck-callback  set a callback to be invoked when a Phone Check reaches an end state
+  --project-dir=project-dir                  The directory that contains the 4auth.json Project configuration file
+  --remove-phonecheck-callback               remove the Phone Check callback configuration from the Project
+
+EXAMPLES
+  $ 4auth project:update --phonecheck-callback https://example.com/callback
+  $ 4auth project:update --remove-phonecheck-callback
+  $ 4auth project:update --mode sandbox
+  $ 4auth project:update --mode live
+```
+
+_See code: [src/commands/projects/update.ts](https://github.com/4auth/4auth-cli/blob/v0.2.2/src/commands/projects/update.ts)_
 
 ## `4auth workspaces`
 
@@ -193,7 +265,7 @@ OPTIONS
   --output=csv|json|yaml  output in a more machine friendly format
 ```
 
-_See code: [src/commands/workspaces/index.ts](https://github.com/4auth/4auth-cli/blob/v0.2.1/src/commands/workspaces/index.ts)_
+_See code: [src/commands/workspaces/index.ts](https://github.com/4auth/4auth-cli/blob/v0.2.2/src/commands/workspaces/index.ts)_
 <!-- commandsstop -->
 
 # Development
