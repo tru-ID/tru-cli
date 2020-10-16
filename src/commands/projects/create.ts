@@ -16,13 +16,13 @@ export default class Create extends CommandWithProjectConfig {
   static description = 'Creates a new Project'
 
   static examples = [
-    `$ 4auth project:create
+    `$ tru project:create
 What is the name of the project?: My first project
 Creating Project "My first project"
 `,
-  `$ 4auth project:create --${phoneCheckCallbackUrlFlag.flagName} https://example.com/callback`,
-  `$ 4auth project:create --${projectModeFlag.flagName} sandbox`,
-  `$ 4auth project:create --${projectModeFlag.flagName} live`,
+  `$ tru project:create --${phoneCheckCallbackUrlFlag.flagName} https://example.com/callback`,
+  `$ tru project:create --${projectModeFlag.flagName} sandbox`,
+  `$ tru project:create --${projectModeFlag.flagName} live`,
   ]
 
   static flags = {
@@ -52,7 +52,7 @@ Creating Project "My first project"
     logger.debug('args', this.args)
     logger.debug('flags', this.flags)
 
-    if(this.flags[phoneCheckCallbackUrlFlag.flagName] && 
+    if(this.flags[phoneCheckCallbackUrlFlag.flagName] &&
        phoneCheckCallbackUrlFlagValidation(this.flags[phoneCheckCallbackUrlFlag.flagName], logger) === false) {
       this.exit()
     }
@@ -74,11 +74,11 @@ Creating Project "My first project"
           clientId: this.globalConfig?.defaultWorkspaceClientId,
           clientSecret: this.globalConfig?.defaultWorkspaceClientSecret,
           scopes: ['projects'],
-          baseUrl: this.globalConfig?.apiBaseUrlOverride ?? `https://${this.globalConfig?.defaultWorkspaceDataResidency}.api.4auth.io`
+          baseUrl: this.globalConfig?.apiBaseUrlOverride ?? `https://${this.globalConfig?.defaultWorkspaceDataResidency}.api.tru.id`
       }),
       logger
     )
-    
+
     let projectCreationResult:ICreateProjectResponse;
     try {
       const createPayload: ICreateProjectPayload = {
@@ -105,9 +105,9 @@ Creating Project "My first project"
     }
 
     const pathToProjectDirectory = this.flags[CommandWithProjectConfig.projectDirFlagName] ?? `${process.cwd()}/${stringToSnakeCase(this.args.name)}`
-    const configFileFullPathToCreate = `${pathToProjectDirectory}/4auth.json`
+    const configFileFullPathToCreate = `${pathToProjectDirectory}/tru.json`
     if(fs.existsSync(configFileFullPathToCreate)) {
-        this.error(`Cannot create project. A Project configuration file (4auth.json) already exists at "${configFileFullPathToCreate}".\n` +
+        this.error(`Cannot create project. A Project configuration file (tru.json) already exists at "${configFileFullPathToCreate}".\n` +
                    `Please choose another name or specify an alternative directory for your project.`, {exit: 1})
     }
     else {

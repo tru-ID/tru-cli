@@ -1,10 +1,10 @@
 {
-  "name": "4auth-cli",
-  "description": "The 4Auth CLI",
+  "name": "tru.id-cli",
+  "description": "The tru.Id CLI",
   "version": "0.2.2",
   "author": "Phil Leggetter @leggetter",
   "bin": {
-    "4auth": "./bin/run"
+    "tru": "./bin/run"
   },
   "dependencies": {
     "@oclif/command": "^1",
@@ -79,7 +79,7 @@
       }
     },
     "commands": "./lib/commands",
-    "bin": "4auth",
+    "bin": "tru",
     "plugins": [
       "@oclif/plugin-help"
     ],
@@ -90,11 +90,11 @@
     },
     "update": {
       "dev_s3": {
-        "bucket": "4auth-cli-dev",
+        "bucket": "tru-cli-dev",
         "acl": "private"
       },
       "s3": {
-        "bucket": "4auth-cli",
+        "bucket": "tru-cli",
         "acl": "private"
       }
     }

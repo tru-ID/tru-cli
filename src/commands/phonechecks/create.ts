@@ -74,13 +74,13 @@ export default class PhoneChecksCreate extends CommandWithProjectConfig {
           clientId: this.projectConfig?.credentials[0].client_id,
           clientSecret: this.projectConfig?.credentials[0].client_secret,
           scopes: ['phone_check'],
-          baseUrl: this.globalConfig?.apiBaseUrlOverride ?? `https://${this.globalConfig?.defaultWorkspaceDataResidency}.api.4auth.io`
+          baseUrl: this.globalConfig?.apiBaseUrlOverride ?? `https://${this.globalConfig?.defaultWorkspaceDataResidency}.api.tru.id`
       }),
       this.logger
     )
 
     let response:ICreatePhoneCheckResponse;
-    
+
     try {
       response = await phoneCheckAPIClient.create({
         phone_number: this.args.phone_number
@@ -97,7 +97,7 @@ export default class PhoneChecksCreate extends CommandWithProjectConfig {
 
       if(this.flags.workflow) {
         let urlForQrCode = response._links.check_url.href
-        
+
         console.log(this.flags)
         if(!this.flags['skip-qrcode-handler']) {
           const handlerUrl: string = this.globalConfig?.qrCodeUrlHandlerOverride ?? `http://r.4auth.io?u={CHECK_URL}`
@@ -105,7 +105,7 @@ export default class PhoneChecksCreate extends CommandWithProjectConfig {
         }
         this.logger.debug('QR Code Link Handler:', urlForQrCode)
         qrcode.generate(urlForQrCode, {small: true})
-        
+
         this.log(chalk.white.bgRed.visible(`Please ensure the mobile phone with the phone number ${this.args.phone_number} is disconnected from WiFi and is using your mobile data connection.`))
         this.log('')
         this.log('Then scan the QR code and navigate to the check_url.')
@@ -138,9 +138,9 @@ export default class PhoneChecksCreate extends CommandWithProjectConfig {
   async waitForFinalPhoneCheckState(phoneCheckAPIClient:PhoneChecksAPIClient, phoneCheck:IPhoneCheckResource): Promise<IPhoneCheckResource> {
     const pollingInterval = this.globalConfig?.phoneCheckWorkflowRetryMillisecondsOverride ?? 5000
     return new Promise((resolve) => {
-    
+
       let checkResponse:IPhoneCheckResource
-      
+
       const expiry = Date.now() + (phoneCheck.ttl*1000) // seconds from now until expires
       const intervalId = setInterval(async () => {
 

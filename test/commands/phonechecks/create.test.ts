@@ -38,10 +38,10 @@ let createPhoneCheckResponse:phoneCheckAPIClientModules.ICreatePhoneCheckRespons
     ttl: 60,
     _links: {
       self: {
-        href: "https://us.api.4auth.io/phone_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002"
+        href: "https://us.api.tru.id/phone_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002"
       },
       check_url: {
-        href: "https://us.api.4auth.io/phone_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002/redirect"
+        href: "https://us.api.tru.id/phone_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002/redirect"
       }
     },
     snapshot_balance: 100
@@ -57,10 +57,10 @@ let phoneCheckMatchedResource:phoneCheckAPIClientModules.IPhoneCheckResource = {
   ttl: 60,
   _links: {
     self: {
-      href: "https://us.api.4auth.io/phone_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002"
+      href: "https://us.api.tru.id/phone_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002"
     },
     check_url: {
-      href: "https://us.api.4auth.io/phone_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002/redirect"
+      href: "https://us.api.tru.id/phone_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002/redirect"
     }
   }
 }
@@ -75,10 +75,10 @@ let phoneCheckExpiredResource:phoneCheckAPIClientModules.IPhoneCheckResource = {
   ttl: 60,
   _links: {
     self: {
-      href: "https://us.api.4auth.io/phone_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002"
+      href: "https://us.api.tru.id/phone_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002"
     },
     check_url: {
-      href: "https://us.api.4auth.io/phone_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002/redirect"
+      href: "https://us.api.tru.id/phone_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002/redirect"
     }
   }
 }
@@ -93,10 +93,10 @@ let phoneCheckPendingResource:phoneCheckAPIClientModules.IPhoneCheckResource = {
   ttl: 60,
   _links: {
     self: {
-      href: "https://us.api.4auth.io/phone_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002"
+      href: "https://us.api.tru.id/phone_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002"
     },
     check_url: {
-      href: "https://us.api.4auth.io/phone_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002/redirect"
+      href: "https://us.api.tru.id/phone_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002/redirect"
     }
   }
 }
@@ -109,7 +109,7 @@ let phoneCheckAPIClientGetStub:any
 let qrCodeGenerateSpy:any
 
 const phoneNumberToTest = '447700900000'
-const projectConfigFileLocation = `${process.cwd()}/4auth.json`
+const projectConfigFileLocation = `${process.cwd()}/tru.json`
 const projectConfig:IProjectConfiguration = {
     project_id: "c69bc0e6-a429-11ea-bb37-0242ac130003",
     name: "My test project",
@@ -129,7 +129,7 @@ describe('phonechecks:create', () => {
   beforeEach(() => {
     existsSyncStub = sinon.default.stub(fs, 'existsSync')
     existsSyncStub.withArgs(sinon.default.match(new RegExp(/config.json/))).returns(true)
-    
+
     readJsonStub = sinon.default.stub(fs, 'readJson')
 
     readJsonStub.withArgs(
@@ -141,7 +141,7 @@ describe('phonechecks:create', () => {
         .resolves(projectConfig)
 
     inquirerStub = sinon.default.stub(inquirer, 'prompt')
-    
+
     // PhoneCheckClient
     phoneCheckAPIClientCreateStub = sinon.default.stub(phoneCheckAPIClientModules.PhoneChecksAPIClient.prototype, 'create')
     phoneCheckAPIClientCreateStub.resolves(createPhoneCheckResponse)
@@ -168,7 +168,7 @@ describe('phonechecks:create', () => {
   })
 
   let customProjectConfigDirPath = 'alternative/path/to/'
-  let customProjectConfigFullPath = 'alternative/path/to/4auth.json'
+  let customProjectConfigFullPath = 'alternative/path/to/tru.json'
   test
   .do(() => {
     readJsonStub.withArgs(
@@ -236,7 +236,7 @@ describe('phonechecks:create', () => {
   .command(['phonechecks:create', phoneNumberToTest])
   .it('should instantiate a PhoneChecksAPIClient object with global baseUrl configuration', ctx => {
     expect(phoneChecksApiClientConstructorStub).to.have.been.calledWith(
-      sinon.default.match.has('baseUrl', `https://${globalConfig.defaultWorkspaceDataResidency}.api.4auth.io`),
+      sinon.default.match.has('baseUrl', `https://${globalConfig.defaultWorkspaceDataResidency}.api.tru.id`),
       sinon.default.match.any
     )
   })
@@ -301,20 +301,20 @@ describe('phonechecks:create', () => {
     .it('creates a QR code with expected URL', () => {
       expect(qrCodeGenerateSpy).to.have.been.calledWith(`http://r.4auth.io?u=${encodeURIComponent(createPhoneCheckResponse._links.check_url.href)}`, sinon.default.match.any)
     })
-    
+
     test
     .do( () => {
       readJsonStub.restore()
       readJsonStub = sinon.default.stub(fs, 'readJson')
-    
+
       readJsonStub.withArgs(
         sinon.default.match(sinon.default.match(new RegExp(/config.json/))))
         .resolves(overrideQrCodeHandlerConfig)
-      
+
       readJsonStub.withArgs(
         sinon.default.match(projectConfigFileLocation))
         .resolves(projectConfig)
-        
+
         phoneCheckAPIClientGetStub.resolves(phoneCheckMatchedResource)
     })
     .command(['phonechecks:create', phoneNumberToTest, '--workflow'])
@@ -322,7 +322,7 @@ describe('phonechecks:create', () => {
       const expectedUrl = overrideQrCodeHandlerConfig.qrCodeUrlHandlerOverride.replace('{CHECK_URL}', `${encodeURIComponent(createPhoneCheckResponse._links.check_url.href)}`)
       expect(qrCodeGenerateSpy).to.have.been.calledWith(expectedUrl, sinon.default.match.any)
     })
-        
+
     test
     .do( () => {
       phoneCheckAPIClientGetStub.resolves(phoneCheckMatchedResource)
@@ -331,7 +331,7 @@ describe('phonechecks:create', () => {
     .it('creates a QR code with expected URL skipping r.4auth.io', () => {
       expect(qrCodeGenerateSpy).to.have.been.calledWith(createPhoneCheckResponse._links.check_url.href, sinon.default.match.any)
     })
-        
+
     test
     .do( () => {
       phoneCheckAPIClientGetStub.resolves(phoneCheckMatchedResource)
