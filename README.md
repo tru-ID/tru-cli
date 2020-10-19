@@ -1,7 +1,4 @@
-4auth-cli
-=========
-
-The 4Auth CLI
+The tru.ID CLI
 
 <!-- [![oclif](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://oclif.io)
 [![Version](https://img.shields.io/npm/v/4auth-cli.svg)](https://npmjs.org/package/4auth-cli)
