@@ -1,6 +1,6 @@
 {
   "name": "tru-cli",
-  "description": "The tru.Id CLI",
+  "description": "The tru.ID CLI",
   "version": "0.2.2",
   "author": "Phil Leggetter @leggetter",
   "bin": {
