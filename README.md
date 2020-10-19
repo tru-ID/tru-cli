@@ -20,7 +20,7 @@ $ npm install -g tru-cli
 $ tru COMMAND
 running command...
 $ tru (-v|--version|version)
-tru-cli/0.2.2 linux-x64 node-v10.19.0
+tru-cli/0.3.0 linux-x64 node-v10.19.0
 $ tru --help [COMMAND]
 USAGE
   $ tru COMMAND
@@ -88,7 +88,7 @@ EXAMPLES
   Emesua0F7gj3qOaav7UaKaBwefaaefaAxlrdGom_mb3U.78Od2d9XpvTQbd44eM1Uf7nzz9e9nezs5TRjPmpDnMc
 ```
 
-_See code: [src/commands/oauth2/token.ts](https://github.com/4auth/4auth-cli/blob/v0.2.2/src/commands/oauth2/token.ts)_
+_See code: [src/commands/oauth2/token.ts](https://github.com/4auth/4auth-cli/blob/v0.3.0/src/commands/oauth2/token.ts)_
 
 ## `tru phonechecks:create [PHONE_NUMBER]`
 
@@ -109,7 +109,7 @@ OPTIONS
   --workflow                 Execute the Phone Check Workflow from the CLI
 ```
 
-_See code: [src/commands/phonechecks/create.ts](https://github.com/4auth/4auth-cli/blob/v0.2.2/src/commands/phonechecks/create.ts)_
+_See code: [src/commands/phonechecks/create.ts](https://github.com/4auth/4auth-cli/blob/v0.3.0/src/commands/phonechecks/create.ts)_
 
 ## `tru phonechecks:list [CHECK_ID]`
 
@@ -148,7 +148,7 @@ OPTIONS
                              "created_at,desc". Ignored if the "check_id" argument is used.
 ```
 
-_See code: [src/commands/phonechecks/list.ts](https://github.com/4auth/4auth-cli/blob/v0.2.2/src/commands/phonechecks/list.ts)_
+_See code: [src/commands/phonechecks/list.ts](https://github.com/4auth/4auth-cli/blob/v0.3.0/src/commands/phonechecks/list.ts)_
 
 ## `tru projects:create [NAME]`
 
@@ -170,16 +170,16 @@ OPTIONS
   --quickstart                               Create a Project and also create a Phone Check in workflow mode.
 
 EXAMPLES
-  $ tru project:create
+  $ tru projects:create
   What is the name of the project?: My first project
   Creating Project "My first project"
 
-  $ tru project:create --phonecheck-callback https://example.com/callback
-  $ tru project:create --mode sandbox
-  $ tru project:create --mode live
+  $ tru projects:create --phonecheck-callback https://example.com/callback
+  $ tru projects:create --mode sandbox
+  $ tru projects:create --mode live
 ```
 
-_See code: [src/commands/projects/create.ts](https://github.com/4auth/4auth-cli/blob/v0.2.2/src/commands/projects/create.ts)_
+_See code: [src/commands/projects/create.ts](https://github.com/4auth/4auth-cli/blob/v0.3.0/src/commands/projects/create.ts)_
 
 ## `tru projects:list [PROJECT_ID]`
 
@@ -216,7 +216,7 @@ OPTIONS
                              "created_at,desc". Ignored if the "check_id" argument is used.
 ```
 
-_See code: [src/commands/projects/list.ts](https://github.com/4auth/4auth-cli/blob/v0.2.2/src/commands/projects/list.ts)_
+_See code: [src/commands/projects/list.ts](https://github.com/4auth/4auth-cli/blob/v0.3.0/src/commands/projects/list.ts)_
 
 ## `tru projects:update [PROJECT-ID]`
 
@@ -238,13 +238,13 @@ OPTIONS
   --remove-phonecheck-callback               remove the Phone Check callback configuration from the Project
 
 EXAMPLES
-  $ tru project:update --phonecheck-callback https://example.com/callback
-  $ tru project:update --remove-phonecheck-callback
-  $ tru project:update --mode sandbox
-  $ tru project:update --mode live
+  $ tru projects:update --phonecheck-callback https://example.com/callback
+  $ tru projects:update --remove-phonecheck-callback
+  $ tru projects:update --mode sandbox
+  $ tru projects:update --mode live
 ```
 
-_See code: [src/commands/projects/update.ts](https://github.com/4auth/4auth-cli/blob/v0.2.2/src/commands/projects/update.ts)_
+_See code: [src/commands/projects/update.ts](https://github.com/4auth/4auth-cli/blob/v0.3.0/src/commands/projects/update.ts)_
 
 ## `tru workspaces`
 
@@ -262,7 +262,7 @@ OPTIONS
   --output=csv|json|yaml  output in a more machine friendly format
 ```
 
-_See code: [src/commands/workspaces/index.ts](https://github.com/4auth/4auth-cli/blob/v0.2.2/src/commands/workspaces/index.ts)_
+_See code: [src/commands/workspaces/index.ts](https://github.com/4auth/4auth-cli/blob/v0.3.0/src/commands/workspaces/index.ts)_
 <!-- commandsstop -->
 
 # Development

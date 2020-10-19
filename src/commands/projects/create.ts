@@ -16,13 +16,13 @@ export default class Create extends CommandWithProjectConfig {
   static description = 'Creates a new Project'
 
   static examples = [
-    `$ tru project:create
+    `$ tru projects:create
 What is the name of the project?: My first project
 Creating Project "My first project"
 `,
-  `$ tru project:create --${phoneCheckCallbackUrlFlag.flagName} https://example.com/callback`,
-  `$ tru project:create --${projectModeFlag.flagName} sandbox`,
-  `$ tru project:create --${projectModeFlag.flagName} live`,
+  `$ tru projects:create --${phoneCheckCallbackUrlFlag.flagName} https://example.com/callback`,
+  `$ tru projects:create --${projectModeFlag.flagName} sandbox`,
+  `$ tru projects:create --${projectModeFlag.flagName} live`,
   ]
 
   static flags = {

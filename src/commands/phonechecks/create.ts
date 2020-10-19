@@ -100,7 +100,7 @@ export default class PhoneChecksCreate extends CommandWithProjectConfig {
 
         console.log(this.flags)
         if(!this.flags['skip-qrcode-handler']) {
-          const handlerUrl: string = this.globalConfig?.qrCodeUrlHandlerOverride ?? `http://r.tru.id?u={CHECK_URL}`
+          const handlerUrl: string = this.globalConfig?.qrCodeUrlHandlerOverride ?? `https://r.tru.id?u={CHECK_URL}`
           urlForQrCode = handlerUrl.replace('{CHECK_URL}', `${encodeURIComponent(urlForQrCode)}`)
         }
         this.logger.debug('QR Code Link Handler:', urlForQrCode)

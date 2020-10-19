@@ -299,7 +299,7 @@ describe('phonechecks:create', () => {
     })
     .command(['phonechecks:create', phoneNumberToTest, '--workflow'])
     .it('creates a QR code with expected URL', () => {
-      expect(qrCodeGenerateSpy).to.have.been.calledWith(`http://r.tru.id?u=${encodeURIComponent(createPhoneCheckResponse._links.check_url.href)}`, sinon.default.match.any)
+      expect(qrCodeGenerateSpy).to.have.been.calledWith(`https://r.tru.id?u=${encodeURIComponent(createPhoneCheckResponse._links.check_url.href)}`, sinon.default.match.any)
     })
 
     test

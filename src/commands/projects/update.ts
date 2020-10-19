@@ -9,10 +9,10 @@ export default class Create extends CommandWithProjectConfig {
   static description = 'Update an existing Project'
 
   static examples = [
-    `$ tru project:update --phonecheck-callback https://example.com/callback`,
-    `$ tru project:update --remove-phonecheck-callback`,
-    `$ tru project:update --mode sandbox`,
-    `$ tru project:update --mode live`,
+    `$ tru projects:update --phonecheck-callback https://example.com/callback`,
+    `$ tru projects:update --remove-phonecheck-callback`,
+    `$ tru projects:update --mode sandbox`,
+    `$ tru projects:update --mode live`,
   ]
 
   static flags = {
