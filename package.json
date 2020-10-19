@@ -89,10 +89,6 @@
       ]
     },
     "update": {
-      "dev_s3": {
-        "bucket": "tru-cli-dev",
-        "acl": "private"
-      },
       "s3": {
         "bucket": "tru-cli",
         "acl": "private"
