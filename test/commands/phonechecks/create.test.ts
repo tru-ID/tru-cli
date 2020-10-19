@@ -299,7 +299,7 @@ describe('phonechecks:create', () => {
     })
     .command(['phonechecks:create', phoneNumberToTest, '--workflow'])
     .it('creates a QR code with expected URL', () => {
-      expect(qrCodeGenerateSpy).to.have.been.calledWith(`http://r.4auth.io?u=${encodeURIComponent(createPhoneCheckResponse._links.check_url.href)}`, sinon.default.match.any)
+      expect(qrCodeGenerateSpy).to.have.been.calledWith(`http://r.tru.id?u=${encodeURIComponent(createPhoneCheckResponse._links.check_url.href)}`, sinon.default.match.any)
     })
 
     test
@@ -328,7 +328,7 @@ describe('phonechecks:create', () => {
       phoneCheckAPIClientGetStub.resolves(phoneCheckMatchedResource)
     })
     .command(['phonechecks:create', phoneNumberToTest, '--workflow', '--skip-qrcode-handler'])
-    .it('creates a QR code with expected URL skipping r.4auth.io', () => {
+    .it('creates a QR code with expected URL skipping r.tru.id', () => {
       expect(qrCodeGenerateSpy).to.have.been.calledWith(createPhoneCheckResponse._links.check_url.href, sinon.default.match.any)
     })
 

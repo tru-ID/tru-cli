@@ -22,7 +22,7 @@ export default class PhoneChecksCreate extends CommandWithProjectConfig {
       required: false
     }),
     'skip-qrcode-handler': flags.boolean({
-      description: 'Skips using the 4Auth hosted QR code handler with the `check_url`',
+      description: 'Skips using the tru hosted QR code handler with the `check_url`',
       required: false,
       dependsOn: ['workflow']
     })
@@ -100,7 +100,7 @@ export default class PhoneChecksCreate extends CommandWithProjectConfig {
 
         console.log(this.flags)
         if(!this.flags['skip-qrcode-handler']) {
-          const handlerUrl: string = this.globalConfig?.qrCodeUrlHandlerOverride ?? `http://r.4auth.io?u={CHECK_URL}`
+          const handlerUrl: string = this.globalConfig?.qrCodeUrlHandlerOverride ?? `http://r.tru.id?u={CHECK_URL}`
           urlForQrCode = handlerUrl.replace('{CHECK_URL}', `${encodeURIComponent(urlForQrCode)}`)
         }
         this.logger.debug('QR Code Link Handler:', urlForQrCode)

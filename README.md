@@ -19,11 +19,11 @@ Every run of the CLI will check to see if all required configuration is in place
 
 <!-- usage -->
 ```sh-session
-$ npm install -g tru.id-cli
+$ npm install -g tru-cli
 $ tru COMMAND
 running command...
 $ tru (-v|--version|version)
-tru.id-cli/0.2.2 linux-x64 node-v10.19.0
+tru-cli/0.2.2 linux-x64 node-v10.19.0
 $ tru --help [COMMAND]
 USAGE
   $ tru COMMAND
@@ -72,7 +72,7 @@ OPTIONS
   --no-header                hide table header from output
   --no-truncate              do not truncate output to fit screen
   --output=csv|json|yaml     output in a more machine friendly format
-  --project-dir=project-dir  The directory that contains the truID.json Project configuration file
+  --project-dir=project-dir  The directory that contains the tru.json Project configuration file
 
 EXAMPLES
   # use workspace credentials to create token
@@ -107,8 +107,8 @@ ARGUMENTS
 OPTIONS
   -h, --help                 show CLI help
   --debug                    Enables debug logging for the CLI
-  --project-dir=project-dir  The directory that contains the truID.json Project configuration file
-  --skip-qrcode-handler      Skips using the 4Auth hosted QR code handler with the `check_url`
+  --project-dir=project-dir  The directory that contains the tru.json Project configuration file
+  --skip-qrcode-handler      Skips using the tru hosted QR code handler with the `check_url`
   --workflow                 Execute the Phone Check Workflow from the CLI
 ```
 
@@ -142,7 +142,7 @@ OPTIONS
   --page_size=page_size      [default: 10] The page size to return in list resource request. Ignored if the "check_id"
                              argument is used.
 
-  --project-dir=project-dir  The directory that contains the truID.json Project configuration file
+  --project-dir=project-dir  The directory that contains the tru.json Project configuration file
 
   --search=search            A RSQL search query. To ensure correct parsing put your query in quotes. For example
                              "--search 'status==COMPLETED'". Ignored if the "check_id" argument is used.
@@ -169,7 +169,7 @@ OPTIONS
   --debug                                    Enables debug logging for the CLI
   --mode=live|sandbox                        Set the project mode to "live" or "sandbox"
   --phonecheck-callback=phonecheck-callback  set a callback to be invoked when a Phone Check reaches an end state
-  --project-dir=project-dir                  The directory that contains the truID.json Project configuration file
+  --project-dir=project-dir                  The directory that contains the tru.json Project configuration file
   --quickstart                               Create a Project and also create a Phone Check in workflow mode.
 
 EXAMPLES
@@ -237,7 +237,7 @@ OPTIONS
   --debug                                    Enables debug logging for the CLI
   --mode=live|sandbox                        Set the project mode to "live" or "sandbox"
   --phonecheck-callback=phonecheck-callback  set a callback to be invoked when a Phone Check reaches an end state
-  --project-dir=project-dir                  The directory that contains the truID.json Project configuration file
+  --project-dir=project-dir                  The directory that contains the tru.json Project configuration file
   --remove-phonecheck-callback               remove the Phone Check callback configuration from the Project
 
 EXAMPLES

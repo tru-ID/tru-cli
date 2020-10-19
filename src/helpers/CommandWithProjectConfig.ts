@@ -10,7 +10,7 @@ export default abstract class CommandWithProjectConfig extends CommandWithGlobal
 	static projectDirFlagName = 'project-dir'
 
 	static projectDirFlag = flags.string({
-		description: 'The directory that contains the truID.json Project configuration file'
+		description: 'The directory that contains the tru.json Project configuration file'
 	})
 
 	static flags = {
