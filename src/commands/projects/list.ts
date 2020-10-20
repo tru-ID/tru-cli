@@ -59,7 +59,7 @@ export default class ProjectsList extends CommandWithGlobalConfig {
             clientId: this.globalConfig?.defaultWorkspaceClientId,
             clientSecret: this.globalConfig?.defaultWorkspaceClientSecret,
             scopes: ['projects'],
-            baseUrl: this.globalConfig?.apiBaseUrlOverride ?? `https://${this.globalConfig?.defaultWorkspaceDataResidency}.api.4auth.io`
+            baseUrl: this.globalConfig?.apiBaseUrlOverride ?? `https://${this.globalConfig?.defaultWorkspaceDataResidency}.api.tru.id`
         }),
             this.logger
         )

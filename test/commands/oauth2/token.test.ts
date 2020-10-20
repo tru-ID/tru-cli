@@ -46,8 +46,8 @@ let consoleLoggerDebugStub:any
 const newProjectName: string = 'My First Project'
 const expectedProjectDirectoryName = 'my_first_project'
 const expectedProjectFullPath = `${process.cwd()}/${expectedProjectDirectoryName}`
-const expectedProjectConfigFileFullPath = `${expectedProjectFullPath}/4auth.json`
-const expectedCurrentWorkingDirectoryConfig = `${process.cwd()}/4auth.json`
+const expectedProjectConfigFileFullPath = `${expectedProjectFullPath}/tru.json`
+const expectedCurrentWorkingDirectoryConfig = `${process.cwd()}/tru.json`
 
 const projectAPIResponse: IProjectResource = {
   "project_id": "c69bc0e6-a429-11ea-bb37-0242ac130003",
@@ -64,7 +64,7 @@ const projectAPIResponse: IProjectResource = {
   ],
   "_links": {
     "self": {
-      "href": "https://eu.api.4auth.io/console/v1/projects/c69bc0e6-a429-11ea-bb37-0242ac130003"
+      "href": "https://eu.api.tru.id/console/v1/projects/c69bc0e6-a429-11ea-bb37-0242ac130003"
     }
   }
 }
@@ -86,7 +86,7 @@ describe('Command: oauth2:create', () => {
     readJsonStub = sinon.default.stub(fs, 'readJson')
     readJsonStub.withArgs(sinon.default.match(new RegExp(/config.json/))).resolves(expectedUserConfig)
   })
-  
+
   afterEach(() => {
     sinon.default.restore()
   });
@@ -105,7 +105,7 @@ describe('Command: oauth2:create', () => {
   })
 
   test
-  .do( () => {  
+  .do( () => {
     constructorStub = sinon.default.spy(apiModule, 'OAuth2APIClient')
 
     readJsonStub.withArgs(expectedProjectConfigFileFullPath).resolves(expectedProjectConfigJson)
@@ -119,7 +119,7 @@ describe('Command: oauth2:create', () => {
   })
 
   test
-  .do( () => {  
+  .do( () => {
     constructorStub = sinon.default.spy(apiModule, 'OAuth2APIClient')
 
     readJsonStub.withArgs(expectedProjectConfigFileFullPath).resolves(expectedProjectConfigJson)
@@ -130,7 +130,7 @@ describe('Command: oauth2:create', () => {
   })
 
   test
-  .do( () => {  
+  .do( () => {
     constructorStub = sinon.default.spy(apiModule, 'OAuth2APIClient')
   })
   .command(['oauth2:token'])

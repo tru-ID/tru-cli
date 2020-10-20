@@ -13,8 +13,8 @@ export default interface IGlobalConfiguration{
      * The default workspace data residency. Unless the `apiBaseUrlOverride` is set the
      * `defaultWorkspaceDataResidency` will be used in determining the data residency of
      * the API endpoints to use in API interactions.
-     * 
-     * Example: if `defaultWorkspaceDataResidency` has a value of `eu` then https://{defaultWorkspaceDataResidency}.api.4auth.io
+     *
+     * Example: if `defaultWorkspaceDataResidency` has a value of `eu` then https://{defaultWorkspaceDataResidency}.api.tru.id
      */
     defaultWorkspaceDataResidency?: string
 
@@ -26,7 +26,7 @@ export default interface IGlobalConfiguration{
 
     /**
      * If present, the `phonechecks:create --workflow` command will create a QR code for this URL.
-     * 
+     *
      * The CLI replaces `{CHECK_URL}` within the provided configuration string with the Phone Check check_url which has been encoded with `encodeURIComponent`
      */
     qrCodeUrlHandlerOverride?: string

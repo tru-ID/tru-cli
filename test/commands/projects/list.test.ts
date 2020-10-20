@@ -30,7 +30,7 @@ describe('projects:list', () => {
 		defaultWorkspaceDataResidency: 'eu'
 	  }
 
-	const projectConfigFileLocation = `${process.cwd()}/4auth.json`
+	const projectConfigFileLocation = `${process.cwd()}/tru.json`
 
 	const projectConfig:IProjectConfiguration = {
 		project_id: "c69bc0e6-a429-11ea-bb37-0242ac130003",
@@ -51,7 +51,7 @@ describe('projects:list', () => {
 		mode: 'live',
 		_links: {
 			self: {
-				href: 'https://eu.api.4auth.io/console/v0.1/projects/c69bc0e6-a429-11ea-bb37-0242ac130003'
+				href: 'https://eu.api.tru.id/console/v0.1/projects/c69bc0e6-a429-11ea-bb37-0242ac130003'
 			}
 		}
 	}
@@ -93,7 +93,7 @@ describe('projects:list', () => {
 		projectsApiClientListStub =
 			sinon.default.stub(projectsAPIClientModules.ProjectsAPIClient.prototype, 'list')
 		projectsApiClientListStub.resolves(projectsListResource)
-		
+
 		projectsApiClientGetStub =
 			sinon.default.stub(projectsAPIClientModules.ProjectsAPIClient.prototype, 'get')
 		projectsApiClientGetStub.resolves(projectResource)

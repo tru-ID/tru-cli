@@ -27,7 +27,7 @@ let expectedUserConfig:IGlobalConfiguration = {
 
 let expectedUserConfigWithOverride:IGlobalConfiguration = {
   ...expectedUserConfig,
-  apiBaseUrlOverride: 'https://eu-dev.api-dev.4auth.io'
+  apiBaseUrlOverride: 'https://eu-dev.api-dev.tru.id'
 }
 
 // Stubs
@@ -43,7 +43,7 @@ let phoneCheckCreateRunStub:any
 const newProjectName: string = 'My First Project'
 const expectedProjectDirectoryName = 'my_first_project'
 const expectedProjectFullPath = `${process.cwd()}/${expectedProjectDirectoryName}`
-const expectedProjectConfigFileFullPath = `${expectedProjectFullPath}/4auth.json`
+const expectedProjectConfigFileFullPath = `${expectedProjectFullPath}/tru.json`
 
 const createProjectAPIResponse: ICreateProjectResponse = {
   "project_id": "c69bc0e6-a429-11ea-bb37-0242ac130003",
@@ -60,7 +60,7 @@ const createProjectAPIResponse: ICreateProjectResponse = {
   ],
   "_links": {
     "self": {
-      "href": "https://eu.api.4auth.io/console/v1/projects/c69bc0e6-a429-11ea-bb37-0242ac130003"
+      "href": "https://eu.api.tru.id/console/v1/projects/c69bc0e6-a429-11ea-bb37-0242ac130003"
     }
   }
 }
@@ -79,19 +79,19 @@ describe('Command: projects:create', () => {
     readJsonStub.resolves(expectedUserConfig)
 
     sinon.default.stub(inquirer, 'prompt').resolves({'projectName': newProjectName})
-    
+
     projectsApiCreateStub = sinon.default.stub(projectsModule.ProjectsAPIClient.prototype, 'create')
     projectsApiCreateStub.withArgs({name: newProjectName}).resolves(createProjectAPIResponse)
 
     phoneCheckCreateRunStub = sinon.default.stub(PhoneChecksCreate, 'run')
   })
-  
+
   afterEach(() => {
     sinon.default.restore()
   });
 
   test
-  .do( () => {  
+  .do( () => {
     existsSyncStub.withArgs(sinon.default.match(expectedProjectConfigFileFullPath)).returns(false)
     projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
     projectConfigFileCreationStub.resolves()
@@ -125,7 +125,7 @@ describe('Command: projects:create', () => {
     expect(projectConstructorStub).to.have.been.calledWith(
       sinon.default.match.has('clientId', expectedUserConfig.defaultWorkspaceClientId).and(
         sinon.default.match.has('clientSecret', expectedUserConfig.defaultWorkspaceClientSecret)).and(
-        sinon.default.match.has('baseUrl', `https://${expectedUserConfig.defaultWorkspaceDataResidency}.api.4auth.io`)),
+        sinon.default.match.has('baseUrl', `https://${expectedUserConfig.defaultWorkspaceDataResidency}.api.tru.id`)),
       sinon.default.match.instanceOf(consoleLoggerModule.ConsoleLogger)
     )
   })
@@ -142,7 +142,7 @@ describe('Command: projects:create', () => {
     expect(projectConstructorStub).to.have.been.calledWith(
       sinon.default.match.has('clientId', expectedUserConfig.defaultWorkspaceClientId).and(
       sinon.default.match.has('clientSecret', expectedUserConfig.defaultWorkspaceClientSecret)).and(
-      sinon.default.match.has('baseUrl', `https://${expectedUserConfig.defaultWorkspaceDataResidency}.api.4auth.io`))
+      sinon.default.match.has('baseUrl', `https://${expectedUserConfig.defaultWorkspaceDataResidency}.api.tru.id`))
     )
   })
 
@@ -166,7 +166,7 @@ describe('Command: projects:create', () => {
     sinon.default.stub(fs, 'outputJson').resolves()
 
     // change default test behaviour for this specific test
-    readJsonStub.restore() 
+    readJsonStub.restore()
     readJsonStub = sinon.default.stub(fs, 'readJson')
     readJsonStub.resolves(expectedUserConfigWithOverride)
 
@@ -182,7 +182,7 @@ describe('Command: projects:create', () => {
   })
 
   test
-  .do( () => {  
+  .do( () => {
     projectsApiCreateStub.withArgs({name: 'Error Project'}).throws()
   })
   .stdout()
@@ -198,7 +198,7 @@ describe('Command: projects:create', () => {
   })
   .command(['projects:create', newProjectName])
   .exit(1)
-  .it('errors if the specific project directory already contains a 4auth.json file')
+  .it('errors if the specific project directory already contains a tru.json file')
 
   test
   .do( () => {
@@ -218,7 +218,7 @@ describe('Command: projects:create', () => {
     projectConfigFileCreationStub.resolves()
   })
   .command(['projects:create', newProjectName])
-  .it('creates a 4auth.json project configuration file with the Project resource contents', ctx => {
+  .it('creates a tru.json project configuration file with the Project resource contents', ctx => {
     expect(projectConfigFileCreationStub).to.have.been.calledWith(
       expectedProjectConfigFileFullPath,
       sinon.default.match(expectedProjectConfigJson)
@@ -226,7 +226,7 @@ describe('Command: projects:create', () => {
   })
 
   const customProjectDir = 'path/to/a/custom/dir'
-  const customProjectConfigFilePath = `${customProjectDir}/4auth.json`
+  const customProjectConfigFilePath = `${customProjectDir}/tru.json`
   test
   .do( () => {
     existsSyncStub.withArgs(sinon.default.match(customProjectConfigFilePath)).returns(false)
@@ -235,7 +235,7 @@ describe('Command: projects:create', () => {
     projectConfigFileCreationStub.resolves()
   })
   .command(['projects:create', newProjectName, `--${CommandWithProjectConfig.projectDirFlagName}=${customProjectDir}`])
-  .it(`creates a 4auth.json project configuration file in the location specified by the ${CommandWithProjectConfig.projectDirFlagName} flag`, ctx => {
+  .it(`creates a tru.json project configuration file in the location specified by the ${CommandWithProjectConfig.projectDirFlagName} flag`, ctx => {
     expect(projectConfigFileCreationStub).to.have.been.calledWith(
       customProjectConfigFilePath,
       sinon.default.match(expectedProjectConfigJson)
@@ -251,14 +251,14 @@ describe('Command: projects:create', () => {
     projectConfigFileCreationStub.resolves()
   })
   .command(['projects:create', createProjectAPIResponse.name])
-  .it('creates a 4auth.json project configuration file stripping the _links contents', ctx => {
+  .it('creates a tru.json project configuration file stripping the _links contents', ctx => {
 
     expect(projectConfigFileCreationStub).to.have.been.calledWith(
       expectedProjectConfigFileFullPath,
       sinon.default.match((value) => {
         return value._links === undefined
       })
-      
+
     )
   })
 
