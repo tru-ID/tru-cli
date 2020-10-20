@@ -2,7 +2,7 @@ export declare interface APIConfigurationArguments {
     clientId?:string,
     clientSecret?:string,
     scopes?:string[],
-    baseUrl?:string, // https://eu.api.4auth.io
+    baseUrl?:string, // https://eu.api.tru.id
 }
 
 export class APIConfiguration {

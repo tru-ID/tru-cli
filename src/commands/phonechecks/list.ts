@@ -60,7 +60,7 @@ export default class PhoneChecksList extends CommandWithProjectConfig {
           clientId: this.projectConfig?.credentials[0].client_id,
           clientSecret: this.projectConfig?.credentials[0].client_secret,
           scopes: ['phone_check'],
-          baseUrl: this.globalConfig?.apiBaseUrlOverride ?? `https://${this.globalConfig?.defaultWorkspaceDataResidency}.api.4auth.io`
+          baseUrl: this.globalConfig?.apiBaseUrlOverride ?? `https://${this.globalConfig?.defaultWorkspaceDataResidency}.api.tru.id`
       }),
       this.logger
     )

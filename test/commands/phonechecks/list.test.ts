@@ -30,7 +30,7 @@ describe('phonechecks:list', () => {
 		defaultWorkspaceDataResidency: 'eu'
 	  }
 
-	const projectConfigFileLocation = `${process.cwd()}/4auth.json`
+	const projectConfigFileLocation = `${process.cwd()}/tru.json`
 
 	const projectConfig:IProjectConfiguration = {
 		project_id: "c69bc0e6-a429-11ea-bb37-0242ac130003",
@@ -49,10 +49,10 @@ describe('phonechecks:list', () => {
 	const phoneCheckResource: phoneCheckAPIClientModules.IPhoneCheckResource = {
 		_links: {
 			self: {
-				href: 'https://us.api.4auth.io/phone_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002'
+				href: 'https://us.api.tru.id/phone_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002'
 			},
 			check_url: {
-				href: 'https://us.api.4auth.io/phone_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002/redirect' 
+				href: 'https://us.api.tru.id/phone_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002/redirect'
 			}
 		},
 		charge_amount: 1,
@@ -101,7 +101,7 @@ describe('phonechecks:list', () => {
 		phoneChecksApiClientListStub =
 			sinon.default.stub(phoneCheckAPIClientModules.PhoneChecksAPIClient.prototype, 'list')
 		phoneChecksApiClientListStub.resolves(projectListResource)
-		
+
 		phoneChecksApiClientGetStub =
 			sinon.default.stub(phoneCheckAPIClientModules.PhoneChecksAPIClient.prototype, 'get')
 		phoneChecksApiClientGetStub.resolves(phoneCheckResource)
