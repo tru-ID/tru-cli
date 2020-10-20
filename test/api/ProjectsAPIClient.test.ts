@@ -48,7 +48,7 @@ describe('API: projects', () => {
             ],
             "_links": {
               "self": {
-                "href": "https://eu.api.4auth.io/console/v1/projects/c69bc0e6-a429-11ea-bb37-0242ac130003"
+                "href": "https://eu.api.tru.id/console/v1/projects/c69bc0e6-a429-11ea-bb37-0242ac130003"
               }
             }
           }
@@ -93,7 +93,7 @@ describe('API: projects', () => {
     })
 
     it('should make a request to get the existing project with the provided project_id', async () => {
-        const projectsAPI:ProjectsAPIClient = createDefaultProjectsAPI() 
+        const projectsAPI:ProjectsAPIClient = createDefaultProjectsAPI()
 
         httpClientGetStub.resolves(getProjectObject())
 

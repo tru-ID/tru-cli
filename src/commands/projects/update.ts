@@ -9,10 +9,10 @@ export default class Create extends CommandWithProjectConfig {
   static description = 'Update an existing Project'
 
   static examples = [
-    `$ 4auth project:update --phonecheck-callback https://example.com/callback`,
-    `$ 4auth project:update --remove-phonecheck-callback`,
-    `$ 4auth project:update --mode sandbox`,
-    `$ 4auth project:update --mode live`,
+    `$ tru projects:update --phonecheck-callback https://example.com/callback`,
+    `$ tru projects:update --remove-phonecheck-callback`,
+    `$ tru projects:update --mode sandbox`,
+    `$ tru projects:update --mode live`,
   ]
 
   static flags = {
@@ -64,11 +64,11 @@ export default class Create extends CommandWithProjectConfig {
           clientId: this.globalConfig?.defaultWorkspaceClientId,
           clientSecret: this.globalConfig?.defaultWorkspaceClientSecret,
           scopes: ['projects'],
-          baseUrl: this.globalConfig?.apiBaseUrlOverride ?? `https://${this.globalConfig?.defaultWorkspaceDataResidency}.api.4auth.io`
+          baseUrl: this.globalConfig?.apiBaseUrlOverride ?? `https://${this.globalConfig?.defaultWorkspaceDataResidency}.api.tru.id`
       }),
       logger
     )
-    
+
     let projectCreationResult:ICreateProjectResponse;
     try {
       const updatePayload: IUpdateProjectPayload = {}

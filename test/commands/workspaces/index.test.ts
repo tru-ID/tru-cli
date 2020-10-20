@@ -36,7 +36,7 @@ describe('workspaces', () => {
 		},
 		created_at: '2020-08-12T22:30:29+0000',
 		_links: {
-		  self: { href: 'https://eu.api.4auth.io/console/v0.1/workspaces/default' }
+		  self: { href: 'https://eu.api.tru.id/console/v0.1/workspaces/default' }
 		},
 		_embedded: {
 		  balance: {
@@ -60,7 +60,7 @@ describe('workspaces', () => {
 		readJsonStub.withArgs(
 			sinon.default.match(sinon.default.match(new RegExp(/config.json/))))
 			.resolves(expectedUserConfig)
-		
+
 		workspacesApiClientGetStub =
 			sinon.default.stub(workspacesAPIClientModules.WorkspacesAPIClient.prototype, 'get')
 		workspacesApiClientGetStub.resolves(workspaceResource)

@@ -28,7 +28,7 @@ let consoleLoggerInfoStub:any
 let consoleLoggerWarnStub:any
 let consoleLoggerErrorStub:any
 
-const workingDirectoryProjectConfigPath = `${process.cwd()}/4auth.json`
+const workingDirectoryProjectConfigPath = `${process.cwd()}/tru.json`
 
 const createProjectAPIResponse: ICreateProjectResponse = {
   "project_id": "c69bc0e6-a429-11ea-bb37-0242ac130003",
@@ -45,7 +45,7 @@ const createProjectAPIResponse: ICreateProjectResponse = {
   ],
   "_links": {
     "self": {
-      "href": "https://eu.api.4auth.io/console/v1/projects/c69bc0e6-a429-11ea-bb37-0242ac130003"
+      "href": "https://eu.api.tru.id/console/v1/projects/c69bc0e6-a429-11ea-bb37-0242ac130003"
     }
   }
 }
@@ -66,7 +66,7 @@ describe('Command: projects:update', () => {
 
     projectsApiUpdateStub = sinon.default.stub(projectsModule.ProjectsAPIClient.prototype, 'update')
   })
-  
+
   afterEach(() => {
     sinon.default.restore()
   });
@@ -115,7 +115,7 @@ describe('Command: projects:update', () => {
   })
 
   test
-  .do( () => {  
+  .do( () => {
     consoleLoggerErrorStub = sinon.default.stub(consoleLoggerModule.ConsoleLogger.prototype, 'error')
   })
   .command(['projects:update', 'f0f5fb8e-db1c-4e75-bae8-cvxcvxcv'])
