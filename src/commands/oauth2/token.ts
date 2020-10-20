@@ -25,7 +25,7 @@ $ tru oauth2:token
 $ tru oauth2:token --${CommandWithProjectConfig.projectDirFlagName} path/to/project
 `,
 `# assign a token to a variable in shell
-$ TOKEN=$(tru oauth2:token --project_dir ~/tmp/bbb --no-header)                                                                                                                                                               ~/4auth/git/4auth-cli
+$ TOKEN=$(tru oauth2:token --${CommandWithProjectConfig.projectDirFlagName} path/to/project --no-header)                                                                                                                                                               ~/4auth/git/4auth-cli
 $ echo $TOKEN                                                                                                                                                                                                                     ~/4auth/git/4auth-cli
 Emesua0F7gj3qOaav7UaKaBwefaaefaAxlrdGom_mb3U.78Od2d9XpvTQbd44eM1Uf7nzz9e9nezs5TRjPmpDnMc`
     ]
