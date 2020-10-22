@@ -28,7 +28,7 @@ export default class WorkspaceDefault extends CommandWithGlobalConfig {
         const workspacesAPIClient = new WorkspacesAPIClient(new APIConfiguration({
             clientId: this.globalConfig?.defaultWorkspaceClientId,
             clientSecret: this.globalConfig?.defaultWorkspaceClientSecret,
-            scopes: ['projects'],
+            scopes: ['workspaces'],
             baseUrl: this.globalConfig?.apiBaseUrlOverride ?? `https://${this.globalConfig?.defaultWorkspaceDataResidency}.api.tru.id`
         }),
             this.logger
