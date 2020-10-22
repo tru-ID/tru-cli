@@ -20,7 +20,7 @@ $ npm install -g tru-cli
 $ tru COMMAND
 running command...
 $ tru (-v|--version|version)
-tru-cli/0.3.0 linux-x64 node-v10.19.0
+tru-cli/0.3.1 linux-x64 node-v15.0.1
 $ tru --help [COMMAND]
 USAGE
   $ tru COMMAND
@@ -53,7 +53,7 @@ OPTIONS
   --all  see all commands in CLI
 ```
 
-_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v3.2.0/src/commands/help.ts)_
+_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v3.1.0/src/commands/help.ts)_
 
 ## `tru oauth2:token`
 
@@ -79,16 +79,12 @@ EXAMPLES
   $ tru oauth2:token --project-dir path/to/project
 
   # assign a token to a variable in shell
-  $ TOKEN=$(tru oauth2:token --project_dir ~/tmp/bbb --no-header)                                                        
-                                                                                                       
-  ~/4auth/git/4auth-cli
-  $ echo $TOKEN                                                                                                          
-                                                                                                           
-  ~/4auth/git/4auth-cli
+  $ TOKEN=$(tru oauth2:token --project-dir path/to/project --no-header)
+  $ echo $TOKEN
   Emesua0F7gj3qOaav7UaKaBwefaaefaAxlrdGom_mb3U.78Od2d9XpvTQbd44eM1Uf7nzz9e9nezs5TRjPmpDnMc
 ```
 
-_See code: [src/commands/oauth2/token.ts](https://github.com/4auth/4auth-cli/blob/v0.3.0/src/commands/oauth2/token.ts)_
+_See code: [src/commands/oauth2/token.ts](https://github.com/4auth/4auth-cli/blob/v0.3.1/src/commands/oauth2/token.ts)_
 
 ## `tru phonechecks:create [PHONE_NUMBER]`
 
@@ -109,7 +105,7 @@ OPTIONS
   --workflow                 Execute the Phone Check Workflow from the CLI
 ```
 
-_See code: [src/commands/phonechecks/create.ts](https://github.com/4auth/4auth-cli/blob/v0.3.0/src/commands/phonechecks/create.ts)_
+_See code: [src/commands/phonechecks/create.ts](https://github.com/4auth/4auth-cli/blob/v0.3.1/src/commands/phonechecks/create.ts)_
 
 ## `tru phonechecks:list [CHECK_ID]`
 
@@ -148,7 +144,7 @@ OPTIONS
                              "created_at,desc". Ignored if the "check_id" argument is used.
 ```
 
-_See code: [src/commands/phonechecks/list.ts](https://github.com/4auth/4auth-cli/blob/v0.3.0/src/commands/phonechecks/list.ts)_
+_See code: [src/commands/phonechecks/list.ts](https://github.com/4auth/4auth-cli/blob/v0.3.1/src/commands/phonechecks/list.ts)_
 
 ## `tru projects:create [NAME]`
 
@@ -179,7 +175,7 @@ EXAMPLES
   $ tru projects:create --mode live
 ```
 
-_See code: [src/commands/projects/create.ts](https://github.com/4auth/4auth-cli/blob/v0.3.0/src/commands/projects/create.ts)_
+_See code: [src/commands/projects/create.ts](https://github.com/4auth/4auth-cli/blob/v0.3.1/src/commands/projects/create.ts)_
 
 ## `tru projects:list [PROJECT_ID]`
 
@@ -216,7 +212,7 @@ OPTIONS
                              "created_at,desc". Ignored if the "check_id" argument is used.
 ```
 
-_See code: [src/commands/projects/list.ts](https://github.com/4auth/4auth-cli/blob/v0.3.0/src/commands/projects/list.ts)_
+_See code: [src/commands/projects/list.ts](https://github.com/4auth/4auth-cli/blob/v0.3.1/src/commands/projects/list.ts)_
 
 ## `tru projects:update [PROJECT-ID]`
 
@@ -244,7 +240,7 @@ EXAMPLES
   $ tru projects:update --mode live
 ```
 
-_See code: [src/commands/projects/update.ts](https://github.com/4auth/4auth-cli/blob/v0.3.0/src/commands/projects/update.ts)_
+_See code: [src/commands/projects/update.ts](https://github.com/4auth/4auth-cli/blob/v0.3.1/src/commands/projects/update.ts)_
 
 ## `tru workspaces`
 
@@ -262,7 +258,7 @@ OPTIONS
   --output=csv|json|yaml  output in a more machine friendly format
 ```
 
-_See code: [src/commands/workspaces/index.ts](https://github.com/4auth/4auth-cli/blob/v0.3.0/src/commands/workspaces/index.ts)_
+_See code: [src/commands/workspaces/index.ts](https://github.com/4auth/4auth-cli/blob/v0.3.1/src/commands/workspaces/index.ts)_
 <!-- commandsstop -->
 
 # Development
