@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 0.3.1 (2020-10-22)
+
+### Bug Fixes
+
+* request correct scope when accessing workspace information ([254e832](https://github.com/4auth/4auth-cli/commit/254e83211f71272a5f03e644f5e975aa614cb1b7))
+
 ## 0.3.0 (2020-10-19)
 
 ### ⚠ BREAKING CHANGES
