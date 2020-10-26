@@ -1,8 +1,12 @@
 {
   "name": "tru-cli",
   "description": "The tru.ID CLI",
-  "version": "0.3.1",
-  "author": "Phil Leggetter @leggetter",
+  "version": "0.3.2",
+  "author": {
+    "name" : "tru.ID",
+    "email" : "community@tru.id",
+    "url" : "https://tru.id"
+  },
   "bin": {
     "tru": "./bin/run"
   },
