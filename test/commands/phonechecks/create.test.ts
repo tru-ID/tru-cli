@@ -15,6 +15,8 @@ import * as phoneCheckAPIClientModules from '../../../src/api/PhoneChecksAPIClie
 import {IProjectConfiguration} from '../../../src/IProjectConfiguration'
 import * as consoleLoggerModule from '../../../src/helpers/ConsoleLogger'
 import CommandWithProjectConfig from '../../../src/helpers/CommandWithProjectConfig'
+import { ICreateTokenResponse } from '../../../src/api/HttpClient';
+import { OAuth2APIClient } from '../../../src/api/OAuth2APIClient';
 
 let globalConfig:IGlobalConfiguration = {
   defaultWorkspaceClientId: 'my client id',
@@ -25,7 +27,7 @@ let globalConfig:IGlobalConfiguration = {
 
 const overrideQrCodeHandlerConfig = {
   ...globalConfig,
-  qrCodeUrlHandlerOverride: 'http://example.com/thing/blah?x={CHECK_URL}'
+  qrCodeUrlHandlerOverride: 'http://example.com/thing/blah?u={CHECK_URL}&c={CHECK_ID}&t={ACCESS_TOKEN}'
 }
 
 let createPhoneCheckResponse:phoneCheckAPIClientModules.ICreatePhoneCheckResponse = {
@@ -106,6 +108,7 @@ let readJsonStub:any
 let inquirerStub:any
 let phoneCheckAPIClientCreateStub:any
 let phoneCheckAPIClientGetStub:any
+let oauth2CreateStub:any
 let qrCodeGenerateSpy:any
 
 const phoneNumberToTest = '447700900000'
@@ -122,6 +125,15 @@ const projectConfig:IProjectConfiguration = {
         created_at: "2020-06-01T16:43:30+00:00"
       }
     ]
+}
+
+const phoneCheckQrCodeHandlerAccessTokenResponse: ICreateTokenResponse = {
+  access_token: 'i am an access token',
+  id_token: 'adfasdfa',
+  expires_in: 60,
+  token_type: 'bearer',
+  refresh_token: 'fadfadfa',
+  scope: 'projects'
 }
 
 describe('phonechecks:create', () => {
@@ -149,6 +161,8 @@ describe('phonechecks:create', () => {
     phoneCheckAPIClientGetStub = sinon.default.stub(phoneCheckAPIClientModules.PhoneChecksAPIClient.prototype, 'get')
 
     // QR Code
+    oauth2CreateStub = sinon.default.stub(OAuth2APIClient.prototype, 'create')
+    oauth2CreateStub.resolves(phoneCheckQrCodeHandlerAccessTokenResponse)
     qrCodeGenerateSpy = sinon.default.spy(qrcode, 'generate')
   })
 
@@ -299,8 +313,38 @@ describe('phonechecks:create', () => {
     })
     .command(['phonechecks:create', phoneNumberToTest, '--workflow'])
     .it('creates a QR code with expected URL', () => {
-      expect(qrCodeGenerateSpy).to.have.been.calledWith(`https://r.tru.id?u=${encodeURIComponent(createPhoneCheckResponse._links.check_url.href)}`, sinon.default.match.any)
+      expect(qrCodeGenerateSpy).to.have.been.calledWith(
+        `https://r.tru.id?u=${encodeURIComponent(createPhoneCheckResponse._links.check_url.href)}` +
+        `&c=${createPhoneCheckResponse.check_id}` +
+        `&t=${phoneCheckQrCodeHandlerAccessTokenResponse.access_token}`,
+        sinon.default.match.any)
     })
+
+    test
+    .do( () => {
+      phoneCheckAPIClientGetStub.resolves(phoneCheckMatchedResource)
+    })
+    .command(['phonechecks:create', phoneNumberToTest, '--workflow', '--debug'])
+    .it('creates a QR code with debug in the URL if the debug flag is set', () => {
+      expect(qrCodeGenerateSpy).to.have.been.calledWith(
+        `https://r.tru.id?u=${encodeURIComponent(createPhoneCheckResponse._links.check_url.href)}` +
+        `&c=${createPhoneCheckResponse.check_id}` +
+        `&t=${phoneCheckQrCodeHandlerAccessTokenResponse.access_token}` +
+        `&debug=true`,
+        sinon.default.match.any)
+    })
+
+    test
+    .do( () => {
+      phoneCheckAPIClientGetStub.resolves(phoneCheckMatchedResource)
+      oauth2CreateStub.restore()
+
+      oauth2CreateStub = sinon.default.stub(OAuth2APIClient.prototype, 'create')
+      oauth2CreateStub.throws()
+    })
+    .command(['phonechecks:create', phoneNumberToTest, '--workflow', '--debug'])
+    .exit(1)
+    .it('should handle an access token creation failure')
 
     test
     .do( () => {
@@ -319,7 +363,11 @@ describe('phonechecks:create', () => {
     })
     .command(['phonechecks:create', phoneNumberToTest, '--workflow'])
     .it('creates a QR code with expected URL override', () => {
-      const expectedUrl = overrideQrCodeHandlerConfig.qrCodeUrlHandlerOverride.replace('{CHECK_URL}', `${encodeURIComponent(createPhoneCheckResponse._links.check_url.href)}`)
+      const expectedUrl = overrideQrCodeHandlerConfig.qrCodeUrlHandlerOverride
+        .replace('{CHECK_URL}', `${encodeURIComponent(createPhoneCheckResponse._links.check_url.href)}`)
+        .replace('{CHECK_ID}', createPhoneCheckResponse.check_id)
+        .replace('{ACCESS_TOKEN}', phoneCheckQrCodeHandlerAccessTokenResponse.access_token)
+
       expect(qrCodeGenerateSpy).to.have.been.calledWith(expectedUrl, sinon.default.match.any)
     })
 
