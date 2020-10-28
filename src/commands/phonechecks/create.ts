@@ -11,6 +11,9 @@ import * as qrcode from 'qrcode-terminal'
 
 import * as inquirer from 'inquirer'
 import ILogger from '../../helpers/ILogger'
+import { OAuth2APIClient } from '../../api/OAuth2APIClient'
+
+const QR_CODE_LINK_HANDLER_URL = `https://r.tru.id?u={CHECK_URL}&c={CHECK_ID}&t={ACCESS_TOKEN}`
 
 export default class PhoneChecksCreate extends CommandWithProjectConfig {
   static description = 'Creates a Phone Check'
@@ -70,14 +73,13 @@ export default class PhoneChecksCreate extends CommandWithProjectConfig {
 
     this.log(`Creating Phone Check for ${this.args.phone_number}`)
 
-    const phoneCheckAPIClient = new PhoneChecksAPIClient(new APIConfiguration({
-          clientId: this.projectConfig?.credentials[0].client_id,
-          clientSecret: this.projectConfig?.credentials[0].client_secret,
-          scopes: ['phone_check'],
-          baseUrl: this.globalConfig?.apiBaseUrlOverride ?? `https://${this.globalConfig?.defaultWorkspaceDataResidency}.api.tru.id`
-      }),
-      this.logger
-    )
+    const apiConfiguration = new APIConfiguration({
+      clientId: this.projectConfig?.credentials[0].client_id,
+      clientSecret: this.projectConfig?.credentials[0].client_secret,
+      scopes: ['phone_check'],
+      baseUrl: this.globalConfig?.apiBaseUrlOverride ?? `https://${this.globalConfig?.defaultWorkspaceDataResidency}.api.tru.id`
+    })
+    const phoneCheckAPIClient = new PhoneChecksAPIClient(apiConfiguration, this.logger)
 
     let response:ICreatePhoneCheckResponse;
 
@@ -96,13 +98,30 @@ export default class PhoneChecksCreate extends CommandWithProjectConfig {
       this.log('Phone Check ACCEPTED')
 
       if(this.flags.workflow) {
-        let urlForQrCode = response._links.check_url.href
-
-        console.log(this.flags)
-        if(!this.flags['skip-qrcode-handler']) {
-          const handlerUrl: string = this.globalConfig?.qrCodeUrlHandlerOverride ?? `https://r.tru.id?u={CHECK_URL}`
-          urlForQrCode = handlerUrl.replace('{CHECK_URL}', `${encodeURIComponent(urlForQrCode)}`)
+        const oAuth2APIClient = new OAuth2APIClient(apiConfiguration, this.logger)
+        let accessTokenResponse
+        try{
+          accessTokenResponse = await oAuth2APIClient.create()
         }
+        catch(error) {
+          this.log('API Error:',
+          `${error.toString()} ${(error.response && error.response.data? JSON.stringify(error.response.data, null, 2) : '')}`)
+          this.exit(1)          
+        }
+
+        let urlForQrCode = response._links.check_url.href
+        
+        if(!this.flags['skip-qrcode-handler']) {
+          const handlerUrl: string = this.globalConfig?.qrCodeUrlHandlerOverride ?? QR_CODE_LINK_HANDLER_URL
+          urlForQrCode = handlerUrl
+            .replace('{CHECK_URL}', `${encodeURIComponent(urlForQrCode)}`)
+            .replace('{CHECK_ID}', response.check_id)
+            .replace('{ACCESS_TOKEN}', accessTokenResponse.access_token)
+          if(this.flags.debug) {
+            urlForQrCode += `&debug=true`
+          }
+        }
+
         this.logger.debug('QR Code Link Handler:', urlForQrCode)
         qrcode.generate(urlForQrCode, {small: true})
 
