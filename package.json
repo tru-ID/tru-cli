@@ -1,11 +1,11 @@
 {
   "name": "tru-cli",
   "description": "The tru.ID CLI",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "author": {
-    "name" : "tru.ID",
-    "email" : "community@tru.id",
-    "url" : "https://tru.id"
+    "name": "tru.ID",
+    "email": "community@tru.id",
+    "url": "https://tru.id"
   },
   "bin": {
     "tru": "./bin/run"

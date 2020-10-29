@@ -1,4 +1,4 @@
-import {test} from '@oclif/test'
+import { test } from '@oclif/test'
 import * as sinon from 'ts-sinon'
 import * as chai from 'chai';
 import * as sinonChai from 'sinon-chai'
@@ -12,70 +12,70 @@ import * as phoneCheckAPIClientModules from '../../../src/api/PhoneChecksAPIClie
 import IGlobalConfiguration from '../../../src/IGlobalConfiguration';
 import { IProjectConfiguration } from '../../../src/IProjectConfiguration';
 import { APIConfiguration } from '../../../src/api/APIConfiguration';
-import {ConsoleLogger} from '../../../src/helpers/ConsoleLogger'
+import { ConsoleLogger } from '../../../src/helpers/ConsoleLogger'
 
-import {buildConsoleString} from '../../test_helpers'
+import { buildConsoleString } from '../../test_helpers'
+import { CheckResource, IListCheckResource } from '../../../src/api/ChecksAPIClient';
+import { CheckStatus } from '../../../src/api/CheckStatus';
+
 
 describe('phonechecks:list', () => {
 
-	let phoneChecksApiClientConstructorStub:any
-	let phoneChecksApiClientListStub:any
-	let phoneChecksApiClientGetStub:any
-	let readJsonStub:any
-	let consoleLoggerInfoStub:any
+	let phoneChecksApiClientConstructorStub: any
+	let phoneChecksApiClientListStub: any
+	let phoneChecksApiClientGetStub: any
+	let readJsonStub: any
+	let consoleLoggerInfoStub: any
 
-	let expectedUserConfig:IGlobalConfiguration = {
+	let expectedUserConfig: IGlobalConfiguration = {
 		defaultWorkspaceClientId: 'my client id',
 		defaultWorkspaceClientSecret: 'my client secret',
 		defaultWorkspaceDataResidency: 'eu'
-	  }
+	}
 
 	const projectConfigFileLocation = `${process.cwd()}/tru.json`
 
-	const projectConfig:IProjectConfiguration = {
+	const projectConfig: IProjectConfiguration = {
 		project_id: "c69bc0e6-a429-11ea-bb37-0242ac130003",
 		name: "My test project",
 		created_at: "2020-06-01T16:43:30+00:00",
 		updated_at: "2020-06-01T16:43:30+00:00",
 		credentials: [
-		  {
-			client_id: "project client id",
-			client_secret: "project client secret",
-			created_at: "2020-06-01T16:43:30+00:00"
-		  }
+			{
+				client_id: "project client id",
+				client_secret: "project client secret",
+				created_at: "2020-06-01T16:43:30+00:00"
+			}
 		]
 	}
 
-	const phoneCheckResource: phoneCheckAPIClientModules.IPhoneCheckResource = {
+	const phoneCheckResource: CheckResource = {
 		_links: {
 			self: {
 				href: 'https://us.api.tru.id/phone_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002'
-			},
-			check_url: {
-				href: 'https://us.api.tru.id/phone_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002/redirect'
 			}
 		},
 		charge_amount: 1,
 		charge_currency: 'API',
 		check_id: 'c69bc0e6-a429-11ea-bb37-0242ac130002',
 		created_at: '2020-06-01T16:43:30+00:00',
+		updated_at: '2020-06-01T16:43:30+00:00',
 		match: false,
-		status: phoneCheckAPIClientModules.PhoneCheckStatus.ACCEPTED,
-		ttl: 60
+		status: CheckStatus.EXPIRED,
 	}
 
-	const projectListResource: phoneCheckAPIClientModules.IListPhoneCheckResponse = {
+	const checksListResource: IListCheckResource<CheckResource> = {
 		_embedded: {
 			checks: [
 				phoneCheckResource
 			]
 		},
 		_links: {
-			first: {href:''},
-			last: {href:''},
-			next: {href:''},
-			prev: {href:''},
-			self: {href:''}
+			first: { href: '' },
+			last: { href: '' },
+			next: { href: '' },
+			prev: { href: '' },
+			self: { href: '' }
 		},
 		page: {
 			number: 1,
@@ -91,16 +91,16 @@ describe('phonechecks:list', () => {
 		readJsonStub = sinon.default.stub(fs, 'readJson')
 
 		readJsonStub.withArgs(
-		sinon.default.match(sinon.default.match(new RegExp(/config.json/))))
+			sinon.default.match(sinon.default.match(new RegExp(/config.json/))))
 			.resolves(expectedUserConfig)
 
 		readJsonStub.withArgs(
-		sinon.default.match(projectConfigFileLocation))
+			sinon.default.match(projectConfigFileLocation))
 			.resolves(projectConfig)
 
 		phoneChecksApiClientListStub =
 			sinon.default.stub(phoneCheckAPIClientModules.PhoneChecksAPIClient.prototype, 'list')
-		phoneChecksApiClientListStub.resolves(projectListResource)
+		phoneChecksApiClientListStub.resolves(checksListResource)
 
 		phoneChecksApiClientGetStub =
 			sinon.default.stub(phoneCheckAPIClientModules.PhoneChecksAPIClient.prototype, 'get')
@@ -114,7 +114,7 @@ describe('phonechecks:list', () => {
 	})
 
 	test
-		.do( () => {
+		.do(() => {
 			phoneChecksApiClientConstructorStub = sinon.default.spy(phoneCheckAPIClientModules, 'PhoneChecksAPIClient')
 		})
 		.command(['phonechecks:list'])

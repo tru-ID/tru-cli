@@ -36,6 +36,11 @@ export default interface IGlobalConfiguration{
      */
     phoneCheckWorkflowRetryMillisecondsOverride?: number
 
+     /**
+     * If present, is used to determine how frequently the Identity Check `/checks/{check_id}` endpoint is polled to check if the status has changed.
+     */
+    identityCheckWorkflowRetryMillisecondsOverride?: number
+
     /**
      * Allow configuration values to be iterated over
      */
