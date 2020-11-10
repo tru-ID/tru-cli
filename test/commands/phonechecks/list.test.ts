@@ -17,15 +17,15 @@ import { ConsoleLogger } from '../../../src/helpers/ConsoleLogger'
 import { buildConsoleString } from '../../test_helpers'
 import { CheckResource, IListCheckResource } from '../../../src/api/ChecksAPIClient';
 import { CheckStatus } from '../../../src/api/CheckStatus';
+import * as httpClientModule from '../../../src/api/HttpClient';
 
 
 describe('phonechecks:list', () => {
 
 	let phoneChecksApiClientConstructorStub: any
-	let phoneChecksApiClientListStub: any
-	let phoneChecksApiClientGetStub: any
 	let readJsonStub: any
 	let consoleLoggerInfoStub: any
+	let httpClientGetStub: any
 
 	let expectedUserConfig: IGlobalConfiguration = {
 		defaultWorkspaceClientId: 'my client id',
@@ -98,13 +98,10 @@ describe('phonechecks:list', () => {
 			sinon.default.match(projectConfigFileLocation))
 			.resolves(projectConfig)
 
-		phoneChecksApiClientListStub =
-			sinon.default.stub(phoneCheckAPIClientModules.PhoneChecksAPIClient.prototype, 'list')
-		phoneChecksApiClientListStub.resolves(checksListResource)
-
-		phoneChecksApiClientGetStub =
-			sinon.default.stub(phoneCheckAPIClientModules.PhoneChecksAPIClient.prototype, 'get')
-		phoneChecksApiClientGetStub.resolves(phoneCheckResource)
+		httpClientGetStub = sinon.default.stub(httpClientModule.HttpClient.prototype, 'get')
+		httpClientGetStub.withArgs('/phone_check/v0.1/checks', sinon.default.match.any, sinon.default.match.any).resolves(checksListResource)
+		httpClientGetStub.withArgs(`/phone_check/v0.1/checks/${phoneCheckResource.check_id}`, sinon.default.match.any, sinon.default.match.any).resolves(phoneCheckResource)
+		httpClientGetStub.withArgs(`/phone_check/v0.1/checks/check_id_value`, sinon.default.match.any, sinon.default.match.any).resolves(phoneCheckResource)
 
 		consoleLoggerInfoStub = sinon.default.stub(ConsoleLogger.prototype, 'info')
 	})
@@ -127,13 +124,13 @@ describe('phonechecks:list', () => {
 	test
 		.command(['phonechecks:list'])
 		.it('phonechecks/list/PhoneChecksAPIClient.list: should call PhoneChecksAPIClient.list() if optional check_id argment is not supplied', ctx => {
-			expect(phoneChecksApiClientListStub).to.be.called
+			expect(httpClientGetStub).to.be.calledWith('/phone_check/v0.1/checks', sinon.default.match.any, sinon.default.match.any)
 		})
 
 	test
 		.command(['phonechecks:list', 'check_id_value'])
 		.it('should call PhoneChecksAPIClient.get(checkId) if optional check_id argment is supplied', ctx => {
-			expect(phoneChecksApiClientGetStub).to.be.calledWith('check_id_value')
+			expect(httpClientGetStub).to.be.calledWith('/phone_check/v0.1/checks/check_id_value', sinon.default.match.any, sinon.default.match.any)
 		})
 
 	test

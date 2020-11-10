@@ -1,4 +1,4 @@
-import {test} from '@oclif/test'
+import { test } from '@oclif/test'
 import * as sinon from 'ts-sinon'
 import * as chai from 'chai';
 import * as sinonChai from 'sinon-chai'
@@ -12,39 +12,38 @@ import * as simchecks from '../../../src/api/SimCheckAPIClient'
 import IGlobalConfiguration from '../../../src/IGlobalConfiguration';
 import { IProjectConfiguration } from '../../../src/IProjectConfiguration';
 import { APIConfiguration } from '../../../src/api/APIConfiguration';
-import {ConsoleLogger} from '../../../src/helpers/ConsoleLogger'
+import { ConsoleLogger } from '../../../src/helpers/ConsoleLogger'
 import { CheckStatus } from '../../../src/api/CheckStatus';
+import * as httpClientModule from '../../../src/api/HttpClient';
 
-
-import {buildConsoleString} from '../../test_helpers'
+import { buildConsoleString } from '../../test_helpers'
 
 describe('simchecks:list', () => {
 
-	let simChecksApiClientConstructorStub:any
-	let simChecksApiClientListStub:any
-	let simChecksApiClientGetStub:any
-	let readJsonStub:any
-	let consoleLoggerInfoStub:any
+	let simChecksApiClientConstructorStub: any
+	let readJsonStub: any
+	let consoleLoggerInfoStub: any
+	let httpClientGetStub: any
 
-	let expectedUserConfig:IGlobalConfiguration = {
+	let expectedUserConfig: IGlobalConfiguration = {
 		defaultWorkspaceClientId: 'my client id',
 		defaultWorkspaceClientSecret: 'my client secret',
 		defaultWorkspaceDataResidency: 'eu'
-	  }
+	}
 
 	const projectConfigFileLocation = `${process.cwd()}/tru.json`
 
-	const projectConfig:IProjectConfiguration = {
+	const projectConfig: IProjectConfiguration = {
 		project_id: "c69bc0e6-a429-11ea-bb37-0242ac130003",
 		name: "My test project",
 		created_at: "2020-06-01T16:43:30+00:00",
 		updated_at: "2020-06-01T16:43:30+00:00",
 		credentials: [
-		  {
-			client_id: "project client id",
-			client_secret: "project client secret",
-			created_at: "2020-06-01T16:43:30+00:00"
-		  }
+			{
+				client_id: "project client id",
+				client_secret: "project client secret",
+				created_at: "2020-06-01T16:43:30+00:00"
+			}
 		]
 	}
 
@@ -70,11 +69,11 @@ describe('simchecks:list', () => {
 			]
 		},
 		_links: {
-			first: {href:''},
-			last: {href:''},
-			next: {href:''},
-			prev: {href:''},
-			self: {href:''}
+			first: { href: '' },
+			last: { href: '' },
+			next: { href: '' },
+			prev: { href: '' },
+			self: { href: '' }
 		},
 		page: {
 			number: 1,
@@ -90,18 +89,18 @@ describe('simchecks:list', () => {
 		readJsonStub = sinon.default.stub(fs, 'readJson')
 
 		readJsonStub.withArgs(
-		sinon.default.match(sinon.default.match(new RegExp(/config.json/))))
+			sinon.default.match(sinon.default.match(new RegExp(/config.json/))))
 			.resolves(expectedUserConfig)
 
 		readJsonStub.withArgs(
-		sinon.default.match(projectConfigFileLocation))
+			sinon.default.match(projectConfigFileLocation))
 			.resolves(projectConfig)
 
-		simChecksApiClientListStub = sinon.default.stub(simchecks.SimCheckAPIClient.prototype, 'list')
-		simChecksApiClientListStub.resolves(listResource)
 
-		simChecksApiClientGetStub = sinon.default.stub(simchecks.SimCheckAPIClient.prototype, 'get')
-		simChecksApiClientGetStub.resolves(simCheckResource)
+		httpClientGetStub = sinon.default.stub(httpClientModule.HttpClient.prototype, 'get')
+		httpClientGetStub.withArgs('/sim_check/v0.1/checks', sinon.default.match.any, sinon.default.match.any).resolves(listResource)
+		httpClientGetStub.withArgs(`/sim_check/v0.1/checks/${simCheckResource.check_id}`, sinon.default.match.any, sinon.default.match.any).resolves(simCheckResource)
+		httpClientGetStub.withArgs(`/sim_check/v0.1/checks/check_id_value`, sinon.default.match.any, sinon.default.match.any).resolves(simCheckResource)
 
 		consoleLoggerInfoStub = sinon.default.stub(ConsoleLogger.prototype, 'info')
 	})
@@ -111,7 +110,7 @@ describe('simchecks:list', () => {
 	})
 
 	test
-		.do( () => {
+		.do(() => {
 			simChecksApiClientConstructorStub = sinon.default.spy(simchecks, 'SimCheckAPIClient')
 		})
 		.command(['simchecks:list'])
@@ -124,13 +123,13 @@ describe('simchecks:list', () => {
 	test
 		.command(['simchecks:list'])
 		.it('SimCheckAPIClient: should call SimCheckAPIClient.list() if optional check_id argment is not supplied', ctx => {
-			expect(simChecksApiClientListStub).to.be.called
+			expect(httpClientGetStub).to.be.calledWith('/sim_check/v0.1/checks', sinon.default.match.any, sinon.default.match.any)
 		})
 
 	test
 		.command(['simchecks:list', 'check_id_value'])
 		.it('should call SimCheckAPIClient.get(checkId) if optional check_id argment is supplied', ctx => {
-			expect(simChecksApiClientGetStub).to.be.calledWith('check_id_value')
+			expect(httpClientGetStub).to.be.calledWith('/sim_check/v0.1/checks/check_id_value', sinon.default.match.any, sinon.default.match.any)
 		})
 
 	test
@@ -169,7 +168,7 @@ describe('simchecks:list', () => {
 		})
 
 	test
-		.command(['simchecks:list', 'check_id_value'])
+		.command(['simchecks:list', `${simCheckResource.check_id}`])
 		.it('outputs result of a single resource to cli.table', (ctx) => {
 			const consoleOutputString = buildConsoleString(consoleLoggerInfoStub)
 

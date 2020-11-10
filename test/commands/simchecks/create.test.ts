@@ -16,6 +16,7 @@ import * as consoleLoggerModule from '../../../src/helpers/ConsoleLogger'
 import CommandWithProjectConfig from '../../../src/helpers/CommandWithProjectConfig'
 import { CheckStatus } from '../../../src/api/CheckStatus';
 import * as simchecks from '../../../src/api/SimCheckAPIClient'
+import * as httpClientModule from '../../../src/api/HttpClient'
 
 
 let globalConfig: IGlobalConfiguration = {
@@ -71,8 +72,8 @@ const scope = "sim_check"
 let existsSyncStub: any
 let readJsonStub: any
 let inquirerStub: any
-let simCheckAPIClientCreateStub: any
-let simCheckAPIClientGetStub: any
+let httpClientPostStub: any
+let httpClientGetStub: any
 
 
 describe('Sim Check Create Scenarios', () => {
@@ -94,9 +95,12 @@ describe('Sim Check Create Scenarios', () => {
         inquirerStub = sinon.default.stub(inquirer, 'prompt')
 
         // SimCheckClient
-        simCheckAPIClientCreateStub = sinon.default.stub(simchecks.SimCheckAPIClient.prototype, 'create')
-        simCheckAPIClientCreateStub.resolves(createSimCheckResponse)
-        simCheckAPIClientGetStub = sinon.default.stub(simchecks.SimCheckAPIClient.prototype, 'get')
+
+        httpClientPostStub = sinon.default.stub(httpClientModule.HttpClient.prototype, 'post')
+        httpClientPostStub.withArgs('/sim_check/v0.1/checks', sinon.default.match.any, sinon.default.match.any).resolves(createSimCheckResponse)
+
+        httpClientGetStub = sinon.default.stub(httpClientModule.HttpClient.prototype, 'get')
+
 
     })
 
@@ -221,12 +225,12 @@ describe('Sim Check Create Scenarios', () => {
         let apiClientStub: any
         test
             .do(() => {
-                apiClientStub = simCheckAPIClientCreateStub;
+                apiClientStub = httpClientPostStub;
 
             })
             .command([command, phoneNumberToTest, '--debug'])
             .it(`${command} -- calls the ${clientName} with the supplied phone number`, ctx => {
-                expect(apiClientStub).to.have.been.calledWith({ phone_number: phoneNumberToTest })
+                expect(apiClientStub).to.have.been.calledWith('/sim_check/v0.1/checks', { phone_number: phoneNumberToTest }, sinon.default.match.any)
             })
     }
 
@@ -240,10 +244,8 @@ describe('Sim Check Create Scenarios', () => {
 
     test
         .do(() => {
-
-            simCheckAPIClientCreateStub.restore()
-            simCheckAPIClientCreateStub = sinon.default.stub(simchecks.SimCheckAPIClient.prototype, 'create')
-            simCheckAPIClientCreateStub.resolves({
+            
+            httpClientPostStub.withArgs('/sim_check/v0.1/checks', sinon.default.match.any, sinon.default.match.any).resolves({
                 ...createSimCheckResponse,
                 status: CheckStatus.ERROR
             })

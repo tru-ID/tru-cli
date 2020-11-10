@@ -1,4 +1,4 @@
-import {test} from '@oclif/test'
+import { test } from '@oclif/test'
 import * as sinon from 'ts-sinon'
 import * as chai from 'chai';
 import * as sinonChai from 'sinon-chai'
@@ -12,40 +12,39 @@ import * as identityCheckAPIClientModules from '../../../src/api/IdentityCheckAP
 import IGlobalConfiguration from '../../../src/IGlobalConfiguration';
 import { IProjectConfiguration } from '../../../src/IProjectConfiguration';
 import { APIConfiguration } from '../../../src/api/APIConfiguration';
-import {ConsoleLogger} from '../../../src/helpers/ConsoleLogger'
+import { ConsoleLogger } from '../../../src/helpers/ConsoleLogger'
 
-import {buildConsoleString} from '../../test_helpers'
+import { buildConsoleString } from '../../test_helpers'
 import { IListCheckResource } from '../../../src/api/ChecksAPIClient';
 import { CheckStatus } from '../../../src/api/CheckStatus';
-
+import * as httpClientModule from '../../../src/api/HttpClient';
 
 describe('identitychecks:list', () => {
 
-	let identityChecksApiClientConstructorStub:any
-	let identityChecksApiClientListStub:any
-	let identityChecksApiClientGetStub:any
-	let readJsonStub:any
-	let consoleLoggerInfoStub:any
+	let identityChecksApiClientConstructorStub: any
+	let httpClientGetStub: any
+	let readJsonStub: any
+	let consoleLoggerInfoStub: any
 
-	let expectedUserConfig:IGlobalConfiguration = {
+	let expectedUserConfig: IGlobalConfiguration = {
 		defaultWorkspaceClientId: 'my client id',
 		defaultWorkspaceClientSecret: 'my client secret',
 		defaultWorkspaceDataResidency: 'eu'
-	  }
+	}
 
 	const projectConfigFileLocation = `${process.cwd()}/tru.json`
 
-	const projectConfig:IProjectConfiguration = {
+	const projectConfig: IProjectConfiguration = {
 		project_id: "c69bc0e6-a429-11ea-bb37-0242ac130003",
 		name: "My test project",
 		created_at: "2020-06-01T16:43:30+00:00",
 		updated_at: "2020-06-01T16:43:30+00:00",
 		credentials: [
-		  {
-			client_id: "project client id",
-			client_secret: "project client secret",
-			created_at: "2020-06-01T16:43:30+00:00"
-		  }
+			{
+				client_id: "project client id",
+				client_secret: "project client secret",
+				created_at: "2020-06-01T16:43:30+00:00"
+			}
 		]
 	}
 
@@ -66,18 +65,18 @@ describe('identitychecks:list', () => {
 		status: CheckStatus.ACCEPTED,
 	}
 
-	const projectListResource: IListCheckResource<identityCheckAPIClientModules.IdentityCheckResource> = {
+	const identityListCheckResource: IListCheckResource<identityCheckAPIClientModules.IdentityCheckResource> = {
 		_embedded: {
 			checks: [
 				identityCheckResource
 			]
 		},
 		_links: {
-			first: {href:''},
-			last: {href:''},
-			next: {href:''},
-			prev: {href:''},
-			self: {href:''}
+			first: { href: '' },
+			last: { href: '' },
+			next: { href: '' },
+			prev: { href: '' },
+			self: { href: '' }
 		},
 		page: {
 			number: 1,
@@ -93,20 +92,19 @@ describe('identitychecks:list', () => {
 		readJsonStub = sinon.default.stub(fs, 'readJson')
 
 		readJsonStub.withArgs(
-		sinon.default.match(sinon.default.match(new RegExp(/config.json/))))
+			sinon.default.match(sinon.default.match(new RegExp(/config.json/))))
 			.resolves(expectedUserConfig)
 
 		readJsonStub.withArgs(
-		sinon.default.match(projectConfigFileLocation))
+			sinon.default.match(projectConfigFileLocation))
 			.resolves(projectConfig)
 
-		identityChecksApiClientListStub =
-			sinon.default.stub(identityCheckAPIClientModules.IdentityCheckAPIClient.prototype, 'list')
-		identityChecksApiClientListStub.resolves(projectListResource)
 
-		identityChecksApiClientGetStub =
-			sinon.default.stub(identityCheckAPIClientModules.IdentityCheckAPIClient.prototype, 'get')
-		identityChecksApiClientGetStub.resolves(identityCheckResource)
+
+		httpClientGetStub = sinon.default.stub(httpClientModule.HttpClient.prototype, 'get')
+		httpClientGetStub.withArgs('/identity_check/v0.1/checks', sinon.default.match.any, sinon.default.match.any).resolves(identityListCheckResource)
+		httpClientGetStub.withArgs(`/identity_check/v0.1/checks/${identityCheckResource.check_id}`, sinon.default.match.any, sinon.default.match.any).resolves(identityCheckResource)
+		httpClientGetStub.withArgs(`/identity_check/v0.1/checks/check_id_value`, sinon.default.match.any, sinon.default.match.any).resolves(identityCheckResource)
 
 		consoleLoggerInfoStub = sinon.default.stub(ConsoleLogger.prototype, 'info')
 	})
@@ -116,7 +114,7 @@ describe('identitychecks:list', () => {
 	})
 
 	test
-		.do( () => {
+		.do(() => {
 			identityChecksApiClientConstructorStub = sinon.default.spy(identityCheckAPIClientModules, 'IdentityCheckAPIClient')
 		})
 		.command(['identitychecks:list'])
@@ -129,13 +127,14 @@ describe('identitychecks:list', () => {
 	test
 		.command(['identitychecks:list'])
 		.it('identitychecks/list/IdentityCheckAPIClient.list: should call IdentityCheckAPIClient.list() if optional check_id argment is not supplied', ctx => {
-			expect(identityChecksApiClientListStub).to.be.called
+			expect(httpClientGetStub).to.be.calledWith('/identity_check/v0.1/checks', sinon.default.match.any, sinon.default.match.any)
+
 		})
 
 	test
 		.command(['identitychecks:list', 'check_id_value'])
 		.it('should call IdentityChecksAPIClient.get(checkId) if optional check_id argment is supplied', ctx => {
-			expect(identityChecksApiClientGetStub).to.be.calledWith('check_id_value')
+			expect(httpClientGetStub).to.be.calledWith('/identity_check/v0.1/checks/check_id_value', sinon.default.match.any, sinon.default.match.any)
 		})
 
 	test

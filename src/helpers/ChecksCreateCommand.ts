@@ -104,6 +104,8 @@ export default abstract class ChecksCreateCommand extends CommandWithProjectConf
 
     if (response.status === CheckStatus.ACCEPTED) {
       this.log(`${this.typeOfCheck} ACCEPTED`)
+      this.log(`check_id: ${response.check_id}`)
+      this.log(`check_url: ${response._links.check_url.href}`)
 
       if (this.flags.workflow) {
         const oAuth2APIClient = new OAuth2APIClient(apiConfiguration, this.logger)
