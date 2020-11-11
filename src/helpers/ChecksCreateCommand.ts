@@ -5,18 +5,14 @@ import { APIConfiguration } from '../api/APIConfiguration'
 import CommandWithProjectConfig from '../helpers/CommandWithProjectConfig'
 import cli from 'cli-ux'
 import * as chalk from 'chalk'
-import { validate, transform, promptForNumber } from '../helpers/phone'
+import { promptForNumber } from '../helpers/phone'
 import * as qrcode from 'qrcode-terminal'
-import * as inquirer from 'inquirer'
 import ILogger from '../helpers/ILogger'
 import { OAuth2APIClient } from '../api/OAuth2APIClient'
 import { AbstractChecksApiClient, CheckResource, ICreateCheckResponse } from '../api/ChecksAPIClient'
 import { CheckStatus } from '../api/CheckStatus';
 
-
-
 const QR_CODE_LINK_HANDLER_URL = `https://r.tru.id?u={CHECK_URL}&c={CHECK_ID}&t={ACCESS_TOKEN}`
-
 
 export default abstract class ChecksCreateCommand extends CommandWithProjectConfig {
 
@@ -41,20 +37,17 @@ export default abstract class ChecksCreateCommand extends CommandWithProjectConf
     })
   }
 
-
   logger?: ILogger
 
   typeOfCheck: string
 
   tokenScope: string
 
-
   constructor(typeOfCheck: string, tokenScope: string, argv: string[], config: Config.IConfig) {
     super(argv, config);
     this.typeOfCheck = typeOfCheck;
     this.tokenScope = tokenScope;
   }
-
 
   abstract parseCommand(): any;
 
