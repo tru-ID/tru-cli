@@ -102,7 +102,11 @@ export default abstract class ChecksCreateCommand extends CommandWithProjectConf
       this.exit(1)
     }
 
-    if (response.status === CheckStatus.ACCEPTED) {
+    if (response.status !== CheckStatus.ACCEPTED) {
+      this.log(`The ${this.typeOfCheck} could not be created. The ${this.typeOfCheck} status is ${response.status}`)
+      this.exit(1)
+    }
+    else {
       this.log(`${this.typeOfCheck} ACCEPTED`)
       this.log(`check_id: ${response.check_id}`)
       this.log(`check_url: ${response._links.check_url.href}`)
@@ -149,45 +153,53 @@ export default abstract class ChecksCreateCommand extends CommandWithProjectConf
           this.logResult(checkResponse)
         }
         catch (error) {
-          cli.action.stop(`The ${this.typeOfCheck} match did not complete within ${response.ttl} seconds.`)
+          cli.action.stop(`The ${this.typeOfCheck} resulted in an error.`)
+          this.logger.error(error)
           this.exit(1)
         }
       }
-    }
-    else {
-      this.log(`The ${this.typeOfCheck} could not be created. The ${this.typeOfCheck} status is ${response.status}`)
-      this.exit(1)
     }
 
   }
 
   abstract logResult(checkResponse: CheckResource): any
 
+  static isFinalCheckStatus(checkStatus:CheckStatus): boolean {
+    return (checkStatus == CheckStatus.COMPLETED ||
+            checkStatus == CheckStatus.EXPIRED ||
+            checkStatus == CheckStatus.ERROR)
+  }
+
   async waitForFinalCheckState(checkApiClient: AbstractChecksApiClient<CheckResource>, createCheckResponse: ICreateCheckResponse): Promise<CheckResource> {
-    const pollingInterval = this.getPolling()
-    return new Promise((resolve) => {
-
-      let checkResponse: CheckResource
-
+    return new Promise((resolve, reject) => {
+      const pollingInterval = this.getPolling()
       const expiry = Date.now() + (createCheckResponse.ttl * 1000) // seconds from now until expires
-      const intervalId = setInterval(async () => {
 
-        checkResponse = await checkApiClient.get(createCheckResponse.check_id)
+      const checkIteraction = async () => {
+        try {
+          const checkResponse = await checkApiClient.get(createCheckResponse.check_id)
 
-        const expiresInSeconds = Math.round((expiry - Date.now()) / 1000)
-        cli.action.status = `${this.typeOfCheck} expires in ${expiresInSeconds} seconds`
+          const expiresInSeconds = Math.round((expiry - Date.now()) / 1000)
+          cli.action.status = `${this.typeOfCheck} expires in ${expiresInSeconds} seconds`
 
-        if (checkResponse.status == CheckStatus.COMPLETED ||
-          checkResponse.status == CheckStatus.EXPIRED ||
-          checkResponse.status == CheckStatus.ERROR ||
-          expiresInSeconds <= 0) {
-          cli.action.stop()
-
-          resolve(checkResponse)
-
-          clearInterval(intervalId)
+          if (ChecksCreateCommand.isFinalCheckStatus(checkResponse.status) || expiresInSeconds <= 0) {
+            resolve(checkResponse)
+          }
+          else {
+            // A previous version used `setInterval` which meant that an additional check
+            // would trigger even if the previous one had not completed. Only trigger a setTimeout
+            // once the previous check has completed.
+            setTimeout(checkIteraction, pollingInterval)
+          }
         }
-      }, pollingInterval)
+        catch(error) {
+          reject(error)
+        }
+      }
+
+      // start first check
+      checkIteraction()
+
     })
 
   }
