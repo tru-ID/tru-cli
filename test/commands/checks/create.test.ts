@@ -259,6 +259,7 @@ describe('PhoneCheck and IdentityCheck Create Scenarios', () => {
     params.forEach(({ command }) => {
       test
         .do(() => {
+          jest.setTimeout(30000);
           existsSyncStub.withArgs(projectConfigFileLocation).returns(false)
         })
         .stdout()
