@@ -40,9 +40,11 @@ export default class IdentityChecksCreate extends ChecksCreateCommand {
   logResult(checkResponse: IdentityCheckResource) {
     this.log('')
     this.log(`${this.typeOfCheck} Workflow result:\n` +
-      `\tstatus:\t${checkResponse.status}\n` +
-      `\tmatch:\t${checkResponse.match} ${checkResponse.match ? '✅' : '❌'}\n`+
-      `\tno_sim_change:\t${checkResponse.no_sim_change} ${checkResponse.no_sim_change ? '✅' : '❌'}\n`)
+      `\tstatus:  ${checkResponse.status}\n` +
+      `\tmatch:  ${checkResponse.match} ${checkResponse.match ? '✅' : '❌'}\n`+
+      `\tno_sim_change:  ${checkResponse.no_sim_change} ${checkResponse.no_sim_change ? '✅' : '❌'}\n` +
+      `\tlast_sim_change_at:  ${checkResponse.last_sim_change_at}`)
+
   }
 
 }

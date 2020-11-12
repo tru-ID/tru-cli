@@ -172,6 +172,7 @@ describe('identitychecks:list', () => {
 			expect(consoleOutputString).to.contain(identityCheckResource.match)
 			expect(consoleOutputString).to.contain(identityCheckResource.status)
 			expect(consoleOutputString).to.contain(identityCheckResource.no_sim_change)
+			expect(consoleOutputString).to.contain(identityCheckResource.last_sim_change_at)
 		})
 
 	test
@@ -186,5 +187,6 @@ describe('identitychecks:list', () => {
 			expect(consoleOutputString).to.contain(identityCheckResource.match)
 			expect(consoleOutputString).to.contain(identityCheckResource.status)
 			expect(consoleOutputString).to.contain(identityCheckResource.no_sim_change)
+			expect(consoleOutputString).to.contain(identityCheckResource.last_sim_change_at)
 		})
 })

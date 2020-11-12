@@ -9,7 +9,7 @@ import { ConsoleLogger, LogLevel } from '../../helpers/ConsoleLogger'
 import { displayPagination } from '../../helpers/ux'
 import { IListSimCheckResource, ISimCheckResource, SimCheckAPIClient } from '../../api/SimCheckAPIClient'
 
-export default class SimCheckList extends CommandWithProjectConfig  {
+export default class SimCheckList extends CommandWithProjectConfig {
     static description = 'Lists details for all SIM Checks or a specific SIM Check if the a check-id argument is passed'
 
     static pageNumberFlag = flags.integer({
@@ -133,6 +133,9 @@ export default class SimCheckList extends CommandWithProjectConfig  {
             },
             no_sim_change: {
                 header: 'no_sim_change',
+            },
+            last_sim_change_at: {
+                header: 'last_sim_change_at',
             },
             url: {
                 extended: true,

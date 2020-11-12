@@ -661,8 +661,8 @@ describe('PhoneCheck and IdentityCheck Create Scenarios', () => {
     .stdout()
     .command(['phonechecks:create', phoneNumberToTest, '--workflow'])
     .it(`phonechecks:create completed status and match result are logged`, (ctx) => {
-      expect(ctx.stdout).to.contain(`match:\ttrue`)
-      expect(ctx.stdout).to.contain(`status:\tCOMPLETED`)
+      expect(ctx.stdout).to.contain(`match:  true`)
+      expect(ctx.stdout).to.contain(`status:  COMPLETED`)
     })
 
     test
@@ -672,9 +672,9 @@ describe('PhoneCheck and IdentityCheck Create Scenarios', () => {
     .stdout()
     .command(['identitychecks:create', phoneNumberToTest, '--workflow'])
     .it(`identitychecks:create completed status and match result are logged`, (ctx) => {
-      expect(ctx.stdout).to.contain(`match:\ttrue`)
-      expect(ctx.stdout).to.contain(`no_sim_change:\ttrue`)
-      expect(ctx.stdout).to.contain(`status:\tCOMPLETED`)
+      expect(ctx.stdout).to.contain(`match:  true`)
+      expect(ctx.stdout).to.contain(`no_sim_change:  true`)
+      expect(ctx.stdout).to.contain(`last_sim_change_at:  2018-06-01T16:43:30+00:00`)
     })
 
     {
@@ -726,7 +726,7 @@ describe('PhoneCheck and IdentityCheck Create Scenarios', () => {
           .stdout()
           .command([command, phoneNumberToTest, '--workflow'])
           .it(`${command} exits if the ${typeOfCheck} expires`, (ctx) => {
-            expect(ctx.stdout).to.contain(`status:\tEXPIRED`)
+            expect(ctx.stdout).to.contain(`status:  EXPIRED`)
           })
 
       })

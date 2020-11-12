@@ -21,7 +21,7 @@ export default class IdentityCheckList extends ChecksListCommand<ICreateCheckRes
   ]
 
   static flags = {
-    ...ChecksListCommand.flags   
+    ...ChecksListCommand.flags
   }
 
   constructor(argv: string[], config: Config.IConfig) {
@@ -63,6 +63,9 @@ export default class IdentityCheckList extends ChecksListCommand<ICreateCheckRes
       },
       no_sim_change: {
         header: 'no_sim_change',
+      },
+      last_sim_change_at: {
+        header: 'last_sim_change_at',
       },
       url: {
         extended: true,

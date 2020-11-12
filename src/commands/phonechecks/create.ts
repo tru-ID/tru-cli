@@ -40,8 +40,8 @@ export default class PhoneChecksCreate extends ChecksCreateCommand {
   logResult(checkResponse: CheckResource) {
     this.log('')
     this.log(`${this.typeOfCheck} Workflow result:\n` +
-      `\tstatus:\t${checkResponse.status}\n` +
-      `\tmatch:\t${checkResponse.match} ${checkResponse.match ? '✅' : '❌'}`)
+      `\tstatus:  ${checkResponse.status}\n` +
+      `\tmatch:  ${checkResponse.match} ${checkResponse.match ? '✅' : '❌'}`)
   }
 
 }

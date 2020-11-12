@@ -57,7 +57,7 @@ export default class SimChecksCreate extends CommandWithProjectConfig {
             this.args.phone_number = response['phone_number']
         }
 
-        this.log(`Creating ${this.typeOfCheck} for ${this.args.phone_number}`)
+        this.log(`Creating ${this.typeOfCheck} for ${this.args.phone_number}\n`)
 
         let apiConfiguration = new APIConfiguration({
             clientId: this.projectConfig?.credentials[0].client_id,
@@ -73,7 +73,7 @@ export default class SimChecksCreate extends CommandWithProjectConfig {
         try {
             response = await simCheckApiClient.create({
                 phone_number: this.args.phone_number
-              })
+            })
 
         } catch (error) {
             this.log('API Error:',
@@ -81,8 +81,11 @@ export default class SimChecksCreate extends CommandWithProjectConfig {
             this.exit(1)
         }
 
-        if (response.status != CheckStatus.ERROR) {
-            this.log(`${JSON.stringify(response,null,2)}`)
+        if (response.status == CheckStatus.COMPLETED) {
+
+            this.log(`\tstatus:  ${response.status}`)
+            this.log(`\tno_sim_change:  ${response.no_sim_change}`)
+            this.log(`\tlast_sim_change_at:  ${response.last_sim_change_at}`)
         }
         else {
             this.log(`The ${this.typeOfCheck} could not be created. The ${this.typeOfCheck} status is ${response.status}`)

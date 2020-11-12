@@ -143,6 +143,7 @@ describe('simchecks:list', () => {
 			expect(consoleOutputString).to.contain('charge_currency')
 			expect(consoleOutputString).to.contain('charge_amount')
 			expect(consoleOutputString).to.contain('no_sim_change')
+			expect(consoleOutputString).to.contain('last_sim_change_at')
 		})
 
 	test
@@ -165,6 +166,7 @@ describe('simchecks:list', () => {
 			expect(consoleOutputString).to.contain(simCheckResource.charge_currency)
 			expect(consoleOutputString).to.contain(simCheckResource.status)
 			expect(consoleOutputString).to.contain(simCheckResource.no_sim_change)
+			expect(consoleOutputString).to.contain(simCheckResource.last_sim_change_at)
 		})
 
 	test
@@ -178,5 +180,6 @@ describe('simchecks:list', () => {
 			expect(consoleOutputString).to.contain(simCheckResource.charge_currency)
 			expect(consoleOutputString).to.contain(simCheckResource.status)
 			expect(consoleOutputString).to.contain(simCheckResource.no_sim_change)
+			expect(consoleOutputString).to.contain(simCheckResource.last_sim_change_at)
 		})
 })
