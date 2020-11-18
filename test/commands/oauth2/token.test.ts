@@ -17,6 +17,7 @@ import * as consoleLoggerModule from '../../../src/helpers/ConsoleLogger'
 import CommandWithProjectConfig from '../../../src/helpers/CommandWithProjectConfig';
 import { APIConfiguration } from '../../../src/api/APIConfiguration';
 import { ICreateTokenResponse } from '../../../src/api/HttpClient';
+import { AnyCnameRecord } from 'dns';
 
 let constructorStub:any = null
 let apiClientStub: any = null
@@ -50,6 +51,29 @@ const expectedProjectConfigFileFullPath = `${expectedProjectFullPath}/tru.json`
 const expectedCurrentWorkingDirectoryConfig = `${process.cwd()}/tru.json`
 
 const projectAPIResponse: IProjectResource = {
+  "project_id": "c69bc0e6-a429-11ea-bb37-0242ac130003",
+  "name": newProjectName,
+  "mode": "live",
+  "created_at": "2020-06-01T16:43:30+00:00",
+  "updated_at": "2020-06-01T16:43:30+00:00",
+  "credentials": [
+    {
+      "client_id": "6779ef20e75817b79602",
+      "client_secret": "dzi1v4osLNr5vv0.2mnvcKM37.",
+      "created_at": "2020-06-01T16:43:30+00:00",
+      "scopes": [
+        "sim_check", "phone_check","identity_check"
+      ]
+    }
+  ],
+  "_links": {
+    "self": {
+      "href": "https://eu.api.tru.id/console/v1/projects/c69bc0e6-a429-11ea-bb37-0242ac130003"
+    }
+  }
+}
+
+const oldProjectConfig: any = {
   "project_id": "c69bc0e6-a429-11ea-bb37-0242ac130003",
   "name": newProjectName,
   "mode": "live",
@@ -101,6 +125,7 @@ describe('Command: oauth2:create', () => {
     expect(constructorStub).to.have.been.calledWith(
       sinon.default.match.has('clientId', expectedUserConfig.defaultWorkspaceClientId)
       .and(sinon.default.match.has('clientSecret', expectedUserConfig.defaultWorkspaceClientSecret))
+      .and(sinon.default.match.has('scopes', "workspaces projects usage balances"))
     )
   })
 
@@ -115,6 +140,24 @@ describe('Command: oauth2:create', () => {
     expect(constructorStub).to.have.been.calledWith(
       sinon.default.match.has('clientId', expectedProjectConfigJson.credentials[0].client_id)
       .and(sinon.default.match.has('clientSecret', expectedProjectConfigJson.credentials[0].client_secret))
+      .and(sinon.default.match.has('scopes', expectedProjectConfigJson.credentials[0].scopes.join(' ')))
+
+    )
+  })
+
+  test
+  .do( () => {
+    constructorStub = sinon.default.spy(apiModule, 'OAuth2APIClient')
+
+    readJsonStub.withArgs(expectedProjectConfigFileFullPath).resolves(oldProjectConfig)
+  })
+  .command(['oauth2:token', `--${CommandWithProjectConfig.projectDirFlagName}`, expectedProjectFullPath])
+  .it(`should use default project credentials when the --${CommandWithProjectConfig.projectDirFlagName} flag is set and no scopes in credentials is there`, ctx => {
+    expect(constructorStub).to.have.been.calledWith(
+      sinon.default.match.has('clientId', oldProjectConfig.credentials[0].client_id)
+      .and(sinon.default.match.has('clientSecret', oldProjectConfig.credentials[0].client_secret))
+      .and(sinon.default.match.has('scopes', "phone_check"))
+
     )
   })
 
