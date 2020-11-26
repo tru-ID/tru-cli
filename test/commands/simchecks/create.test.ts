@@ -9,6 +9,7 @@ chai.use(sinonChai);
 
 import * as fs from 'fs-extra'
 import * as inquirer from 'inquirer'
+import * as path from 'path'
 
 import IGlobalConfiguration from '../../../src/IGlobalConfiguration'
 import { IProjectConfiguration } from '../../../src/IProjectConfiguration'
@@ -30,7 +31,7 @@ let globalConfig: IGlobalConfiguration = {
 
 const phoneNumberToTest = '447700900000'
 
-const projectConfigFileLocation = `${process.cwd()}/tru.json`
+const projectConfigFileLocation = path.join(process.cwd(),'tru.json')
 const projectConfig: IProjectConfiguration = {
     project_id: "c69bc0e6-a429-11ea-bb37-0242ac130003",
     name: "My test project",
@@ -109,8 +110,8 @@ describe('Sim Check Create Scenarios', () => {
     })
 
     {
-        let customProjectConfigDirPath = 'alternative/path/to/'
-        let customProjectConfigFullPath = 'alternative/path/to/tru.json'
+        let customProjectConfigDirPath = path.join('alternative','path','to')
+        let customProjectConfigFullPath = path.join('alternative','path','to','tru.json')
         test
             .do(() => {
                 readJsonStub.withArgs(

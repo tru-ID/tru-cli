@@ -7,6 +7,7 @@ const expect = chai.expect;
 chai.use(sinonChai);
 
 import * as fs from 'fs-extra'
+import * as path from 'path'
 import * as inquirer from 'inquirer'
 
 import * as apiModule from '../../../src/api/OAuth2APIClient'
@@ -46,9 +47,9 @@ let consoleLoggerDebugStub:any
 
 const newProjectName: string = 'My First Project'
 const expectedProjectDirectoryName = 'my_first_project'
-const expectedProjectFullPath = `${process.cwd()}/${expectedProjectDirectoryName}`
-const expectedProjectConfigFileFullPath = `${expectedProjectFullPath}/tru.json`
-const expectedCurrentWorkingDirectoryConfig = `${process.cwd()}/tru.json`
+const expectedProjectFullPath = path.join(process.cwd(),expectedProjectDirectoryName)
+const expectedProjectConfigFileFullPath = path.join(expectedProjectFullPath,'tru.json')
+const expectedCurrentWorkingDirectoryConfig = path.join(process.cwd(),'tru.json')
 
 const projectAPIResponse: IProjectResource = {
   "project_id": "c69bc0e6-a429-11ea-bb37-0242ac130003",
