@@ -87,11 +87,6 @@
     "plugins": [
       "@oclif/plugin-help"
     ],
-    "hooks": {
-      "init": [
-        "./lib/hooks/init/requireConfig"
-      ]
-    },
     "update": {
       "s3": {
         "bucket": "tru-cli",

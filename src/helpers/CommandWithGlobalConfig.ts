@@ -24,6 +24,11 @@ export default abstract class CommandWithGlobalConfig extends Command {
   async init() {
     super.init()
 
+    const configLocation = path.join(this.config.configDir, 'config.json')
+    if (!fs.pathExistsSync(configLocation)) {
+      this.error(`cannot find config file at ${configLocation}\nRun "tru setup:credentials" to configure the CLI`)
+    }
+
     this.globalConfig = await fs.readJson(path.join(this.config.configDir, 'config.json'))
   }
 }

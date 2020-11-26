@@ -1,0 +1,66 @@
+import { Command } from '@oclif/command';
+import * as fs from 'fs-extra';
+import * as path from 'path';
+import IGlobalConfiguration from '../../IGlobalConfiguration';
+
+export default class SetupCredentials extends Command {
+    static description = 'Setup the CLI with workspace credentials'
+
+    static args = [
+        {
+            name: 'id',
+            required: true,
+            description: 'the workspace credentials id'
+        },
+        {
+            name: 'secret',
+            required: true,
+            description: 'the workspace credentials secret'
+        },
+        {
+            name: 'dataResidency',
+            required: true,
+            description: 'the data residency of this workspace e.g. EU'
+        }
+    ]
+
+    async run() {
+        const { args, flags } = this.parse(SetupCredentials)
+
+        const configLocation = path.join(this.config.configDir, 'config.json')
+        const cfg = await this.getOrCreateConfig(configLocation)
+
+        cfg.defaultWorkspaceClientId = args.id
+        cfg.defaultWorkspaceClientSecret = args.secret
+        cfg.defaultWorkspaceDataResidency = (args.dataResidency as string).toLowerCase()
+
+        await this.saveConfig(configLocation, cfg)
+    }
+
+    async getOrCreateConfig(configLocation: string): Promise<IGlobalConfiguration> {
+        let config: IGlobalConfiguration = {}
+        if (!fs.existsSync(configLocation)) {
+            await this.saveConfig(configLocation, config)
+        } else {
+            try {
+                config = await fs.readJson(configLocation)
+            } catch (err) {
+                throw new Error(`failed to read config file: ${err}`);
+            }
+        }
+        return config
+    }
+
+    async saveConfig(configLocation: string, config: IGlobalConfiguration): Promise<void> {
+        try {
+            await fs.outputJson(configLocation, config, { spaces: 2 })
+        } catch (err) {
+            if (err.code === 'EPERM') {
+                throw new Error(`failed to save config file, you might need elevated permissions: ${err}`)
+            } else {
+                throw new Error(`failed to save config file: ${err}`)
+            }
+        }
+    }
+
+}
