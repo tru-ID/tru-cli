@@ -35,6 +35,12 @@ export default class SetupCredentials extends Command {
         cfg.defaultWorkspaceDataResidency = (args.dataResidency as string).toLowerCase()
 
         await this.saveConfig(configLocation, cfg)
+
+        this.log(`new credentials were written to ${configLocation}`)
+    }
+
+    async catch(err: Error) {
+        this.error(`failed to setup credentials: ${err.message}`, { exit: 1 })
     }
 
     async getOrCreateConfig(configLocation: string): Promise<IGlobalConfiguration> {
@@ -45,7 +51,7 @@ export default class SetupCredentials extends Command {
             try {
                 config = await fs.readJson(configLocation)
             } catch (err) {
-                throw new Error(`failed to read config file: ${err}`);
+                throw new Error(`failed to read config file: ${err.message}`);
             }
         }
         return config
@@ -56,9 +62,9 @@ export default class SetupCredentials extends Command {
             await fs.outputJson(configLocation, config, { spaces: 2 })
         } catch (err) {
             if (err.code === 'EPERM') {
-                throw new Error(`failed to save config file, you might need elevated permissions: ${err}`)
+                throw new Error(`failed to save config file, you might need elevated permissions: ${err.message}`)
             } else {
-                throw new Error(`failed to save config file: ${err}`)
+                throw new Error(`failed to save config file: ${err.message}`)
             }
         }
     }
