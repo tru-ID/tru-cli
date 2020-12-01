@@ -12,7 +12,7 @@ const QR_CODE_LINK_HANDLER_URL = `https://r.tru.id?u={CHECK_URL}&c={CHECK_ID}&t=
 
 export default class SimChecksCreate extends CommandWithProjectConfig {
 
-    static description = 'Manages SIM Checks within a Project'
+    static description = 'Create SIMChecks within a Project'
 
 
     static flags = {
@@ -23,13 +23,13 @@ export default class SimChecksCreate extends CommandWithProjectConfig {
         {
             name: 'phone_number',
             required: false, // caught upon running and then user is prompted
-            description: 'The phone number to perform the SIM Check on'
+            description: 'The phone number to perform the SIMCheck on'
         }
     ]
 
     logger?: ILogger
 
-    typeOfCheck = "SIM Check"
+    typeOfCheck = "SIMCheck"
 
     tokenScope = "sim_check"
 

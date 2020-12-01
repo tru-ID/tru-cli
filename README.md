@@ -88,35 +88,35 @@ _See code: [src/commands/oauth2/token.ts](https://github.com/4auth/4auth-cli/blo
 
 ## `tru phonechecks:create [PHONE_NUMBER]`
 
-Creates a Phone Check
+Creates a PhoneCheck
 
 ```
 USAGE
   $ tru phonechecks:create [PHONE_NUMBER]
 
 ARGUMENTS
-  PHONE_NUMBER  The phone number to perform the Phone Check on
+  PHONE_NUMBER  The phone number to perform the PhoneCheck on
 
 OPTIONS
   -h, --help                 show CLI help
   --debug                    Enables debug logging for the CLI
   --project-dir=project-dir  The directory that contains the tru.json Project configuration file
   --skip-qrcode-handler      Skips using the tru hosted QR code handler with the `check_url`
-  --workflow                 Execute the Phone Check Workflow from the CLI
+  --workflow                 Execute the PhoneCheck Workflow from the CLI
 ```
 
 _See code: [src/commands/phonechecks/create.ts](https://github.com/4auth/4auth-cli/blob/v0.3.1/src/commands/phonechecks/create.ts)_
 
 ## `tru phonechecks:list [CHECK_ID]`
 
-Lists details for all Phone Checks or a specific Phone Check if the a check-id argument is passed
+Lists details for all PhoneChecks or a specific PhoneCheck if the a check-id argument is passed
 
 ```
 USAGE
   $ tru phonechecks:list [CHECK_ID]
 
 ARGUMENTS
-  CHECK_ID  The check_id for the Phone Check to list
+  CHECK_ID  The check_id for the PhoneCheck to list
 
 OPTIONS
   -h, --help                 show CLI help
@@ -161,9 +161,9 @@ OPTIONS
   -h, --help                                 show CLI help
   --debug                                    Enables debug logging for the CLI
   --mode=live|sandbox                        Set the project mode to "live" or "sandbox"
-  --phonecheck-callback=phonecheck-callback  set a callback to be invoked when a Phone Check reaches an end state
+  --phonecheck-callback=phonecheck-callback  set a callback to be invoked when a PhoneCheck reaches an end state
   --project-dir=project-dir                  The directory that contains the tru.json Project configuration file
-  --quickstart                               Create a Project and also create a Phone Check in workflow mode.
+  --quickstart                               Create a Project and also create a PhoneCheck in workflow mode.
 
 EXAMPLES
   $ tru projects:create
@@ -229,9 +229,9 @@ OPTIONS
   -h, --help                                 show CLI help
   --debug                                    Enables debug logging for the CLI
   --mode=live|sandbox                        Set the project mode to "live" or "sandbox"
-  --phonecheck-callback=phonecheck-callback  set a callback to be invoked when a Phone Check reaches an end state
+  --phonecheck-callback=phonecheck-callback  set a callback to be invoked when a PhoneCheck reaches an end state
   --project-dir=project-dir                  The directory that contains the tru.json Project configuration file
-  --remove-phonecheck-callback               remove the Phone Check callback configuration from the Project
+  --remove-phonecheck-callback               remove the PhoneCheck callback configuration from the Project
 
 EXAMPLES
   $ tru projects:update --phonecheck-callback https://example.com/callback

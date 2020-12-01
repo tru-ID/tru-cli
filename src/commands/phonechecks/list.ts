@@ -10,7 +10,7 @@ import ChecksListCommand from '../../helpers/ChecksListCommand'
 import { AbstractChecksApiClient, CheckResource, ICreateCheckResponse } from '../../api/ChecksAPIClient'
 
 export default class PhoneChecksList extends ChecksListCommand<ICreateCheckResponse> {
-  static description = 'Lists details for all Phone Checks or a specific Phone Check if the a check-id argument is passed'
+  static description = 'Lists details for all PhoneChecks or a specific PhoneCheck if the a check-id argument is passed'
 
   static pageNumberFlag = flags.integer({
     description: `The page number to return in the list resource. Ignored if the "check_id" argument is used.`,
@@ -36,12 +36,12 @@ export default class PhoneChecksList extends ChecksListCommand<ICreateCheckRespo
     {
       name: 'check_id',
       required: false,
-      description: 'The check_id for the Phone Check to list'
+      description: 'The check_id for the PhoneCheck to list'
     }
   ]
 
   constructor(argv: string[], config: Config.IConfig) {
-    super("Phone Check", "phone_check", argv, config)
+    super("PhoneCheck", "phone_check", argv, config)
   }
 
   parseCommand() {

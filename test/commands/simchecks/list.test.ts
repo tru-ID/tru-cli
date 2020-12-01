@@ -152,7 +152,7 @@ describe('simchecks:list', () => {
 			const consoleOutputString = buildConsoleString(consoleLoggerInfoStub)
 
 			expect(consoleOutputString).to.contain('Page 1 of 1')
-			expect(consoleOutputString).to.contain('SIM Checks: 1 to 1 of 1')
+			expect(consoleOutputString).to.contain('SIMChecks: 1 to 1 of 1')
 		})
 
 	test

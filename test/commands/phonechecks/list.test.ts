@@ -152,7 +152,7 @@ describe('phonechecks:list', () => {
 			const consoleOutputString = buildConsoleString(consoleLoggerInfoStub)
 
 			expect(consoleOutputString).to.contain('Page 1 of 1')
-			expect(consoleOutputString).to.contain('Phone Checks: 1 to 1 of 1')
+			expect(consoleOutputString).to.contain('PhoneChecks: 1 to 1 of 1')
 		})
 
 	test
