@@ -25,7 +25,7 @@ export default class SetupCredentials extends Command {
     ]
 
     async run() {
-        const { args, flags } = this.parse(SetupCredentials)
+        const { args } = this.parse(SetupCredentials)
 
         const configLocation = path.join(this.config.configDir, 'config.json')
         const cfg = await this.getOrCreateConfig(configLocation)
