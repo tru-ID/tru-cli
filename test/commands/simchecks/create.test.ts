@@ -24,7 +24,7 @@ let globalConfig: IGlobalConfiguration = {
     defaultWorkspaceClientSecret: 'my client secret',
     defaultWorkspaceDataResidency: 'eu',
     phoneCheckWorkflowRetryMillisecondsOverride: 500, // override to speed up tests
-    identityCheckWorkflowRetryMillisecondsOverride: 500
+    subscriberCheckWorkflowRetryMillisecondsOverride: 500
 }
 
 
@@ -56,7 +56,7 @@ let createSimCheckResponse: simchecks.ICreateSimCheckResponse = {
     no_sim_change: false,
     _links: {
         self: {
-            href: "https://us.api.tru.id/identity_check/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002"
+            href: "https://us.api.tru.id/sim_check/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002"
         }
     },
     snapshot_balance: 100
@@ -65,7 +65,7 @@ let createSimCheckResponse: simchecks.ICreateSimCheckResponse = {
 
 
 const command = "simchecks:create"
-const typeOfCheck = "SIM Check"
+const typeOfCheck = "SIMCheck"
 const clientName = "SimCheckApiClient"
 const scope = "sim_check"
 
@@ -76,7 +76,7 @@ let httpClientPostStub: any
 let httpClientGetStub: any
 
 
-describe('Sim Check Create Scenarios', () => {
+describe('SIMCheck Create Scenarios', () => {
 
     beforeEach(() => {
         existsSyncStub = sinon.default.stub(fs, 'existsSync')

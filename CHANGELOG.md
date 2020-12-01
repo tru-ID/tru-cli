@@ -25,9 +25,9 @@ All notable changes to this project will be documented in this file. See [standa
 * Added `--skip-qrcode-handler` flag to `phonechecks:create --workflow` to directly use the `/redirect` Check URL which shows the MNO URL instead of the 4Auth redirect handler
 * Added `oauth2:token` command to create OAuth2 Access tokens. Tokens can be created for a Workspace or a Project.
 * Added `projects:create --mode sandbox|live` to create a Project in a given `mode`
-* Added `projects:create --phonecheck-callback {url}` to create a Project with Phone Check `callback_url` configuration
+* Added `projects:create --phonecheck-callback {url}` to create a Project with PhoneCheck `callback_url` configuration
 * Added `projects:update --mode live | sandbox` to support updating the `mode` of a Project
-* Added `projects:update --remove-phonecheck-callback` to allow Phone Check `callback_url` configuration to be removed from a Project
+* Added `projects:update --remove-phonecheck-callback` to allow PhoneCheck `callback_url` configuration to be removed from a Project
 
 ### 0.2.1 (2020-09-02)
 
@@ -37,7 +37,7 @@ All notable changes to this project will be documented in this file. See [standa
     * Validate phone number if provided interactively
     * Emphasise turning off WiFi with `--workflow`
 * New `projects:create --quickstart` flag:
-    * Create a Project and run a Phone Check in a single command
+    * Create a Project and run a PhoneCheck in a single command
 
 ## 0.2.0 (2020-08-25)
 
@@ -46,7 +46,7 @@ All notable changes to this project will be documented in this file. See [standa
 * List Projects: `4auth projects:list`
     * Includes flags for searching and sorting: `--search` and `--sort`
     * And for pagination: `--page_number` and `--page_size`
-* List Phone Checks: `4auth phonechecks:list flags
+* List PhoneChecks: `4auth phonechecks:list flags
 * Use improved URL endpoint for QR code: `4auth phonechecks:create --workflow` generated QR codes now link to r.4auth.io to handle the `GET check_url` request
 * Workspaces command to show details such as balance: `4auth workspaces`
 
@@ -73,8 +73,8 @@ The first official early release of the 4Auth CLI 🎉
 ### Features
 
 * `4auth projects:create [NAME]` - create a Project and save Project configuration
-* `4auth phonechecks:create [PHONE_NUMBER]` - create a Phone Check and begin the Phone Check Workflow
-* `4auth phonechecks:create [PHONE_NUMBER] --workflow` - the `--workflow` flag progresses through the full Phone Check Workflow from the CLI
-* `4auth phonechecks:list [CHECK_ID]` - Retrive information about a specific Phone Check or list Phone Check resources
+* `4auth phonechecks:create [PHONE_NUMBER]` - create a PhoneCheck and begin the PhoneCheck Workflow
+* `4auth phonechecks:create [PHONE_NUMBER] --workflow` - the `--workflow` flag progresses through the full PhoneCheck Workflow from the CLI
+* `4auth phonechecks:list [CHECK_ID]` - Retrive information about a specific PhoneCheck or list PhoneCheck resources
 * `--project-dir` by default the Project configration (`4auth.json`) is expected to be in the current working directory. A different directory can be specified with this flag.
 * `--debug` flag to log additional debug information to the terminal

@@ -87,7 +87,8 @@ Emesua0F7gj3qOaav7UaKaBwefaaefaAxlrdGom_mb3U.78Od2d9XpvTQbd44eM1Uf7nzz9e9nezs5TR
                 header: 'access_token'
             },
             scope: {
-                header: 'scope'
+                header: 'scope',
+                extended: true
             },
             token_type: {
                 header: 'token_type',
@@ -116,7 +117,7 @@ Emesua0F7gj3qOaav7UaKaBwefaaefaAxlrdGom_mb3U.78Od2d9XpvTQbd44eM1Uf7nzz9e9nezs5TR
         let scopes: string[]
 
         if (runningInProjectContext) {
-            // Defaulting to phone_check since that was the initial scope defined and just to keep compatible with old project config 
+            // Defaulting to phone_check since that was the initial scope defined and just to keep compatible with old project config
             // that do not have the scopes in tru.json of project directory.
             scopes = projectConfig?.credentials[0].scopes ?? ["phone_check"]
         } else {

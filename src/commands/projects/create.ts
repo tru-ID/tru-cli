@@ -28,7 +28,7 @@ Creating Project "My first project"
   static flags = {
     ...CommandWithProjectConfig.flags,
     quickstart: flags.boolean({
-      description: 'Create a Project and also create a Phone Check in workflow mode.'
+      description: 'Create a Project and also create a PhoneCheck in workflow mode.'
     }),
     ...phoneCheckCallbackUrlFlag.flag,
     ...projectModeFlag.flag
@@ -125,7 +125,7 @@ Creating Project "My first project"
         // The approach below of using `.run` is not recommended
         if(this.flags.quickstart) {
           this.log('')
-          this.log(chalk.green.visible('Ok, let\'s run your first Phone Check!'))
+          this.log(chalk.green.visible('Ok, let\'s run your first PhoneCheck!'))
           this.log('')
 
           const phoneCheckRunParams = [`--${CommandWithProjectConfig.projectDirFlagName}`, pathToProjectDirectory, '--workflow']

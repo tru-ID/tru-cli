@@ -5,18 +5,19 @@ import * as Config from '@oclif/config'
 import { APIConfiguration } from '../../api/APIConfiguration'
 import CommandWithProjectConfig from '../../helpers/CommandWithProjectConfig'
 import ILogger from '../../helpers/ILogger'
-import { IdentityCheckAPIClient, IdentityCheckResource } from '../../api/IdentityCheckAPIClient'
+import { SubscriberCheckAPIClient, SubscriberCheckResource } from '../../api/SubscriberCheckAPIClient'
 import ChecksListCommand from '../../helpers/ChecksListCommand'
 import { AbstractChecksApiClient, CheckResource, ICreateCheckResponse } from '../../api/ChecksAPIClient';
 
-export default class IdentityCheckList extends ChecksListCommand<ICreateCheckResponse> {
-  static description = 'Lists details for all Identity Checks or a specific Identity Check if the a check-id argument is passed'
+export default class SubscriberCheckList extends ChecksListCommand<ICreateCheckResponse> {
+
+  static description = 'Lists details for all SubscriberChecks or a specific SubscriberCheck if the a check-id argument is passed'
 
   static args = [
     {
       name: 'check_id',
       required: false,
-      description: 'The check_id for the Identity Check to list'
+      description: 'The check_id for the SubscriberCheck to list'
     }
   ]
 
@@ -25,19 +26,19 @@ export default class IdentityCheckList extends ChecksListCommand<ICreateCheckRes
   }
 
   constructor(argv: string[], config: Config.IConfig) {
-    super("Identity Check", "identity_check", argv, config)
+    super("SubscriberCheck", "subscriber_check", argv, config)
   }
 
 
   parseCommand() {
-    return this.parse(IdentityCheckList);
+    return this.parse(SubscriberCheckList);
   }
 
   getApiClient(apiConfiguration: APIConfiguration, logger: ILogger) {
-    return new IdentityCheckAPIClient(apiConfiguration, logger)
+    return new SubscriberCheckAPIClient(apiConfiguration, logger)
   }
 
-  displayResults(resources: IdentityCheckResource[]) {
+  displayResults(resources: SubscriberCheckResource[]) {
     cli.table(resources, {
       check_id: {
         header: 'check_id'
