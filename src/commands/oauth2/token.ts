@@ -15,6 +15,7 @@ export default class CreateToken extends CommandWithProjectConfig {
     static flags = {
         ...CommandWithProjectConfig.flags,
         output: cli.table.flags().output,
+        extended: cli.table.flags().extended,
         "no-header": cli.table.flags()["no-header"],
         "no-truncate": cli.table.flags()["no-truncate"]
     }
@@ -94,16 +95,8 @@ Emesua0F7gj3qOaav7UaKaBwefaaefaAxlrdGom_mb3U.78Od2d9XpvTQbd44eM1Uf7nzz9e9nezs5TR
                 header: 'token_type',
                 extended: true
             },
-            id_token: {
-                header: 'id_token',
-                extended: true
-            },
             expires_in: {
                 header: 'expires_in',
-                extended: true
-            },
-            refresh_token: {
-                header: 'refresh_token',
                 extended: true
             }
         }, {
