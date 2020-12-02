@@ -8,17 +8,17 @@ export default class SetupCredentials extends Command {
 
     static args = [
         {
-            name: 'id',
+            name: 'client-id',
             required: true,
             description: 'the workspace credentials id'
         },
         {
-            name: 'secret',
+            name: 'client-secret',
             required: true,
             description: 'the workspace credentials secret'
         },
         {
-            name: 'dataResidency',
+            name: 'data-residency',
             required: true,
             description: 'the data residency of this workspace e.g. EU'
         }
@@ -30,9 +30,9 @@ export default class SetupCredentials extends Command {
         const configLocation = path.join(this.config.configDir, 'config.json')
         const cfg = await this.getOrCreateConfig(configLocation)
 
-        cfg.defaultWorkspaceClientId = args.id
-        cfg.defaultWorkspaceClientSecret = args.secret
-        cfg.defaultWorkspaceDataResidency = (args.dataResidency as string).toLowerCase()
+        cfg.defaultWorkspaceClientId = args['client-id']
+        cfg.defaultWorkspaceClientSecret = args['client-secret']
+        cfg.defaultWorkspaceDataResidency = (args['data-residency'] as string).toLowerCase()
 
         await this.saveConfig(configLocation, cfg)
 
