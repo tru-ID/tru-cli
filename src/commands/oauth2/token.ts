@@ -14,9 +14,7 @@ export default class CreateToken extends CommandWithProjectConfig {
 
     static flags = {
         ...CommandWithProjectConfig.flags,
-        ...cli.table.flags(),
-        "no-header": cli.table.flags()["no-header"],
-        "no-truncate": cli.table.flags()["no-truncate"]
+        ...cli.table.flags()
     }
 
     static examples = [
