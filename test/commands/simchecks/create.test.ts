@@ -239,9 +239,9 @@ describe('SIMCheck Create Scenarios', () => {
         .stdout()
         .command([command, phoneNumberToTest, '--debug'])
         .it(`${command} --logs a successfully created ${typeOfCheck}`, ctx => {
-            expect(ctx.stdout).to.contain(`status:  COMPLETED`)
-            expect(ctx.stdout).to.contain(`no_sim_change:  false`)
-            expect(ctx.stdout).to.contain(`last_sim_change_at:  2020-06-01T16:43:30+00:00`)
+            expect(ctx.stdout).to.contain(`status: COMPLETED`)
+            expect(ctx.stdout).to.contain(`no_sim_change: false`)
+            expect(ctx.stdout).to.contain(`last_sim_change_at: 2020-06-01T16:43:30+00:00`)
         })
 
     test
