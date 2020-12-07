@@ -54,7 +54,7 @@ export interface IUpdateProjectPayload extends IProjectResourceBase {
          */
         phone_check: {
             /**
-             * The `callback_url` for Phone Check.
+             * The `callback_url` for PhoneCheck.
              */
             callback_url?: string
         }

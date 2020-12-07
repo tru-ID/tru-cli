@@ -1,8 +1,12 @@
 {
-  "name": "tru-cli",
+  "name": "@tru_id/cli",
   "description": "The tru.ID CLI",
-  "version": "0.3.1",
-  "author": "Phil Leggetter @leggetter",
+  "version": "0.4.0",
+  "author": {
+    "name": "tru.ID",
+    "email": "community@tru.id",
+    "url": "https://tru.id"
+  },
   "bin": {
     "tru": "./bin/run"
   },
@@ -72,10 +76,16 @@
         "description": "Manage your Projects within your Workspace"
       },
       "phonechecks": {
-        "description": "Manage Phone Checks within a Project"
+        "description": "Manage PhoneChecks within a Project"
       },
       "oauth2": {
         "description": "OAuth2 helpers. For example, creating Access Tokens."
+      },
+      "subscriberchecks": {
+        "description": "Manage SubscriberChecks within a Project"
+      },
+      "simcheks": {
+        "description": "Manage SIMChecks within a Project"
       }
     },
     "commands": "./lib/commands",
@@ -95,7 +105,7 @@
       }
     }
   },
-  "repository": "4auth/4auth-cli",
+  "repository": "tru-ID/tru-cli",
   "standard-version": {
     "skip": {
       "commit": true,

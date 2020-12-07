@@ -16,11 +16,11 @@ Every run of the CLI will check to see if all required configuration is in place
 
 <!-- usage -->
 ```sh-session
-$ npm install -g tru-cli
+$ npm install -g @tru_id/cli
 $ tru COMMAND
 running command...
 $ tru (-v|--version|version)
-tru-cli/0.3.1 linux-x64 node-v15.0.1
+@tru_id/cli/0.4.0 darwin-x64 node-v15.2.0
 $ tru --help [COMMAND]
 USAGE
   $ tru COMMAND
@@ -36,6 +36,10 @@ USAGE
 * [`tru projects:create [NAME]`](#tru-projectscreate-name)
 * [`tru projects:list [PROJECT_ID]`](#tru-projectslist-project_id)
 * [`tru projects:update [PROJECT-ID]`](#tru-projectsupdate-project-id)
+* [`tru simchecks:create [PHONE_NUMBER]`](#tru-simcheckscreate-phone_number)
+* [`tru simchecks:list [CHECK_ID]`](#tru-simcheckslist-check_id)
+* [`tru subscriberchecks:create [PHONE_NUMBER]`](#tru-subscribercheckscreate-phone_number)
+* [`tru subscriberchecks:list [CHECK_ID]`](#tru-subscribercheckslist-check_id)
 * [`tru workspaces`](#tru-workspaces)
 
 ## `tru help [COMMAND]`
@@ -53,7 +57,7 @@ OPTIONS
   --all  see all commands in CLI
 ```
 
-_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v3.2.0/src/commands/help.ts)_
+_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v3.1.0/src/commands/help.ts)_
 
 ## `tru oauth2:token`
 
@@ -65,6 +69,7 @@ USAGE
 
 OPTIONS
   -h, --help                 show CLI help
+  -x, --extended             show extra columns
   --debug                    Enables debug logging for the CLI
   --no-header                hide table header from output
   --no-truncate              do not truncate output to fit screen
@@ -84,39 +89,39 @@ EXAMPLES
   Emesua0F7gj3qOaav7UaKaBwefaaefaAxlrdGom_mb3U.78Od2d9XpvTQbd44eM1Uf7nzz9e9nezs5TRjPmpDnMc
 ```
 
-_See code: [src/commands/oauth2/token.ts](https://github.com/4auth/4auth-cli/blob/v0.3.1/src/commands/oauth2/token.ts)_
+_See code: [src/commands/oauth2/token.ts](https://github.com/tru-ID/tru-cli/blob/v0.4.0/src/commands/oauth2/token.ts)_
 
 ## `tru phonechecks:create [PHONE_NUMBER]`
 
-Creates a Phone Check
+Creates a PhoneCheck within a project
 
 ```
 USAGE
   $ tru phonechecks:create [PHONE_NUMBER]
 
 ARGUMENTS
-  PHONE_NUMBER  The phone number to perform the Phone Check on
+  PHONE_NUMBER  The phone number to perform the Check on
 
 OPTIONS
   -h, --help                 show CLI help
   --debug                    Enables debug logging for the CLI
   --project-dir=project-dir  The directory that contains the tru.json Project configuration file
   --skip-qrcode-handler      Skips using the tru hosted QR code handler with the `check_url`
-  --workflow                 Execute the Phone Check Workflow from the CLI
+  --workflow                 Execute the Check Workflow from the CLI
 ```
 
-_See code: [src/commands/phonechecks/create.ts](https://github.com/4auth/4auth-cli/blob/v0.3.1/src/commands/phonechecks/create.ts)_
+_See code: [src/commands/phonechecks/create.ts](https://github.com/tru-ID/tru-cli/blob/v0.4.0/src/commands/phonechecks/create.ts)_
 
 ## `tru phonechecks:list [CHECK_ID]`
 
-Lists details for all Phone Checks or a specific Phone Check if the a check-id argument is passed
+Lists details for all PhoneChecks or a specific PhoneCheck if the a check-id argument is passed
 
 ```
 USAGE
   $ tru phonechecks:list [CHECK_ID]
 
 ARGUMENTS
-  CHECK_ID  The check_id for the Phone Check to list
+  CHECK_ID  The check_id for the PhoneCheck to list
 
 OPTIONS
   -h, --help                 show CLI help
@@ -144,7 +149,7 @@ OPTIONS
                              "created_at,desc". Ignored if the "check_id" argument is used.
 ```
 
-_See code: [src/commands/phonechecks/list.ts](https://github.com/4auth/4auth-cli/blob/v0.3.1/src/commands/phonechecks/list.ts)_
+_See code: [src/commands/phonechecks/list.ts](https://github.com/tru-ID/tru-cli/blob/v0.4.0/src/commands/phonechecks/list.ts)_
 
 ## `tru projects:create [NAME]`
 
@@ -161,9 +166,9 @@ OPTIONS
   -h, --help                                 show CLI help
   --debug                                    Enables debug logging for the CLI
   --mode=live|sandbox                        Set the project mode to "live" or "sandbox"
-  --phonecheck-callback=phonecheck-callback  set a callback to be invoked when a Phone Check reaches an end state
+  --phonecheck-callback=phonecheck-callback  set a callback to be invoked when a PhoneCheck reaches an end state
   --project-dir=project-dir                  The directory that contains the tru.json Project configuration file
-  --quickstart                               Create a Project and also create a Phone Check in workflow mode.
+  --quickstart                               Create a Project and also create a PhoneCheck in workflow mode.
 
 EXAMPLES
   $ tru projects:create
@@ -175,7 +180,7 @@ EXAMPLES
   $ tru projects:create --mode live
 ```
 
-_See code: [src/commands/projects/create.ts](https://github.com/4auth/4auth-cli/blob/v0.3.1/src/commands/projects/create.ts)_
+_See code: [src/commands/projects/create.ts](https://github.com/tru-ID/tru-cli/blob/v0.4.0/src/commands/projects/create.ts)_
 
 ## `tru projects:list [PROJECT_ID]`
 
@@ -212,7 +217,7 @@ OPTIONS
                              "created_at,desc". Ignored if the "check_id" argument is used.
 ```
 
-_See code: [src/commands/projects/list.ts](https://github.com/4auth/4auth-cli/blob/v0.3.1/src/commands/projects/list.ts)_
+_See code: [src/commands/projects/list.ts](https://github.com/tru-ID/tru-cli/blob/v0.4.0/src/commands/projects/list.ts)_
 
 ## `tru projects:update [PROJECT-ID]`
 
@@ -229,9 +234,9 @@ OPTIONS
   -h, --help                                 show CLI help
   --debug                                    Enables debug logging for the CLI
   --mode=live|sandbox                        Set the project mode to "live" or "sandbox"
-  --phonecheck-callback=phonecheck-callback  set a callback to be invoked when a Phone Check reaches an end state
+  --phonecheck-callback=phonecheck-callback  set a callback to be invoked when a PhoneCheck reaches an end state
   --project-dir=project-dir                  The directory that contains the tru.json Project configuration file
-  --remove-phonecheck-callback               remove the Phone Check callback configuration from the Project
+  --remove-phonecheck-callback               remove the PhoneCheck callback configuration from the Project
 
 EXAMPLES
   $ tru projects:update --phonecheck-callback https://example.com/callback
@@ -240,7 +245,125 @@ EXAMPLES
   $ tru projects:update --mode live
 ```
 
-_See code: [src/commands/projects/update.ts](https://github.com/4auth/4auth-cli/blob/v0.3.1/src/commands/projects/update.ts)_
+_See code: [src/commands/projects/update.ts](https://github.com/tru-ID/tru-cli/blob/v0.4.0/src/commands/projects/update.ts)_
+
+## `tru simchecks:create [PHONE_NUMBER]`
+
+Create SIMChecks within a Project
+
+```
+USAGE
+  $ tru simchecks:create [PHONE_NUMBER]
+
+ARGUMENTS
+  PHONE_NUMBER  The phone number to perform the SIMCheck on
+
+OPTIONS
+  -h, --help                 show CLI help
+  --debug                    Enables debug logging for the CLI
+  --project-dir=project-dir  The directory that contains the tru.json Project configuration file
+```
+
+_See code: [src/commands/simchecks/create.ts](https://github.com/tru-ID/tru-cli/blob/v0.4.0/src/commands/simchecks/create.ts)_
+
+## `tru simchecks:list [CHECK_ID]`
+
+Lists details for all SIMChecks or a specific SIMCheck if the a check-id argument is passed
+
+```
+USAGE
+  $ tru simchecks:list [CHECK_ID]
+
+ARGUMENTS
+  CHECK_ID  The check_id for the SIMCheck to list
+
+OPTIONS
+  -h, --help                 show CLI help
+  -x, --extended             show extra columns
+  --columns=columns          only show provided columns (comma-separated)
+  --csv                      output is csv format [alias: --output=csv]
+  --debug                    Enables debug logging for the CLI
+  --filter=filter            filter property by partial string matching, ex: name=foo
+  --no-header                hide table header from output
+  --no-truncate              do not truncate output to fit screen
+  --output=csv|json|yaml     output in a more machine friendly format
+
+  --page_number=page_number  [default: 1] The page number to return in the list resource. Ignored if the "check_id"
+                             argument is used.
+
+  --page_size=page_size      [default: 10] The page size to return in list resource request. Ignored if the "check_id"
+                             argument is used.
+
+  --project-dir=project-dir  The directory that contains the tru.json Project configuration file
+
+  --search=search            A RSQL search query. To ensure correct parsing put your query in quotes. For example
+                             "--search 'status==COMPLETED'". Ignored if the "check_id" argument is used.
+
+  --sort=sort                Sort query in the form "{parameter_name},{direction}". For example, "created_at,asc" or
+                             "created_at,desc". Ignored if the "check_id" argument is used.
+```
+
+_See code: [src/commands/simchecks/list.ts](https://github.com/tru-ID/tru-cli/blob/v0.4.0/src/commands/simchecks/list.ts)_
+
+## `tru subscriberchecks:create [PHONE_NUMBER]`
+
+Creates SubscriberChecks within a project
+
+```
+USAGE
+  $ tru subscriberchecks:create [PHONE_NUMBER]
+
+ARGUMENTS
+  PHONE_NUMBER  The phone number to perform the Check on
+
+OPTIONS
+  -h, --help                 show CLI help
+  --debug                    Enables debug logging for the CLI
+  --project-dir=project-dir  The directory that contains the tru.json Project configuration file
+  --skip-qrcode-handler      Skips using the tru hosted QR code handler with the `check_url`
+  --workflow                 Execute the Check Workflow from the CLI
+```
+
+_See code: [src/commands/subscriberchecks/create.ts](https://github.com/tru-ID/tru-cli/blob/v0.4.0/src/commands/subscriberchecks/create.ts)_
+
+## `tru subscriberchecks:list [CHECK_ID]`
+
+Lists details for all SubscriberChecks or a specific SubscriberCheck if the a check-id argument is passed
+
+```
+USAGE
+  $ tru subscriberchecks:list [CHECK_ID]
+
+ARGUMENTS
+  CHECK_ID  The check_id for the SubscriberCheck to list
+
+OPTIONS
+  -h, --help                 show CLI help
+  -x, --extended             show extra columns
+  --columns=columns          only show provided columns (comma-separated)
+  --csv                      output is csv format [alias: --output=csv]
+  --debug                    Enables debug logging for the CLI
+  --filter=filter            filter property by partial string matching, ex: name=foo
+  --no-header                hide table header from output
+  --no-truncate              do not truncate output to fit screen
+  --output=csv|json|yaml     output in a more machine friendly format
+
+  --page_number=page_number  [default: 1] The page number to return in the list resource. Ignored if the "check_id"
+                             argument is used.
+
+  --page_size=page_size      [default: 10] The page size to return in list resource request. Ignored if the "check_id"
+                             argument is used.
+
+  --project-dir=project-dir  The directory that contains the tru.json Project configuration file
+
+  --search=search            A RSQL search query. To ensure correct parsing put your query in quotes. For example
+                             "--search 'status==COMPLETED'". Ignored if the "check_id" argument is used.
+
+  --sort=sort                Sort query in the form "{parameter_name},{direction}". For example, "created_at,asc" or
+                             "created_at,desc". Ignored if the "check_id" argument is used.
+```
+
+_See code: [src/commands/subscriberchecks/list.ts](https://github.com/tru-ID/tru-cli/blob/v0.4.0/src/commands/subscriberchecks/list.ts)_
 
 ## `tru workspaces`
 
@@ -258,7 +381,7 @@ OPTIONS
   --output=csv|json|yaml  output in a more machine friendly format
 ```
 
-_See code: [src/commands/workspaces/index.ts](https://github.com/4auth/4auth-cli/blob/v0.3.1/src/commands/workspaces/index.ts)_
+_See code: [src/commands/workspaces/index.ts](https://github.com/tru-ID/tru-cli/blob/v0.4.0/src/commands/workspaces/index.ts)_
 <!-- commandsstop -->
 
 # Development
@@ -288,19 +411,19 @@ The CLI uses [standard-version](https://github.com/conventional-changelog/standa
 To update the CHANGELOG run:
 
 ```bash
-$ npm run release
+$ yarn release
 ```
 
 Additional parameters supported by `standard-version` can be passed as follows:
 
 ```bash
-$ npm run release -- {additional_parameters}
+$ yarn release {additional_parameters}
 ```
 
 For example:
 
 ```bash
-$ npm run release -- --dry-run
+$ yarn release --dry-run
 ```
 
 ### Commit and Tag
@@ -311,8 +434,8 @@ Once the CHANGELOG and version in package.json are correct ensure the file updat
 
 ```bash
 $ git commit -m 'chore(release): v{current_version}'
-  git tag v{{currentVersion}
-  git push origin v{{currentVersion}
+  git tag v{currentVersion}
+  git push origin v{currentVersion}
   git push origin dev
 ```
 

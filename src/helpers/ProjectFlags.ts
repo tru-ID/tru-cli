@@ -9,7 +9,7 @@ export const phoneCheckCallbackUrlFlag = {
   flagName: PHONECHECK_CALLBACK_URL_FLAG_NAME,
   flag: {
     'phonecheck-callback': flags.string({
-      description: 'set a callback to be invoked when a Phone Check reaches an end state',
+      description: 'set a callback to be invoked when a PhoneCheck reaches an end state',
       exclusive: [REMOVE_PHONECHECK_CALLBACK_URL_FLAG_NAME]
     })
   }
@@ -19,7 +19,7 @@ export const removePhoneCheckCallbackFlag = {
   flagName: REMOVE_PHONECHECK_CALLBACK_URL_FLAG_NAME,
   flag: {
     'remove-phonecheck-callback': flags.boolean({
-      description: 'remove the Phone Check callback configuration from the Project',
+      description: 'remove the PhoneCheck callback configuration from the Project',
       default: false,
       exclusive: [PHONECHECK_CALLBACK_URL_FLAG_NAME]
     })

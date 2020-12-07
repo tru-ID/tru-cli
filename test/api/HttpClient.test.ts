@@ -361,6 +361,56 @@ describe('APIConfiguration', () => {
             expect(response.scope).to.equal(accessTokenDataResponse.scope)
         })
 
+        it('should cache token', async () => {
+            const apiConfig:APIConfiguration = createDefaultAPIConfiguration()
+            const client:HttpClient = new HttpClient(apiConfig, console)
+
+            const accessTokenDataResponse = {
+                "access_token": "2YotnFZFEjr1zCsicMWpAA",
+                "id_token": "eyJhbGciOiJSUzINiImtpZCI6InB1Ympx",
+                "expires_in": 3600,
+                "token_type": "bearer",
+                "refresh_token": "tGzv3JOkF0XG5Qx2TlKWIA",
+                "scope": "projects"
+            }
+
+            const accessTokenDataResponse2 = {
+                "access_token": "accesstoken2",
+                "id_token": "idToken2",
+                "expires_in": 3600,
+                "token_type": "bearer",
+                "refresh_token": "refreshtoken2",
+                "scope": "projects"
+            }
+
+            let axiosstub = sinon.default.stub(axios, 'post').resolves( {data: accessTokenDataResponse} )
+
+            let response:ICreateTokenResponse = await client.createAccessToken()
+
+            expect(response.access_token).to.equal(accessTokenDataResponse.access_token)
+            expect(response.id_token).to.equal(accessTokenDataResponse.id_token)
+            expect(response.expires_in).to.equal(accessTokenDataResponse.expires_in)
+            expect(response.token_type).to.equal(accessTokenDataResponse.token_type)
+            expect(response.refresh_token).to.equal(accessTokenDataResponse.refresh_token)
+            expect(response.scope).to.equal(accessTokenDataResponse.scope)
+
+
+            axiosstub.restore()
+            sinon.default.stub(axios, 'post').resolves( {data: accessTokenDataResponse2} )
+
+            response = await client.createAccessToken()
+
+            expect(response.access_token).to.equal(accessTokenDataResponse.access_token)
+            expect(response.id_token).to.equal(accessTokenDataResponse.id_token)
+            expect(response.expires_in).to.equal(accessTokenDataResponse.expires_in)
+            expect(response.token_type).to.equal(accessTokenDataResponse.token_type)
+            expect(response.refresh_token).to.equal(accessTokenDataResponse.refresh_token)
+            expect(response.scope).to.equal(accessTokenDataResponse.scope)
+
+
+
+        })
+
     })
 
     describe('generateBasicAuth', () => {

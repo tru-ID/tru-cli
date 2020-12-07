@@ -1,4 +1,4 @@
-import axios, { AxiosResponse, AxiosInstance, Method, AxiosRequestConfig } from 'axios'
+import axios, { AxiosResponse, AxiosInstance, AxiosRequestConfig } from 'axios'
 import * as qs from 'querystring'
 
 import { APIConfiguration } from './APIConfiguration'
@@ -20,27 +20,35 @@ interface IResponseLog {
 }
 
 export declare interface ICreateTokenResponse {
-    access_token:string,
-    id_token:string,
-    expires_in:number,
-    token_type:string,
-    refresh_token:string,
-    scope:string
+    access_token: string,
+    id_token: string,
+    expires_in: number,
+    token_type: string,
+    refresh_token: string,
+    scope: string
 }
 
-export class HttpClient {
-    config:APIConfiguration
-    logger:ILogger
-    axios:AxiosInstance
+interface TokenStore {
+    response: ICreateTokenResponse
+    dateInMs: number
+}
 
-    constructor(apiConfiguration: APIConfiguration, logger:ILogger) {
+
+export class HttpClient {
+
+    tokens: TokenStore | undefined
+    config: APIConfiguration
+    logger: ILogger
+    axios: AxiosInstance
+
+    constructor(apiConfiguration: APIConfiguration, logger: ILogger) {
         this.config = apiConfiguration
         this.logger = logger
         this.axios = axios.create({
             baseURL: this.config.baseUrl
         });
 
-        this.axios.interceptors.request.use( config => {
+        this.axios.interceptors.request.use(config => {
             this.logRequest(config)
             return config;
         }, function (error) {
@@ -48,7 +56,7 @@ export class HttpClient {
             return Promise.reject(error);
         });
 
-        this.axios.interceptors.response.use( (response: AxiosResponse) => {
+        this.axios.interceptors.response.use((response: AxiosResponse) => {
             this.logResponse(response)
             return response;
         }, error => {
@@ -57,7 +65,7 @@ export class HttpClient {
         });
     }
 
-    async post<T>(path:string, parameters:any, headers:any): Promise<T> {
+    async post<T>(path: string, parameters: any, headers: any): Promise<T> {
         const accessTokenResponse = await this.createAccessToken()
 
         const requestHeaders = {
@@ -65,14 +73,14 @@ export class HttpClient {
             'Authorization': `Bearer ${accessTokenResponse.access_token}`
         }
 
-        const response:AxiosResponse = await this.axios.post(path, parameters, {
-                headers: requestHeaders
-            })
+        const response: AxiosResponse = await this.axios.post(path, parameters, {
+            headers: requestHeaders
+        })
 
         return response.data as T
     }
 
-    async patch<T>(path:string, operations:any[], headers:any): Promise<T> {
+    async patch<T>(path: string, operations: any[], headers: any): Promise<T> {
         const accessTokenResponse = await this.createAccessToken()
 
         const requestHeaders = {
@@ -81,13 +89,14 @@ export class HttpClient {
         }
 
         const response: AxiosResponse = await this.axios.patch(path, operations, {
-                headers: requestHeaders
-            })
+            headers: requestHeaders
+        })
 
         return response.data as T
     }
 
-    async get<T>(path:string, parameters:any, headers:any): Promise<T> {
+    async get<T>(path: string, parameters: any, headers: any): Promise<T> {
+
         const accessTokenResponse = await this.createAccessToken()
 
         const requestHeaders = {
@@ -95,37 +104,75 @@ export class HttpClient {
             'Authorization': `Bearer ${accessTokenResponse.access_token}`
         }
 
-        const response:AxiosResponse = await this.axios.get(path, {
-                params: parameters,
-                headers: requestHeaders
-            })
+        const response: AxiosResponse = await this.axios.get(path, {
+            params: parameters,
+            headers: requestHeaders
+        })
+
 
         return response.data as T
     }
 
     async createAccessToken(): Promise<ICreateTokenResponse> {
+
+        
+        if (this.hasValidToken()) {
+            this.logger.debug("Token loaded from local")
+            return this.getToken()!
+        }
+
+        const auth = this.generateBasicAuth()
+
         const path = '/oauth2/v1/token'
+        const scopes = this.config.scopes || ''
         const params = qs.stringify({
             grant_type: 'client_credentials',
-            scope: this.config.scopes,
-            // client_id: this.clientId, // In body auth support
-            // client_secret: this.clientSecret // In body auth support
+            scope: scopes
         })
-        const auth = this.generateBasicAuth()
+
         const requestHeaders = {
             Authorization: `Basic ${auth}`,
             'Content-Type': 'application/x-www-form-urlencoded'
         }
 
-        const response:AxiosResponse = await this.axios.post(path, params, {
+
+        const response: AxiosResponse = await this.axios.post(path, params, {
             headers: requestHeaders
         })
+
+        this.logger.debug("Token created")
+
+        this.storeToken(response.data as ICreateTokenResponse)
 
         return response.data as ICreateTokenResponse
     }
 
-     generateBasicAuth():string {
-        const toEncode:string = `${this.config.clientId}:${this.config.clientSecret}`
+    hasValidToken(): boolean {
+
+        if(this.tokens == undefined) {
+            return false
+        }    
+
+        return (this.tokens.dateInMs + this.tokens.response.expires_in * 1000 + 300 * 1000) > Date.now()
+    }
+
+    getToken(): ICreateTokenResponse | undefined {
+
+        return this.tokens?.response
+
+    }
+
+    storeToken(tokenResponse: ICreateTokenResponse) {
+
+        this.tokens = {
+            response: tokenResponse,
+            dateInMs: Date.now()
+        }
+
+    }
+
+    generateBasicAuth(): string {
+        const toEncode: string = `${this.config.clientId}:${this.config.clientSecret}`
         const auth = Buffer.from(toEncode).toString('base64')
         return auth
     }
@@ -167,7 +214,7 @@ export class HttpClient {
 
         // Axios errors have a lot of information so strip it down
         // to something more useful
-        if(error.isAxiosError) {
+        if (error.isAxiosError) {
             toLog = {
                 statusCode: error.response.status,
                 statusText: error.response.statusText,
