@@ -1,5 +1,5 @@
 {
-  "name": "tru-cli",
+  "name": "@tru_id/cli",
   "description": "The tru.ID CLI",
   "version": "0.4.0",
   "author": {
@@ -105,7 +105,7 @@
       }
     }
   },
-  "repository": "4auth/4auth-cli",
+  "repository": "tru-ID/tru-cli",
   "standard-version": {
     "skip": {
       "commit": true,

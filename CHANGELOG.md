@@ -2,17 +2,34 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-### 0.3.1 (2020-10-22)
+## 0.4.0 (2020-12-07)
+
+### Features
+
+* `simchecks` topic added
+    * `simchecks:create {phone_number}` - to create a a SIMCheck for given phone number
+    * `simchecks:list` - to search existing SIMChecks
+* `subscriberchecks` topic added
+    * `subscriberchecks:create {phone_number}` - to create a a SubscriberCheck for given phone number
+    * `subscriberchecks:create {phone_number} --workflow` - to create a a SubscriberCheck for given phone number and test via the CLI using a QR Code
+    * `subscriberchecks:create {phone_number} --quickstart` - combines creating a project and running a SubscriberCheck in `--workflow` mode
+    * `subscriberchecks:list` - to search existing SubscriberChecks
+* The CLI now passed a short-lived access token and check_id to the QR Code handler web app so the result of the check can be shown in the browser
+* Upon running `--workflow` commands the access token is reused for Check queries rather than creating a new access token for each request.
+
+## 0.3.1 (2020-10-22)
 
 ### Bug Fixes
 
-* request correct scope when accessing workspace information ([254e832](https://github.com/4auth/4auth-cli/commit/254e83211f71272a5f03e644f5e975aa614cb1b7))
+* Request correct scope when accessing workspace information
 
 ## 0.3.0 (2020-10-19)
 
 ### ⚠ BREAKING CHANGES
 
 * CLI binary renamed from `4auth` to `tru`.
+* Configuration file now saved as `tru.json`. Was previously `4auth.json`
+* QR Code Handler URl is now `r.tru.id`. Was previously `r.4auth.io`
 
 ### 0.2.2 (2020-09-29)
 
