@@ -9,6 +9,7 @@ chai.use(sinonChai)
 
 import * as fs from 'fs-extra'
 import { buildConsoleString } from '../../test_helpers'
+import IGlobalConfiguration from '../../../src/IGlobalConfiguration'
 
 describe('setup:credentials', () => {
 
@@ -18,6 +19,21 @@ describe('setup:credentials', () => {
     let commandArgs = [workspaceId, workspaceSecret, dataResidency]
 
     let outputJsonStub: any
+    let readJsonStub: any
+
+    beforeEach(() => {
+        let expectedUserConfig: IGlobalConfiguration = {
+            defaultWorkspaceClientId: 'my client id',
+            defaultWorkspaceClientSecret: 'my client secret',
+            defaultWorkspaceDataResidency: 'eu'
+        }
+        sinon.default.stub(fs, 'existsSync').withArgs(sinon.default.match(new RegExp(/config.json/))).returns(true)
+
+        readJsonStub = sinon.default.stub(fs, 'readJson')
+        readJsonStub.withArgs(
+            sinon.default.match(sinon.default.match(new RegExp(/config.json/))))
+            .resolves(expectedUserConfig)
+    })
 
     afterEach(() => {
         sinon.default.restore()
