@@ -3,15 +3,17 @@ import * as Config from '@oclif/config'
 import { APIConfiguration } from '../../api/APIConfiguration'
 import CommandWithProjectConfig from '../../helpers/CommandWithProjectConfig'
 import ILogger from '../../helpers/ILogger'
-import { IdentityCheckAPIClient, IdentityCheckResource } from '../../api/IdentityCheckAPIClient'
+import { SubscriberCheckAPIClient, SubscriberCheckResource } from '../../api/SubscriberCheckAPIClient'
 import ChecksCreateCommand from '../../helpers/ChecksCreateCommand'
 import { CheckResource } from '../../api/ChecksAPIClient'
 
-export default class IdentityChecksCreate extends ChecksCreateCommand {
+export default class SubscriberChecksCreate extends ChecksCreateCommand {
 
-  static description = 'Manages Identity Checks within a Project'
+  static typeOfCheck = "SubscriberCheck"
 
-  static typeOfCheck = "Identity Check"
+
+  static description = `Creates SubscriberChecks within a project`
+
 
   static flags = {
     ...ChecksCreateCommand.flags
@@ -22,22 +24,22 @@ export default class IdentityChecksCreate extends ChecksCreateCommand {
   ]
 
   constructor(argv: string[], config: Config.IConfig) {
-    super("Identity Check", "identity_check", argv, config)
+    super("SubscriberCheck", "subscriber_check", argv, config)
   }
 
   parseCommand() {
-    return this.parse(IdentityChecksCreate);
+    return this.parse(SubscriberChecksCreate);
   }
 
   getApiClient(apiConfiguration: APIConfiguration, logger: ILogger) {
-    return new IdentityCheckAPIClient(apiConfiguration, logger)
+    return new SubscriberCheckAPIClient(apiConfiguration, logger)
   }
 
   getPolling() {
-    return this.globalConfig?.identityCheckWorkflowRetryMillisecondsOverride ?? 5000
+    return this.globalConfig?.subscriberCheckWorkflowRetryMillisecondsOverride ?? 5000
   }
 
-  logResult(checkResponse: IdentityCheckResource) {
+  logResult(checkResponse: SubscriberCheckResource) {
     this.log('')
     this.log(`${this.typeOfCheck} Workflow result:\n` +
       `\tstatus:  ${checkResponse.status}\n` +

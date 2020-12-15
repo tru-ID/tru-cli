@@ -12,7 +12,7 @@ import * as inquirer from 'inquirer'
 import * as qrcode from 'qrcode-terminal'
 
 import IGlobalConfiguration from '../../../src/IGlobalConfiguration'
-import * as identityCheckAPIClientModules from '../../../src/api/IdentityCheckAPIClient'
+import * as subscriberCheckAPIClientModules from '../../../src/api/SubscriberCheckAPIClient'
 import { IProjectConfiguration } from '../../../src/IProjectConfiguration'
 import * as consoleLoggerModule from '../../../src/helpers/ConsoleLogger'
 import CommandWithProjectConfig from '../../../src/helpers/CommandWithProjectConfig'
@@ -29,7 +29,7 @@ let globalConfig: IGlobalConfiguration = {
   defaultWorkspaceClientSecret: 'my client secret',
   defaultWorkspaceDataResidency: 'eu',
   phoneCheckWorkflowRetryMillisecondsOverride: 500, // override to speed up tests
-  identityCheckWorkflowRetryMillisecondsOverride: 500
+  subscriberCheckWorkflowRetryMillisecondsOverride: 500
 }
 
 const overrideQrCodeHandlerConfig = {
@@ -37,7 +37,7 @@ const overrideQrCodeHandlerConfig = {
   qrCodeUrlHandlerOverride: 'http://example.com/thing/blah?u={CHECK_URL}&c={CHECK_ID}&t={ACCESS_TOKEN}'
 }
 
-const createIdentityCheckResponse: ICreateCheckResponse = {
+const createSubscriberCheckResponse: ICreateCheckResponse = {
   check_id: "c69bc0e6-a429-11ea-bb37-0242ac130002",
   status: CheckStatus.ACCEPTED,
   match: false,
@@ -47,16 +47,16 @@ const createIdentityCheckResponse: ICreateCheckResponse = {
   ttl: 60,
   _links: {
     self: {
-      href: "https://us.api.tru.id/identity_check/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002"
+      href: "https://us.api.tru.id/subscriber_check/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002"
     },
     check_url: {
-      href: "https://us.api.tru.id/identity_check/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002/redirect"
+      href: "https://us.api.tru.id/subscriber_check/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002/redirect"
     }
   },
   snapshot_balance: 100
 }
 
-const identityCheckMatchedResource: identityCheckAPIClientModules.IdentityCheckResource = {
+const subscriberCheckMatchedResource: subscriberCheckAPIClientModules.SubscriberCheckResource = {
   check_id: "c69bc0e6-a429-11ea-bb37-0242ac130002",
   status: CheckStatus.COMPLETED,
   match: true,
@@ -68,12 +68,12 @@ const identityCheckMatchedResource: identityCheckAPIClientModules.IdentityCheckR
   no_sim_change: true,
   _links: {
     self: {
-      href: "https://us.api.tru.id/identity_check/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002"
+      href: "https://us.api.tru.id/subscriber_check/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002"
     }
   }
 }
 
-const identityCheckExpiredResource: identityCheckAPIClientModules.IdentityCheckResource = {
+const subscriberCheckExpiredResource: subscriberCheckAPIClientModules.SubscriberCheckResource = {
   check_id: "c69bc0e6-a429-11ea-bb37-0242ac130002",
   status: CheckStatus.EXPIRED,
   match: false,
@@ -85,12 +85,12 @@ const identityCheckExpiredResource: identityCheckAPIClientModules.IdentityCheckR
   no_sim_change: false,
   _links: {
     self: {
-      href: "https://us.api.tru.id/identity_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002"
+      href: "https://us.api.tru.id/subscriber_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002"
     }
   }
 }
 
-const identityCheckPendingResource: ICreateCheckResponse = {
+const subscriberCheckPendingResource: ICreateCheckResponse = {
   check_id: "c69bc0e6-a429-11ea-bb37-0242ac130002",
   status: CheckStatus.PENDING,
   match: false,
@@ -100,10 +100,10 @@ const identityCheckPendingResource: ICreateCheckResponse = {
   ttl: 60,
   _links: {
     self: {
-      href: "https://us.api.tru.id/identity_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002"
+      href: "https://us.api.tru.id/subscriber_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002"
     },
     check_url: {
-      href: "https://us.api.tru.id/identity_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002/redirect"
+      href: "https://us.api.tru.id/subscriber_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002/redirect"
     }
   },
   snapshot_balance: 100
@@ -180,8 +180,8 @@ const phoneCheckPendingResource: ICreateCheckResponse = {
 let existsSyncStub: any
 let readJsonStub: any
 let inquirerStub: any
-let identityCheckAPIClientCreateStub: any
-let IdentityCheckAPIClientGetStub: any
+let subscriberCheckAPIClientCreateStub: any
+let SubscriberCheckAPIClientGetStub: any
 let phoneCheckAPIClientCreateStub: any
 let phoneCheckAPIClientGetStub: any
 let oauth2CreateStub: any
@@ -213,7 +213,7 @@ const qrCodeHandlerAccessTokenResponse: ICreateTokenResponse = {
 }
 
 
-describe('PhoneCheck and IdentityCheck Create Scenarios', () => {
+describe('PhoneCheck and SubscriberCheck Create Scenarios', () => {
 
   beforeEach(() => {
     existsSyncStub = sinon.default.stub(fs, 'existsSync')
@@ -231,10 +231,10 @@ describe('PhoneCheck and IdentityCheck Create Scenarios', () => {
 
     inquirerStub = sinon.default.stub(inquirer, 'prompt')
 
-    // IdentityCheckClient
-    identityCheckAPIClientCreateStub = sinon.default.stub(identityCheckAPIClientModules.IdentityCheckAPIClient.prototype, 'create')
-    identityCheckAPIClientCreateStub.resolves(createIdentityCheckResponse)
-    IdentityCheckAPIClientGetStub = sinon.default.stub(identityCheckAPIClientModules.IdentityCheckAPIClient.prototype, 'get')
+    // SubscriberCheckClient
+    subscriberCheckAPIClientCreateStub = sinon.default.stub(subscriberCheckAPIClientModules.SubscriberCheckAPIClient.prototype, 'create')
+    subscriberCheckAPIClientCreateStub.resolves(createSubscriberCheckResponse)
+    SubscriberCheckAPIClientGetStub = sinon.default.stub(subscriberCheckAPIClientModules.SubscriberCheckAPIClient.prototype, 'get')
 
     // PhoneCheckClient
     phoneCheckAPIClientCreateStub = sinon.default.stub(phoneCheckAPIClientModules.PhoneChecksAPIClient.prototype, 'create')
@@ -254,8 +254,8 @@ describe('PhoneCheck and IdentityCheck Create Scenarios', () => {
 
   {
     let params = [
-      { command: 'identitychecks:create', typeOfCheck: 'Identity Check' },
-      { command: 'phonechecks:create', typeOfCheck: 'Phone Check' }
+      { command: 'subscriberchecks:create', typeOfCheck: 'SubscriberCheck' },
+      { command: 'phonechecks:create', typeOfCheck: 'PhoneCheck' }
     ]
     params.forEach(({ command }) => {
       test
@@ -278,8 +278,8 @@ describe('PhoneCheck and IdentityCheck Create Scenarios', () => {
     let customProjectConfigDirPath = path.join('alternative','path','to')
     let customProjectConfigFullPath = path.join('alternative','path','to', 'tru.json')
     let params = [
-      { command: 'identitychecks:create', typeOfCheck: 'Identity Check' },
-      { command: 'phonechecks:create', typeOfCheck: 'Phone Check' }
+      { command: 'subscriberchecks:create', typeOfCheck: 'SubscriberCheck' },
+      { command: 'phonechecks:create', typeOfCheck: 'PhoneCheck' }
     ]
     params.forEach(({ command }) => {
       test
@@ -299,8 +299,8 @@ describe('PhoneCheck and IdentityCheck Create Scenarios', () => {
 
   {
     let params = [
-      { command: 'identitychecks:create', typeOfCheck: 'Identity Check' },
-      { command: 'phonechecks:create', typeOfCheck: 'Phone Check' }
+      { command: 'subscriberchecks:create', typeOfCheck: 'SubscriberCheck' },
+      { command: 'phonechecks:create', typeOfCheck: 'PhoneCheck' }
     ]
 
     params.forEach(({ command }) => {
@@ -314,8 +314,8 @@ describe('PhoneCheck and IdentityCheck Create Scenarios', () => {
 
   {
     let params = [
-      { command: 'identitychecks:create', typeOfCheck: 'Identity Check' },
-      { command: 'phonechecks:create', typeOfCheck: 'Phone Check' }
+      { command: 'subscriberchecks:create', typeOfCheck: 'SubscriberCheck' },
+      { command: 'phonechecks:create', typeOfCheck: 'PhoneCheck' }
     ]
 
     params.forEach(({ command, typeOfCheck }) => {
@@ -341,7 +341,7 @@ describe('PhoneCheck and IdentityCheck Create Scenarios', () => {
   {
     let constructorStub: any
     let params = [
-      { command: 'identitychecks:create', clientName: 'IdentityCheckAPIClient' },
+      { command: 'subscriberchecks:create', clientName: 'SubscriberCheckAPIClient' },
       { command: 'phonechecks:create', clientName: 'PhoneChecksAPIClient' }
     ]
     params.forEach(({ command, clientName }) => {
@@ -364,7 +364,7 @@ describe('PhoneCheck and IdentityCheck Create Scenarios', () => {
   {
     let constructorStub: any
     let params = [
-      { command: 'identitychecks:create', clientName: 'IdentityCheckAPIClient', scope: 'identity_check' },
+      { command: 'subscriberchecks:create', clientName: 'SubscriberCheckAPIClient', scope: 'subscriber_check' },
       { command: 'phonechecks:create', clientName: 'PhoneChecksAPIClient', scope: 'phone_check' }
     ]
     params.forEach(({ command, clientName, scope }) => {
@@ -385,7 +385,7 @@ describe('PhoneCheck and IdentityCheck Create Scenarios', () => {
   {
     let constructorStub: any
     let params = [
-      { command: 'identitychecks:create', clientName: 'IdentityCheckAPIClient' },
+      { command: 'subscriberchecks:create', clientName: 'SubscriberCheckAPIClient' },
       { command: 'phonechecks:create', clientName: 'PhoneChecksAPIClient' }
     ]
     params.forEach(({ command, clientName }) => {
@@ -406,7 +406,7 @@ describe('PhoneCheck and IdentityCheck Create Scenarios', () => {
   {
     let constructorStub: any
     let params = [
-      { command: 'identitychecks:create', clientName: 'IdentityCheckAPIClient' },
+      { command: 'subscriberchecks:create', clientName: 'SubscriberCheckAPIClient' },
       { command: 'phonechecks:create', clientName: 'PhoneChecksAPIClient' }
     ]
     params.forEach(({ command, clientName }) => {
@@ -427,7 +427,7 @@ describe('PhoneCheck and IdentityCheck Create Scenarios', () => {
   {
     let apiClientStub: any
     let params = [
-      { command: 'identitychecks:create', clientName: 'IdentityCheckAPIClient' },
+      { command: 'subscriberchecks:create', clientName: 'SubscriberCheckAPIClient' },
       { command: 'phonechecks:create', clientName: 'PhoneChecksAPIClient' }
     ]
     params.forEach(({ command, clientName }) => {
@@ -444,8 +444,8 @@ describe('PhoneCheck and IdentityCheck Create Scenarios', () => {
 
   {
     let params = [
-      { command: 'identitychecks:create', typeOfCheck: 'Identity Check' },
-      { command: 'phonechecks:create', typeOfCheck: 'Phone Check' }
+      { command: 'subscriberchecks:create', typeOfCheck: 'SubscriberCheck' },
+      { command: 'phonechecks:create', typeOfCheck: 'PhoneCheck' }
     ]
     params.forEach(({ command, typeOfCheck }) => {
       test
@@ -459,17 +459,17 @@ describe('PhoneCheck and IdentityCheck Create Scenarios', () => {
 
   {
     let params = [
-      { command: 'identitychecks:create', typeOfCheck: 'Identity Check' },
-      { command: 'phonechecks:create', typeOfCheck: 'Phone Check' }
+      { command: 'subscriberchecks:create', typeOfCheck: 'SubscriberCheck' },
+      { command: 'phonechecks:create', typeOfCheck: 'PhoneCheck' }
     ]
     params.forEach(({ command, typeOfCheck }) => {
       test
         .do(() => {
 
-          identityCheckAPIClientCreateStub.restore()
-          identityCheckAPIClientCreateStub = sinon.default.stub(identityCheckAPIClientModules.IdentityCheckAPIClient.prototype, 'create')
-          identityCheckAPIClientCreateStub.resolves({
-            ...createIdentityCheckResponse,
+          subscriberCheckAPIClientCreateStub.restore()
+          subscriberCheckAPIClientCreateStub = sinon.default.stub(subscriberCheckAPIClientModules.SubscriberCheckAPIClient.prototype, 'create')
+          subscriberCheckAPIClientCreateStub.resolves({
+            ...createSubscriberCheckResponse,
             status: CheckStatus.ERROR
           })
 
@@ -493,13 +493,13 @@ describe('PhoneCheck and IdentityCheck Create Scenarios', () => {
   describe('checks:create --workflow', () => {
     {
       let params = [
-        { command: 'identitychecks:create', typeOfCheck: 'Identity Check' },
-        { command: 'phonechecks:create', typeOfCheck: 'Phone Check' }
+        { command: 'subscriberchecks:create', typeOfCheck: 'SubscriberCheck' },
+        { command: 'phonechecks:create', typeOfCheck: 'PhoneCheck' }
       ]
       params.forEach(({ command, typeOfCheck }) => {
         test
           .do(() => {
-            IdentityCheckAPIClientGetStub.resolves(identityCheckMatchedResource);
+            SubscriberCheckAPIClientGetStub.resolves(subscriberCheckMatchedResource);
             phoneCheckAPIClientGetStub.resolves(phoneCheckMatchedResource);
           })
           .command([command, phoneNumberToTest, '--workflow'])
@@ -511,13 +511,13 @@ describe('PhoneCheck and IdentityCheck Create Scenarios', () => {
 
     {
       let params = [
-        { command: 'identitychecks:create', typeOfCheck: 'Identity Check', response: createIdentityCheckResponse },
-        { command: 'phonechecks:create', typeOfCheck: 'Phone Check', response: createPhoneCheckResponse }
+        { command: 'subscriberchecks:create', typeOfCheck: 'SubscriberCheck', response: createSubscriberCheckResponse },
+        { command: 'phonechecks:create', typeOfCheck: 'PhoneCheck', response: createPhoneCheckResponse }
       ]
       params.forEach(({ command, typeOfCheck, response }) => {
         test
           .do(() => {
-            IdentityCheckAPIClientGetStub.resolves(identityCheckMatchedResource)
+            SubscriberCheckAPIClientGetStub.resolves(subscriberCheckMatchedResource)
             phoneCheckAPIClientGetStub.resolves(phoneCheckMatchedResource)
           })
           .command([command, phoneNumberToTest, '--workflow'])
@@ -533,13 +533,13 @@ describe('PhoneCheck and IdentityCheck Create Scenarios', () => {
 
     {
       let params = [
-        { command: 'identitychecks:create', typeOfCheck: 'Identity Check', response: createIdentityCheckResponse },
-        { command: 'phonechecks:create', typeOfCheck: 'Phone Check', response: createPhoneCheckResponse }
+        { command: 'subscriberchecks:create', typeOfCheck: 'SubscriberCheck', response: createSubscriberCheckResponse },
+        { command: 'phonechecks:create', typeOfCheck: 'PhoneCheck', response: createPhoneCheckResponse }
       ]
       params.forEach(({ command, typeOfCheck, response }) => {
         test
           .do(() => {
-            IdentityCheckAPIClientGetStub.resolves(identityCheckMatchedResource)
+            SubscriberCheckAPIClientGetStub.resolves(subscriberCheckMatchedResource)
             phoneCheckAPIClientGetStub.resolves(phoneCheckMatchedResource)
           })
           .command([command, phoneNumberToTest, '--workflow', '--debug'])
@@ -556,14 +556,14 @@ describe('PhoneCheck and IdentityCheck Create Scenarios', () => {
 
     {
       let params = [
-        { command: 'identitychecks:create', typeOfCheck: 'Identity Check' },
-        { command: 'phonechecks:create', typeOfCheck: 'Phone Check' }
+        { command: 'subscriberchecks:create', typeOfCheck: 'SubscriberCheck' },
+        { command: 'phonechecks:create', typeOfCheck: 'PhoneCheck' }
       ]
       params.forEach(({ command, typeOfCheck }) => {
 
         test
           .do(() => {
-            IdentityCheckAPIClientGetStub.resolves(identityCheckMatchedResource)
+            SubscriberCheckAPIClientGetStub.resolves(subscriberCheckMatchedResource)
             phoneCheckAPIClientGetStub.resolves(phoneCheckMatchedResource)
             oauth2CreateStub.restore()
 
@@ -578,8 +578,8 @@ describe('PhoneCheck and IdentityCheck Create Scenarios', () => {
 
     {
       let params = [
-        { command: 'identitychecks:create', typeOfCheck: 'Identity Check', response: createIdentityCheckResponse },
-        { command: 'phonechecks:create', typeOfCheck: 'Phone Check', response: createPhoneCheckResponse }
+        { command: 'subscriberchecks:create', typeOfCheck: 'SubscriberCheck', response: createSubscriberCheckResponse },
+        { command: 'phonechecks:create', typeOfCheck: 'PhoneCheck', response: createPhoneCheckResponse }
       ]
       params.forEach(({ command, typeOfCheck, response }) => {
         test
@@ -595,7 +595,7 @@ describe('PhoneCheck and IdentityCheck Create Scenarios', () => {
               sinon.default.match(projectConfigFileLocation))
               .resolves(projectConfig)
 
-            IdentityCheckAPIClientGetStub.resolves(identityCheckMatchedResource)
+            SubscriberCheckAPIClientGetStub.resolves(subscriberCheckMatchedResource)
             phoneCheckAPIClientGetStub.resolves(phoneCheckMatchedResource)
           })
           .command([command, phoneNumberToTest, '--workflow'])
@@ -612,13 +612,13 @@ describe('PhoneCheck and IdentityCheck Create Scenarios', () => {
 
     {
       let params = [
-        { command: 'identitychecks:create', typeOfCheck: 'Identity Check', response: createIdentityCheckResponse },
-        { command: 'phonechecks:create', typeOfCheck: 'Phone Check', response: createPhoneCheckResponse }
+        { command: 'subscriberchecks:create', typeOfCheck: 'SubscriberCheck', response: createSubscriberCheckResponse },
+        { command: 'phonechecks:create', typeOfCheck: 'PhoneCheck', response: createPhoneCheckResponse }
       ]
       params.forEach(({ command, typeOfCheck, response }) => {
         test
           .do(() => {
-            IdentityCheckAPIClientGetStub.resolves(identityCheckMatchedResource)
+            SubscriberCheckAPIClientGetStub.resolves(subscriberCheckMatchedResource)
             phoneCheckAPIClientGetStub.resolves(phoneCheckMatchedResource)
           })
           .command([command, phoneNumberToTest, '--workflow', '--skip-qrcode-handler'])
@@ -631,20 +631,20 @@ describe('PhoneCheck and IdentityCheck Create Scenarios', () => {
     {
       let checkApiClientStub: any
       let params = [
-        { command: 'identitychecks:create', typeOfCheck: 'Identity Check', response: createIdentityCheckResponse },
-        { command: 'phonechecks:create', typeOfCheck: 'Phone Check', response: createPhoneCheckResponse }
+        { command: 'subscriberchecks:create', typeOfCheck: 'SubscriberCheck', response: createSubscriberCheckResponse },
+        { command: 'phonechecks:create', typeOfCheck: 'PhoneCheck', response: createPhoneCheckResponse }
       ]
       params.forEach(({ command, typeOfCheck, response }) => {
         test
           .do(() => {
-            IdentityCheckAPIClientGetStub.resolves(identityCheckMatchedResource)
+            SubscriberCheckAPIClientGetStub.resolves(subscriberCheckMatchedResource)
             phoneCheckAPIClientGetStub.resolves(phoneCheckMatchedResource)
 
             switch (typeOfCheck) {
-              case "Identity Check":
-                checkApiClientStub = IdentityCheckAPIClientGetStub
+              case "SubscriberCheck":
+                checkApiClientStub = SubscriberCheckAPIClientGetStub
                 break;
-              case "Phone Check":
+              case "PhoneCheck":
                 checkApiClientStub = phoneCheckAPIClientGetStub
                 break;
             }
@@ -669,11 +669,11 @@ describe('PhoneCheck and IdentityCheck Create Scenarios', () => {
 
     test
     .do(() => {
-      IdentityCheckAPIClientGetStub.resolves(identityCheckMatchedResource)
+      SubscriberCheckAPIClientGetStub.resolves(subscriberCheckMatchedResource)
     })
     .stdout()
-    .command(['identitychecks:create', phoneNumberToTest, '--workflow'])
-    .it(`identitychecks:create completed status and match result are logged`, (ctx) => {
+    .command(['subscriberchecks:create', phoneNumberToTest, '--workflow'])
+    .it(`subscriberchecks:create completed status and match result are logged`, (ctx) => {
       expect(ctx.stdout).to.contain(`match:  true`)
       expect(ctx.stdout).to.contain(`no_sim_change:  true`)
       expect(ctx.stdout).to.contain(`last_sim_change_at:  2018-06-01T16:43:30+00:00`)
@@ -682,24 +682,24 @@ describe('PhoneCheck and IdentityCheck Create Scenarios', () => {
     {
       let checkApiClientStub: any
       let params = [
-        { command: 'identitychecks:create', typeOfCheck: 'Identity Check' },
-        { command: 'phonechecks:create', typeOfCheck: 'Phone Check' }
+        { command: 'subscriberchecks:create', typeOfCheck: 'SubscriberCheck' },
+        { command: 'phonechecks:create', typeOfCheck: 'PhoneCheck' }
       ]
       params.forEach(({ command, typeOfCheck }) => {
         test
           .do(() => {
 
-            IdentityCheckAPIClientGetStub.onCall(0).resolves(identityCheckPendingResource)
-            IdentityCheckAPIClientGetStub.onCall(1).resolves(identityCheckMatchedResource)
+            SubscriberCheckAPIClientGetStub.onCall(0).resolves(subscriberCheckPendingResource)
+            SubscriberCheckAPIClientGetStub.onCall(1).resolves(subscriberCheckMatchedResource)
 
             phoneCheckAPIClientGetStub.onCall(0).resolves(phoneCheckPendingResource)
             phoneCheckAPIClientGetStub.onCall(1).resolves(phoneCheckMatchedResource)
 
             switch (typeOfCheck) {
-              case "Identity Check":
-                checkApiClientStub = IdentityCheckAPIClientGetStub
+              case "SubscriberCheck":
+                checkApiClientStub = SubscriberCheckAPIClientGetStub
                 break;
-              case "Phone Check":
+              case "PhoneCheck":
                 checkApiClientStub = phoneCheckAPIClientGetStub
                 break;
             }
@@ -714,14 +714,14 @@ describe('PhoneCheck and IdentityCheck Create Scenarios', () => {
 
     {
       let params = [
-        { command: 'identitychecks:create', typeOfCheck: 'Identity Check' },
-        { command: 'phonechecks:create', typeOfCheck: 'Phone Check' }
+        { command: 'subscriberchecks:create', typeOfCheck: 'SubscriberCheck' },
+        { command: 'phonechecks:create', typeOfCheck: 'PhoneCheck' }
       ]
       params.forEach(({ command, typeOfCheck }) => {
 
         test
           .do(() => {
-            IdentityCheckAPIClientGetStub.resolves(identityCheckExpiredResource)
+            SubscriberCheckAPIClientGetStub.resolves(subscriberCheckExpiredResource)
             phoneCheckAPIClientGetStub.resolves(phoneCheckExpiredResource)
 
           })
@@ -738,8 +738,8 @@ describe('PhoneCheck and IdentityCheck Create Scenarios', () => {
   function getConstructorApiClientSpy(clientName: string) {
     let constructorStub: any
     switch (clientName) {
-      case 'IdentityCheckAPIClient':
-        constructorStub = sinon.default.spy(identityCheckAPIClientModules, 'IdentityCheckAPIClient');
+      case 'SubscriberCheckAPIClient':
+        constructorStub = sinon.default.spy(subscriberCheckAPIClientModules, 'SubscriberCheckAPIClient');
         break;
       case 'PhoneChecksAPIClient':
         constructorStub = sinon.default.spy(phoneCheckAPIClientModules, 'PhoneChecksAPIClient');
@@ -751,8 +751,8 @@ describe('PhoneCheck and IdentityCheck Create Scenarios', () => {
   function getApiClientStub(clientName: string): any {
     let apiClientStub: any
     switch (clientName) {
-      case 'IdentityCheckAPIClient':
-        apiClientStub = identityCheckAPIClientCreateStub;
+      case 'SubscriberCheckAPIClient':
+        apiClientStub = subscriberCheckAPIClientCreateStub;
         break;
       case 'PhoneChecksAPIClient':
         apiClientStub = phoneCheckAPIClientCreateStub;

@@ -15,6 +15,7 @@ export default class CreateToken extends CommandWithProjectConfig {
     static flags = {
         ...CommandWithProjectConfig.flags,
         output: cli.table.flags().output,
+        extended: cli.table.flags().extended,
         "no-header": cli.table.flags()["no-header"],
         "no-truncate": cli.table.flags()["no-truncate"]
     }
@@ -87,22 +88,15 @@ Emesua0F7gj3qOaav7UaKaBwefaaefaAxlrdGom_mb3U.78Od2d9XpvTQbd44eM1Uf7nzz9e9nezs5TR
                 header: 'access_token'
             },
             scope: {
-                header: 'scope'
+                header: 'scope',
+                extended: true
             },
             token_type: {
                 header: 'token_type',
                 extended: true
             },
-            id_token: {
-                header: 'id_token',
-                extended: true
-            },
             expires_in: {
                 header: 'expires_in',
-                extended: true
-            },
-            refresh_token: {
-                header: 'refresh_token',
                 extended: true
             }
         }, {
@@ -116,7 +110,7 @@ Emesua0F7gj3qOaav7UaKaBwefaaefaAxlrdGom_mb3U.78Od2d9XpvTQbd44eM1Uf7nzz9e9nezs5TR
         let scopes: string[]
 
         if (runningInProjectContext) {
-            // Defaulting to phone_check since that was the initial scope defined and just to keep compatible with old project config 
+            // Defaulting to phone_check since that was the initial scope defined and just to keep compatible with old project config
             // that do not have the scopes in tru.json of project directory.
             scopes = projectConfig?.credentials[0].scopes ?? ["phone_check"]
         } else {

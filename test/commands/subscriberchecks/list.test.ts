@@ -8,7 +8,7 @@ chai.use(sinonChai);
 
 import * as fs from 'fs-extra'
 
-import * as identityCheckAPIClientModules from '../../../src/api/IdentityCheckAPIClient'
+import * as subscriberCheckAPIClientModules from '../../../src/api/SubscriberCheckAPIClient'
 import IGlobalConfiguration from '../../../src/IGlobalConfiguration';
 import { IProjectConfiguration } from '../../../src/IProjectConfiguration';
 import { APIConfiguration } from '../../../src/api/APIConfiguration';
@@ -19,9 +19,9 @@ import { IListCheckResource } from '../../../src/api/ChecksAPIClient';
 import { CheckStatus } from '../../../src/api/CheckStatus';
 import * as httpClientModule from '../../../src/api/HttpClient';
 
-describe('identitychecks:list', () => {
+describe('subscriberchecks:list', () => {
 
-	let identityChecksApiClientConstructorStub: any
+	let subscriberChecksApiClientConstructorStub: any
 	let httpClientGetStub: any
 	let readJsonStub: any
 	let consoleLoggerInfoStub: any
@@ -48,10 +48,10 @@ describe('identitychecks:list', () => {
 		]
 	}
 
-	const identityCheckResource: identityCheckAPIClientModules.IdentityCheckResource = {
+	const subscriberCheckResource: subscriberCheckAPIClientModules.SubscriberCheckResource = {
 		_links: {
 			self: {
-				href: 'https://us.api.tru.id/identity_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002'
+				href: 'https://us.api.tru.id/subscriber_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002'
 			}
 		},
 		charge_amount: 1,
@@ -65,10 +65,10 @@ describe('identitychecks:list', () => {
 		status: CheckStatus.ACCEPTED,
 	}
 
-	const identityListCheckResource: IListCheckResource<identityCheckAPIClientModules.IdentityCheckResource> = {
+	const subscriberListCheckResource: IListCheckResource<subscriberCheckAPIClientModules.SubscriberCheckResource> = {
 		_embedded: {
 			checks: [
-				identityCheckResource
+				subscriberCheckResource
 			]
 		},
 		_links: {
@@ -102,9 +102,9 @@ describe('identitychecks:list', () => {
 
 
 		httpClientGetStub = sinon.default.stub(httpClientModule.HttpClient.prototype, 'get')
-		httpClientGetStub.withArgs('/identity_check/v0.1/checks', sinon.default.match.any, sinon.default.match.any).resolves(identityListCheckResource)
-		httpClientGetStub.withArgs(`/identity_check/v0.1/checks/${identityCheckResource.check_id}`, sinon.default.match.any, sinon.default.match.any).resolves(identityCheckResource)
-		httpClientGetStub.withArgs(`/identity_check/v0.1/checks/check_id_value`, sinon.default.match.any, sinon.default.match.any).resolves(identityCheckResource)
+		httpClientGetStub.withArgs('/subscriber_check/v0.1/checks', sinon.default.match.any, sinon.default.match.any).resolves(subscriberListCheckResource)
+		httpClientGetStub.withArgs(`/subscriber_check/v0.1/checks/${subscriberCheckResource.check_id}`, sinon.default.match.any, sinon.default.match.any).resolves(subscriberCheckResource)
+		httpClientGetStub.withArgs(`/subscriber_check/v0.1/checks/check_id_value`, sinon.default.match.any, sinon.default.match.any).resolves(subscriberCheckResource)
 
 		consoleLoggerInfoStub = sinon.default.stub(ConsoleLogger.prototype, 'info')
 	})
@@ -115,30 +115,30 @@ describe('identitychecks:list', () => {
 
 	test
 		.do(() => {
-			identityChecksApiClientConstructorStub = sinon.default.spy(identityCheckAPIClientModules, 'IdentityCheckAPIClient')
+			subscriberChecksApiClientConstructorStub = sinon.default.spy(subscriberCheckAPIClientModules, 'SubscriberCheckAPIClient')
 		})
-		.command(['identitychecks:list'])
-		.it('identitychecks/list/IdentityCheckAPIClient: it should instantiate IdentityCheckAPIClient with expected arguments', ctx => {
-			expect(identityChecksApiClientConstructorStub).to.be.calledWith(
+		.command(['subscriberchecks:list'])
+		.it('subscriberchecks/list/SubscriberCheckAPIClient: it should instantiate SubscriberCheckAPIClient with expected arguments', ctx => {
+			expect(subscriberChecksApiClientConstructorStub).to.be.calledWith(
 				sinon.default.match.instanceOf(APIConfiguration)
 			)
 		})
 
 	test
-		.command(['identitychecks:list'])
-		.it('identitychecks/list/IdentityCheckAPIClient.list: should call IdentityCheckAPIClient.list() if optional check_id argment is not supplied', ctx => {
-			expect(httpClientGetStub).to.be.calledWith('/identity_check/v0.1/checks', sinon.default.match.any, sinon.default.match.any)
+		.command(['subscriberchecks:list'])
+		.it('subscriberchecks/list/SubscriberCheckAPIClient.list: should call SubscriberCheckAPIClient.list() if optional check_id argment is not supplied', ctx => {
+			expect(httpClientGetStub).to.be.calledWith('/subscriber_check/v0.1/checks', sinon.default.match.any, sinon.default.match.any)
 
 		})
 
 	test
-		.command(['identitychecks:list', 'check_id_value'])
-		.it('should call IdentityChecksAPIClient.get(checkId) if optional check_id argment is supplied', ctx => {
-			expect(httpClientGetStub).to.be.calledWith('/identity_check/v0.1/checks/check_id_value', sinon.default.match.any, sinon.default.match.any)
+		.command(['subscriberchecks:list', 'check_id_value'])
+		.it('should call SubscriberChecksAPIClient.get(checkId) if optional check_id argment is supplied', ctx => {
+			expect(httpClientGetStub).to.be.calledWith('/subscriber_check/v0.1/checks/check_id_value', sinon.default.match.any, sinon.default.match.any)
 		})
 
 	test
-		.command(['identitychecks:list'])
+		.command(['subscriberchecks:list'])
 		.it('should contain header table output', (ctx) => {
 			const consoleOutputString = buildConsoleString(consoleLoggerInfoStub)
 
@@ -152,41 +152,41 @@ describe('identitychecks:list', () => {
 		})
 
 	test
-		.command(['identitychecks:list'])
+		.command(['subscriberchecks:list'])
 		.it('should contain pagination output', (ctx) => {
 			const consoleOutputString = buildConsoleString(consoleLoggerInfoStub)
 
 			expect(consoleOutputString).to.contain('Page 1 of 1')
-			expect(consoleOutputString).to.contain('Identity Checks: 1 to 1 of 1')
+			expect(consoleOutputString).to.contain('SubscriberChecks: 1 to 1 of 1')
 		})
 
 	test
-		.command(['identitychecks:list'])
+		.command(['subscriberchecks:list'])
 		.it('outputs resource list to cli.table', (ctx) => {
 			const consoleOutputString = buildConsoleString(consoleLoggerInfoStub)
 
-			expect(consoleOutputString).to.contain(identityCheckResource.check_id)
-			expect(consoleOutputString).to.contain(identityCheckResource.created_at)
-			expect(consoleOutputString).to.contain(identityCheckResource.charge_amount)
-			expect(consoleOutputString).to.contain(identityCheckResource.charge_currency)
-			expect(consoleOutputString).to.contain(identityCheckResource.match)
-			expect(consoleOutputString).to.contain(identityCheckResource.status)
-			expect(consoleOutputString).to.contain(identityCheckResource.no_sim_change)
-			expect(consoleOutputString).to.contain(identityCheckResource.last_sim_change_at)
+			expect(consoleOutputString).to.contain(subscriberCheckResource.check_id)
+			expect(consoleOutputString).to.contain(subscriberCheckResource.created_at)
+			expect(consoleOutputString).to.contain(subscriberCheckResource.charge_amount)
+			expect(consoleOutputString).to.contain(subscriberCheckResource.charge_currency)
+			expect(consoleOutputString).to.contain(subscriberCheckResource.match)
+			expect(consoleOutputString).to.contain(subscriberCheckResource.status)
+			expect(consoleOutputString).to.contain(subscriberCheckResource.no_sim_change)
+			expect(consoleOutputString).to.contain(subscriberCheckResource.last_sim_change_at)
 		})
 
 	test
-		.command(['identitychecks:list', 'check_id_value'])
+		.command(['subscriberchecks:list', 'check_id_value'])
 		.it('outputs result of a single resource to cli.table', (ctx) => {
 			const consoleOutputString = buildConsoleString(consoleLoggerInfoStub)
 
-			expect(consoleOutputString).to.contain(identityCheckResource.check_id)
-			expect(consoleOutputString).to.contain(identityCheckResource.created_at)
-			expect(consoleOutputString).to.contain(identityCheckResource.charge_amount)
-			expect(consoleOutputString).to.contain(identityCheckResource.charge_currency)
-			expect(consoleOutputString).to.contain(identityCheckResource.match)
-			expect(consoleOutputString).to.contain(identityCheckResource.status)
-			expect(consoleOutputString).to.contain(identityCheckResource.no_sim_change)
-			expect(consoleOutputString).to.contain(identityCheckResource.last_sim_change_at)
+			expect(consoleOutputString).to.contain(subscriberCheckResource.check_id)
+			expect(consoleOutputString).to.contain(subscriberCheckResource.created_at)
+			expect(consoleOutputString).to.contain(subscriberCheckResource.charge_amount)
+			expect(consoleOutputString).to.contain(subscriberCheckResource.charge_currency)
+			expect(consoleOutputString).to.contain(subscriberCheckResource.match)
+			expect(consoleOutputString).to.contain(subscriberCheckResource.status)
+			expect(consoleOutputString).to.contain(subscriberCheckResource.no_sim_change)
+			expect(consoleOutputString).to.contain(subscriberCheckResource.last_sim_change_at)
 		})
 })

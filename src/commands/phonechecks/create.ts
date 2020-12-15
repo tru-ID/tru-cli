@@ -9,9 +9,9 @@ import { CheckResource } from '../../api/ChecksAPIClient'
 
 export default class PhoneChecksCreate extends ChecksCreateCommand {
 
-  static description = 'Creates a Phone Check'
+  static description = 'Creates a PhoneCheck within a project'
 
-  static typeOfCheck = "Phone Check"
+  static typeOfCheck = "PhoneCheck"
 
   static flags = {
     ...ChecksCreateCommand.flags
@@ -22,7 +22,7 @@ export default class PhoneChecksCreate extends ChecksCreateCommand {
   ]
 
   constructor(argv: string[], config: Config.IConfig) {
-    super("Phone Check", "phone_check", argv, config)
+    super("PhoneCheck", "phone_check", argv, config)
   }
 
   getPolling() {

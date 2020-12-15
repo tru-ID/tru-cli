@@ -10,7 +10,7 @@ import { displayPagination } from '../../helpers/ux'
 import { IListSimCheckResource, ISimCheckResource, SimCheckAPIClient } from '../../api/SimCheckAPIClient'
 
 export default class SimCheckList extends CommandWithProjectConfig {
-    static description = 'Lists details for all SIM Checks or a specific SIM Check if the a check-id argument is passed'
+    static description = 'Lists details for all SIMChecks or a specific SIMCheck if the a check-id argument is passed'
 
     static pageNumberFlag = flags.integer({
         description: `The page number to return in the list resource. Ignored if the "check_id" argument is used.`,
@@ -40,7 +40,7 @@ export default class SimCheckList extends CommandWithProjectConfig {
         {
             name: 'check_id',
             required: false,
-            description: 'The check_id for the SIM Check to list'
+            description: 'The check_id for the SIMCheck to list'
         }
     ]
 
@@ -48,7 +48,7 @@ export default class SimCheckList extends CommandWithProjectConfig {
 
     tokenScope = 'sim_check'
 
-    typeOfCheck = 'SIM Check'
+    typeOfCheck = 'SIMCheck'
 
 
     parseCommand() {

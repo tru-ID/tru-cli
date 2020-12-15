@@ -63,7 +63,7 @@ const projectAPIResponse: IProjectResource = {
       "client_secret": "dzi1v4osLNr5vv0.2mnvcKM37.",
       "created_at": "2020-06-01T16:43:30+00:00",
       "scopes": [
-        "sim_check", "phone_check","identity_check"
+        "sim_check", "phone_check","subscriber_check"
       ]
     }
   ],
