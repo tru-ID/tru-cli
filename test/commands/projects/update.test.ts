@@ -1,4 +1,5 @@
 import {test} from '@oclif/test'
+import * as path from 'path';
 import * as sinon from 'ts-sinon'
 import * as chai from 'chai';
 import * as sinonChai from 'sinon-chai'
@@ -28,7 +29,7 @@ let consoleLoggerInfoStub:any
 let consoleLoggerWarnStub:any
 let consoleLoggerErrorStub:any
 
-const workingDirectoryProjectConfigPath = `${process.cwd()}/tru.json`
+const workingDirectoryProjectConfigPath = path.join(process.cwd(),'tru.json')
 
 const createProjectAPIResponse: ICreateProjectResponse = {
   "project_id": "c69bc0e6-a429-11ea-bb37-0242ac130003",
