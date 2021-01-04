@@ -10,14 +10,6 @@ The tru.ID CLI
 * [Commands](#commands)
 * [Development](#development)
 <!-- tocstop -->
-* [Usage](#usage)
-* [Commands](#commands)
-* [Development](#development)
-<!-- tocstop -->
-* [Usage](#usage)
-* [Commands](#commands)
-* [Development](#development)
-<!-- tocstop -->
 # Usage
 
 Every run of the CLI will check to see if all required configuration is in place.
