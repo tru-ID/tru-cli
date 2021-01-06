@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## 0.5.0 (2021-01-06)
+
+### Features
+
+* `coverage` topic added
+    * `coverage:country {country_code or dialing_code}` - check if the tru.ID platform has reachability for that given country
+    * `coverage:reach {ip}` - to check if the tru.ID has reachability for given IP
+* added `setup:credentials` command - so you can setup your workspace credentials at any time
+
 ## 0.4.0 (2020-12-07)
 
 ### Features
