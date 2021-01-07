@@ -57,7 +57,7 @@
     "typescript": "^3.9.7"
   },
   "engines": {
-    "node": ">=8.0.0"
+    "node": ">=10.0.0"
   },
   "files": [
     "/bin",
@@ -119,7 +119,7 @@
     "pack": "oclif-dev pack",
     "x_posttest": "eslint . --ext .ts --config .eslintrc",
     "prepack": "rm -rf lib && tsc -b && oclif-dev manifest && oclif-dev readme",
-    "test": "jest -w 3",
+    "test": "jest -w 3 --testTimeout=10000",
     "test:coverage": "jest -w 3 --coverage --coverageDirectory coverage",
     "version": "oclif-dev readme && git add README.md",
     "prerelease": "rm -f package-lock.json",
