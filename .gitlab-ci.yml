@@ -1,8 +1,9 @@
 image: node:latest
 
 stages:
-  - test
   - build
+  - test
+  - package
   - publish
   - notify
 
@@ -12,14 +13,40 @@ cache:
   paths:
     - node_modules/
 
-unit_tests:
+install_dependencies:
+  stage: build
+  script:
+    - yarn install
+  artifacts:
+    paths:
+      - node_modules/
+
+unit_tests_node_10:
+  stage: test
+  image: node:10
+  script:
+    - yarn test
+
+unit_tests_node_12:
+  stage: test
+  image: node:12
+  script:
+    - yarn test
+
+unit_tests_node_14:
+  stage: test
+  image: node:12
+  script:
+    - yarn test
+
+unit_tests_node_latest:
   stage: test
   script:
     - yarn install
     - yarn test
     
-build_installers:
-  stage: build
+package_installers:
+  stage: package
   only:
     - dev
     - main
@@ -42,9 +69,9 @@ publish_installers:
     - main
     - ci-publish-test
   dependencies:
-    - build_installers
+    - package_installers
   needs:
-    - job: build_installers
+    - job: package_installers
       artifacts: true
   script:
     - ls dist
