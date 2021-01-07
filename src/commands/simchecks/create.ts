@@ -84,7 +84,7 @@ export default class SimChecksCreate extends CommandWithProjectConfig {
         if (response.status == CheckStatus.COMPLETED) {
 
             this.log(`\tstatus: ${response.status}`)
-            this.log(`\tno_sim_change: ${response.no_sim_change}}`)
+            this.log(`\tno_sim_change: ${response.no_sim_change}`)
             this.log(`\tlast_sim_change_at: ${response.last_sim_change_at}`)
         }
         else {

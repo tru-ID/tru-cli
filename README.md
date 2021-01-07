@@ -20,7 +20,7 @@ $ npm install -g @tru_id/cli
 $ tru COMMAND
 running command...
 $ tru (-v|--version|version)
-@tru_id/cli/0.4.0 darwin-x64 node-v15.2.0
+@tru_id/cli/0.5.0 linux-x64 node-v15.4.0
 $ tru --help [COMMAND]
 USAGE
   $ tru COMMAND
@@ -29,6 +29,8 @@ USAGE
 <!-- usagestop -->
 # Commands
 <!-- commands -->
+* [`tru coverage:country CODE`](#tru-coveragecountry-code)
+* [`tru coverage:reach DEVICE-IP`](#tru-coveragereach-device-ip)
 * [`tru help [COMMAND]`](#tru-help-command)
 * [`tru oauth2:token`](#tru-oauth2token)
 * [`tru phonechecks:create [PHONE_NUMBER]`](#tru-phonecheckscreate-phone_number)
@@ -36,11 +38,66 @@ USAGE
 * [`tru projects:create [NAME]`](#tru-projectscreate-name)
 * [`tru projects:list [PROJECT_ID]`](#tru-projectslist-project_id)
 * [`tru projects:update [PROJECT-ID]`](#tru-projectsupdate-project-id)
+* [`tru setup:credentials CLIENT-ID CLIENT-SECRET DATA-RESIDENCY`](#tru-setupcredentials-client-id-client-secret-data-residency)
 * [`tru simchecks:create [PHONE_NUMBER]`](#tru-simcheckscreate-phone_number)
 * [`tru simchecks:list [CHECK_ID]`](#tru-simcheckslist-check_id)
 * [`tru subscriberchecks:create [PHONE_NUMBER]`](#tru-subscribercheckscreate-phone_number)
 * [`tru subscriberchecks:list [CHECK_ID]`](#tru-subscribercheckslist-check_id)
 * [`tru workspaces`](#tru-workspaces)
+
+## `tru coverage:country CODE`
+
+Retrieve country based coverage and prices
+
+```
+USAGE
+  $ tru coverage:country CODE
+
+ARGUMENTS
+  CODE  two letter code ISO 3166-1 alpha-2 or country dialing code
+
+OPTIONS
+  -h, --help                 show CLI help
+  -x, --extended             show extra columns
+  --columns=columns          only show provided columns (comma-separated)
+  --csv                      output is csv format [alias: --output=csv]
+  --debug                    Enables debug logging for the CLI
+  --filter=filter            filter property by partial string matching, ex: name=foo
+  --no-header                hide table header from output
+  --no-truncate              do not truncate output to fit screen
+  --output=csv|json|yaml     output in a more machine friendly format
+  --project-dir=project-dir  The directory that contains the tru.json Project configuration file
+  --sort=sort                property to sort by (prepend '-' for descending)
+```
+
+_See code: [src/commands/coverage/country.ts](https://github.com/tru-ID/tru-cli/blob/v0.5.0/src/commands/coverage/country.ts)_
+
+## `tru coverage:reach DEVICE-IP`
+
+Find if a certain device ip is reachable
+
+```
+USAGE
+  $ tru coverage:reach DEVICE-IP
+
+ARGUMENTS
+  DEVICE-IP  The device ip in ipv4 or ipv6 format
+
+OPTIONS
+  -h, --help                 show CLI help
+  -x, --extended             show extra columns
+  --columns=columns          only show provided columns (comma-separated)
+  --csv                      output is csv format [alias: --output=csv]
+  --debug                    Enables debug logging for the CLI
+  --filter=filter            filter property by partial string matching, ex: name=foo
+  --no-header                hide table header from output
+  --no-truncate              do not truncate output to fit screen
+  --output=csv|json|yaml     output in a more machine friendly format
+  --project-dir=project-dir  The directory that contains the tru.json Project configuration file
+  --sort=sort                property to sort by (prepend '-' for descending)
+```
+
+_See code: [src/commands/coverage/reach.ts](https://github.com/tru-ID/tru-cli/blob/v0.5.0/src/commands/coverage/reach.ts)_
 
 ## `tru help [COMMAND]`
 
@@ -89,7 +146,7 @@ EXAMPLES
   Emesua0F7gj3qOaav7UaKaBwefaaefaAxlrdGom_mb3U.78Od2d9XpvTQbd44eM1Uf7nzz9e9nezs5TRjPmpDnMc
 ```
 
-_See code: [src/commands/oauth2/token.ts](https://github.com/tru-ID/tru-cli/blob/v0.4.0/src/commands/oauth2/token.ts)_
+_See code: [src/commands/oauth2/token.ts](https://github.com/tru-ID/tru-cli/blob/v0.5.0/src/commands/oauth2/token.ts)_
 
 ## `tru phonechecks:create [PHONE_NUMBER]`
 
@@ -110,7 +167,7 @@ OPTIONS
   --workflow                 Execute the Check Workflow from the CLI
 ```
 
-_See code: [src/commands/phonechecks/create.ts](https://github.com/tru-ID/tru-cli/blob/v0.4.0/src/commands/phonechecks/create.ts)_
+_See code: [src/commands/phonechecks/create.ts](https://github.com/tru-ID/tru-cli/blob/v0.5.0/src/commands/phonechecks/create.ts)_
 
 ## `tru phonechecks:list [CHECK_ID]`
 
@@ -149,7 +206,7 @@ OPTIONS
                              "created_at,desc". Ignored if the "check_id" argument is used.
 ```
 
-_See code: [src/commands/phonechecks/list.ts](https://github.com/tru-ID/tru-cli/blob/v0.4.0/src/commands/phonechecks/list.ts)_
+_See code: [src/commands/phonechecks/list.ts](https://github.com/tru-ID/tru-cli/blob/v0.5.0/src/commands/phonechecks/list.ts)_
 
 ## `tru projects:create [NAME]`
 
@@ -180,7 +237,7 @@ EXAMPLES
   $ tru projects:create --mode live
 ```
 
-_See code: [src/commands/projects/create.ts](https://github.com/tru-ID/tru-cli/blob/v0.4.0/src/commands/projects/create.ts)_
+_See code: [src/commands/projects/create.ts](https://github.com/tru-ID/tru-cli/blob/v0.5.0/src/commands/projects/create.ts)_
 
 ## `tru projects:list [PROJECT_ID]`
 
@@ -217,7 +274,7 @@ OPTIONS
                              "created_at,desc". Ignored if the "check_id" argument is used.
 ```
 
-_See code: [src/commands/projects/list.ts](https://github.com/tru-ID/tru-cli/blob/v0.4.0/src/commands/projects/list.ts)_
+_See code: [src/commands/projects/list.ts](https://github.com/tru-ID/tru-cli/blob/v0.5.0/src/commands/projects/list.ts)_
 
 ## `tru projects:update [PROJECT-ID]`
 
@@ -245,7 +302,23 @@ EXAMPLES
   $ tru projects:update --mode live
 ```
 
-_See code: [src/commands/projects/update.ts](https://github.com/tru-ID/tru-cli/blob/v0.4.0/src/commands/projects/update.ts)_
+_See code: [src/commands/projects/update.ts](https://github.com/tru-ID/tru-cli/blob/v0.5.0/src/commands/projects/update.ts)_
+
+## `tru setup:credentials CLIENT-ID CLIENT-SECRET DATA-RESIDENCY`
+
+Setup the CLI with workspace credentials
+
+```
+USAGE
+  $ tru setup:credentials CLIENT-ID CLIENT-SECRET DATA-RESIDENCY
+
+ARGUMENTS
+  CLIENT-ID       the workspace credentials id
+  CLIENT-SECRET   the workspace credentials secret
+  DATA-RESIDENCY  the data residency of this workspace e.g. EU
+```
+
+_See code: [src/commands/setup/credentials.ts](https://github.com/tru-ID/tru-cli/blob/v0.5.0/src/commands/setup/credentials.ts)_
 
 ## `tru simchecks:create [PHONE_NUMBER]`
 
@@ -264,7 +337,7 @@ OPTIONS
   --project-dir=project-dir  The directory that contains the tru.json Project configuration file
 ```
 
-_See code: [src/commands/simchecks/create.ts](https://github.com/tru-ID/tru-cli/blob/v0.4.0/src/commands/simchecks/create.ts)_
+_See code: [src/commands/simchecks/create.ts](https://github.com/tru-ID/tru-cli/blob/v0.5.0/src/commands/simchecks/create.ts)_
 
 ## `tru simchecks:list [CHECK_ID]`
 
@@ -303,7 +376,7 @@ OPTIONS
                              "created_at,desc". Ignored if the "check_id" argument is used.
 ```
 
-_See code: [src/commands/simchecks/list.ts](https://github.com/tru-ID/tru-cli/blob/v0.4.0/src/commands/simchecks/list.ts)_
+_See code: [src/commands/simchecks/list.ts](https://github.com/tru-ID/tru-cli/blob/v0.5.0/src/commands/simchecks/list.ts)_
 
 ## `tru subscriberchecks:create [PHONE_NUMBER]`
 
@@ -324,7 +397,7 @@ OPTIONS
   --workflow                 Execute the Check Workflow from the CLI
 ```
 
-_See code: [src/commands/subscriberchecks/create.ts](https://github.com/tru-ID/tru-cli/blob/v0.4.0/src/commands/subscriberchecks/create.ts)_
+_See code: [src/commands/subscriberchecks/create.ts](https://github.com/tru-ID/tru-cli/blob/v0.5.0/src/commands/subscriberchecks/create.ts)_
 
 ## `tru subscriberchecks:list [CHECK_ID]`
 
@@ -363,7 +436,7 @@ OPTIONS
                              "created_at,desc". Ignored if the "check_id" argument is used.
 ```
 
-_See code: [src/commands/subscriberchecks/list.ts](https://github.com/tru-ID/tru-cli/blob/v0.4.0/src/commands/subscriberchecks/list.ts)_
+_See code: [src/commands/subscriberchecks/list.ts](https://github.com/tru-ID/tru-cli/blob/v0.5.0/src/commands/subscriberchecks/list.ts)_
 
 ## `tru workspaces`
 
@@ -381,7 +454,7 @@ OPTIONS
   --output=csv|json|yaml  output in a more machine friendly format
 ```
 
-_See code: [src/commands/workspaces/index.ts](https://github.com/tru-ID/tru-cli/blob/v0.4.0/src/commands/workspaces/index.ts)_
+_See code: [src/commands/workspaces/index.ts](https://github.com/tru-ID/tru-cli/blob/v0.5.0/src/commands/workspaces/index.ts)_
 <!-- commandsstop -->
 
 # Development

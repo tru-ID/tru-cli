@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## 0.5.0 (2021-01-06)
+
+### Features
+
+* `coverage` topic added
+    * `coverage:country {country_code or dialing_code}` - check if the tru.ID platform has reachability for that given country
+    * `coverage:reach {ip}` - to check if the tru.ID has reachability for given IP
+* added `setup:credentials` command - so you can setup your workspace credentials at any time
+
 ## 0.4.0 (2020-12-07)
 
 ### Features
@@ -14,8 +23,13 @@ All notable changes to this project will be documented in this file. See [standa
     * `subscriberchecks:create {phone_number} --workflow` - to create a a SubscriberCheck for given phone number and test via the CLI using a QR Code
     * `subscriberchecks:create {phone_number} --quickstart` - combines creating a project and running a SubscriberCheck in `--workflow` mode
     * `subscriberchecks:list` - to search existing SubscriberChecks
-* The CLI now passed a short-lived access token and check_id to the QR Code handler web app so the result of the check can be shown in the browser
+* The CLI now passes a short-lived access token and check_id to the QR Code handler web app so the result of the check can be shown in the browser
 * Upon running `--workflow` commands the access token is reused for Check queries rather than creating a new access token for each request.
+
+### ⚠ BREAKING CHANGES
+
+* The package name has changed from `tru-cli` to `@tru_id/cli`. Due to this change (which results in a `tru` binary permissions problem) you will need to uninstall the existing CLI before installing v0.4.0: `npm uninstall -g tru-cli && npm install -g @tru_id/cli`
+* The location of the CLI config file has changed to reflect the package name: the location is now `{config_directory_path}/@tru_id/cli/config.json`. See [Oclif config](https://oclif.io/docs/config) for more information on the `{config_directory_path}`. Upon running any command for v0.4.0 of the CLI for the first time you will be prompted for your credentials and data residency. These can be found via https://tru.id/console.
 
 ## 0.3.1 (2020-10-22)
 

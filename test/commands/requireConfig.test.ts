@@ -5,7 +5,7 @@ import * as fs from 'fs-extra'
 import * as inquirer from 'inquirer'
 
 describe('hooks', () => {
-  
+
   let existsSyncStub:any = null
   let outputFileStub:any = null
   let inquirerPromptStub:any = null

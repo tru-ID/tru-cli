@@ -1,4 +1,5 @@
 import { test } from '@oclif/test'
+import * as path from 'path';
 import * as sinon from 'ts-sinon'
 import * as chai from 'chai';
 import * as sinonChai from 'sinon-chai'
@@ -187,7 +188,7 @@ let oauth2CreateStub: any
 let qrCodeGenerateSpy: any
 
 const phoneNumberToTest = '447700900000'
-const projectConfigFileLocation = `${process.cwd()}/tru.json`
+const projectConfigFileLocation = path.join(process.cwd(),'tru.json')
 const projectConfig: IProjectConfiguration = {
   project_id: "c69bc0e6-a429-11ea-bb37-0242ac130003",
   name: "My test project",
@@ -274,8 +275,8 @@ describe('PhoneCheck and SubscriberCheck Create Scenarios', () => {
 
 
   {
-    let customProjectConfigDirPath = 'alternative/path/to/'
-    let customProjectConfigFullPath = 'alternative/path/to/tru.json'
+    let customProjectConfigDirPath = path.join('alternative','path','to')
+    let customProjectConfigFullPath = path.join('alternative','path','to', 'tru.json')
     let params = [
       { command: 'subscriberchecks:create', typeOfCheck: 'SubscriberCheck' },
       { command: 'phonechecks:create', typeOfCheck: 'PhoneCheck' }
