@@ -107,7 +107,7 @@ publish_aws_prod:
     - ls dist
     - yarn install
     - yarn run aws:publish
-    # - yarn run npm:publish:prod
+    - yarn run npm:publish:prod
 
 notify_release:
   stage: notify

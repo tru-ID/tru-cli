@@ -127,7 +127,7 @@
     "dev_version_suffix": "node scripts/dev_version_suffix.js",
     "aws:publish": "scripts/aws-publish.sh",
     "npm:publish:dev": "npm config set //registry.yarnpkg.com/:_authToken $NPM_TOKEN && npm publish --tag canary",
-    "npm:publish:prod": "npm config set //registry.yarnpkg.com/:_authToken $NPM_TOKEN && npm publish --non-interactive --dry-run"
+    "npm:publish:prod": "npm config set //registry.yarnpkg.com/:_authToken $NPM_TOKEN && npm publish"
   },
   "types": "lib/index.d.ts"
 }
