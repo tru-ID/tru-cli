@@ -62,11 +62,10 @@ package_installers:
     - yarn run dev_version_suffix
     - yarn run pack
 
-publish_installers:
+publish_aws_dev:
   stage: publish
   only:
     - dev
-    - main
     - ci-publish-test
   dependencies:
     - package_installers
@@ -78,6 +77,37 @@ publish_installers:
     - yarn install
     - yarn run dev_version_suffix
     - yarn run aws:publish
+
+publish_npm_dev:
+  stage: publish
+  only:
+    - dev
+    - ci-publish-test
+  dependencies:
+    - package_installers
+  needs:
+    - job: package_installers
+      artifacts: true
+  script:
+    - ls dist
+    - yarn install
+    - yarn run dev_version_suffix
+    - yarn run npm:publish:dev
+
+publish_aws_prod:
+  stage: publish
+  only:
+    - main
+  dependencies:
+    - package_installers
+  needs:
+    - job: package_installers
+      artifacts: true
+  script:
+    - ls dist
+    - yarn install
+    - yarn run aws:publish
+    # - yarn run npm:publish:prod
 
 notify_release:
   stage: notify
