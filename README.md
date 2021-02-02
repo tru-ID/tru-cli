@@ -530,17 +530,30 @@ The installers will be built into the `./dist/{cli_name}-{version}` directory.
 
 ##### Release Installers
 
-To release the installers create a `.env` file with the following (including valid AWS credentils):
+To release the installers create a `.env` file with the following, including valid AWS credentials and an [NPM token](https://docs.npmjs.com/about-access-tokens):
 
 ```
 AWS_ACCESS_KEY_ID=
 AWS_SECRET_ACCESS_KEY=
+NPM_TOKEN=
 ```
 
 To upload to S3 run:
 
 ```
 npm run aws:publish
+```
+
+To publish to NPM tagged with `canary` run:
+
+```
+$ yarn run npm:publish:dev
+```
+
+For a full production release run:
+
+```
+$ yarn run npm:publish:prod
 ```
 
 ## Configuration
