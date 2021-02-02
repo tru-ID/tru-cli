@@ -1,7 +1,7 @@
 {
   "name": "@tru_id/cli",
   "description": "The tru.ID CLI",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "author": {
     "name": "tru.ID",
     "email": "community@tru.id",
@@ -125,7 +125,9 @@
     "prerelease": "rm -f package-lock.json",
     "release": "npm run version && standard-version --",
     "dev_version_suffix": "node scripts/dev_version_suffix.js",
-    "aws:publish": "scripts/aws-publish.sh"
+    "aws:publish": "scripts/aws-publish.sh",
+    "npm:publish:dev": "npm config set //registry.yarnpkg.com/:_authToken $NPM_TOKEN && npm publish --tag canary",
+    "npm:publish:prod": "npm config set //registry.yarnpkg.com/:_authToken $NPM_TOKEN && npm publish"
   },
   "types": "lib/index.d.ts"
 }
