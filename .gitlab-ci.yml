@@ -35,12 +35,13 @@ unit_tests_node_12:
 
 unit_tests_node_14:
   stage: test
-  image: node:12
+  image: node:14
   script:
     - yarn test
 
 unit_tests_node_latest:
   stage: test
+  image: node:latest
   script:
     - yarn install
     - yarn test
