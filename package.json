@@ -87,7 +87,7 @@
       "subscriberchecks": {
         "description": "Manage SubscriberChecks within a Project"
       },
-      "simchecks ": {
+      "simchecks": {
         "description": "Manage SIMChecks within a Project"
       }
     },
