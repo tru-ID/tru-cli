@@ -54,7 +54,8 @@ export default class Create extends CommandWithProjectConfig {
     else if(this.flags[removePhoneCheckCallbackFlag.flagName] === false &&
             this.flags[projectModeFlag.flagName] === undefined) {
       logger.error('At least one flag must be supplied to indicate the update to be applied to the Project')
-      this.exit(1)
+      logger.error('')
+      this._help()
     }
 
     this.log(`Updated Project with project_id "${this.args['project-id']}"`)
