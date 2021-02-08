@@ -1,9 +1,12 @@
 import { flags } from '@oclif/command'
+import {getHelpClass} from '@oclif/plugin-help'
+
 import * as fs from 'fs-extra'
 import * as path from 'path'
 
 import CommandWithGlobalConfig from './CommandWithGlobalConfig'
 import { IProjectConfiguration } from '../IProjectConfiguration'
+import { Command } from '@oclif/config'
 
 export default abstract class CommandWithProjectConfig extends CommandWithGlobalConfig {
 
@@ -42,4 +45,13 @@ export default abstract class CommandWithProjectConfig extends CommandWithGlobal
       		this.exit(1)
     	}
 	}
+
+	showCommandHelp({exitCode = 0}: {exitCode: number}) {
+		const HelpClass = getHelpClass(this.config)
+		const help = new HelpClass(this.config);
+		const cmd = this.config.findCommand(this.id as string) as Command
+		help.showCommandHelp(cmd, this.config.topics)
+        
+        return this.exit(exitCode);
+	  }
 }

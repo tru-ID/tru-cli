@@ -110,7 +110,7 @@ describe('Command: projects:update', () => {
     consoleLoggerErrorStub = sinon.default.stub(consoleLoggerModule.ConsoleLogger.prototype, 'error')
   })
   .command(['projects:update', 'f0f5fb8e-db1c-4e75-bae8-cvxcvxcv'])
-  .exit(0)
+  .exit(1)
   .it('shows error message if local config is loaded but no update flags are provided', ctx => {
     expect(consoleLoggerErrorStub).to.have.been.calledWith('At least one flag must be supplied to indicate the update to be applied to the Project')
   })
@@ -120,7 +120,7 @@ describe('Command: projects:update', () => {
     consoleLoggerErrorStub = sinon.default.stub(consoleLoggerModule.ConsoleLogger.prototype, 'error')
   })
   .command(['projects:update', 'f0f5fb8e-db1c-4e75-bae8-cvxcvxcv'])
-  .exit(0)
+  .exit(1)
   .it('shows error message if no update flags are provided', ctx => {
     expect(consoleLoggerErrorStub).to.have.been.calledWith('At least one flag must be supplied to indicate the update to be applied to the Project')
   })
@@ -130,7 +130,7 @@ describe('Command: projects:update', () => {
     consoleLoggerErrorStub = sinon.default.stub(console, 'log')
   })
   .command(['projects:update', 'f0f5fb8e-db1c-4e75-bae8-cvxcvxcv'])
-  .exit(0)
+  .exit(1)
   .it('shows help message if no update flags are provided', ctx => {
     expect(consoleLoggerErrorStub).to.have.been.calledWith(sinon.default.match('show CLI help'))
   })
