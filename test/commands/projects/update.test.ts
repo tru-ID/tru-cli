@@ -131,7 +131,7 @@ describe('Command: projects:update', () => {
   })
   .command(['projects:update', 'f0f5fb8e-db1c-4e75-bae8-cvxcvxcv'])
   .exit(0)
-  .it('xxx - shows help message if no update flags are provided', ctx => {
+  .it('shows help message if no update flags are provided', ctx => {
     expect(consoleLoggerErrorStub).to.have.been.calledWith(sinon.default.match('show CLI help'))
   })
 
