@@ -44,8 +44,6 @@ export default class SimCheckList extends CommandWithProjectConfig {
         }
     ]
 
-    logger?: ILogger
-
     tokenScope = 'sim_check'
 
     typeOfCheck = 'SIMCheck'
@@ -66,10 +64,7 @@ export default class SimCheckList extends CommandWithProjectConfig {
         this.flags = result.flags
         await this.loadProjectConfig()
 
-        // TODO: move to CommandWithGlobalConfig
-        this.logger = new ConsoleLogger(!this.flags.debug ? LogLevel.info : LogLevel.debug)
-        this.logger.debug('--debug', true)
-
+        await super.run();  
 
         let apiConfiguration = new APIConfiguration({
             clientId: this.projectConfig?.credentials[0].client_id,

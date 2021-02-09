@@ -6,7 +6,7 @@ import { APIConfiguration } from '../../api/APIConfiguration'
 import { ProjectsAPIClient, IProjectResource, IListProjectsResponse } from '../../api/ProjectsAPIClient'
 import CommandWithGlobalConfig from '../../helpers/CommandWithGlobalConfig'
 import ILogger from '../../helpers/ILogger'
-import {displayPagination} from '../../helpers/ux'
+import { displayPagination } from '../../helpers/ux'
 
 export default class ProjectsList extends CommandWithGlobalConfig {
     static description = 'Lists details for all Projects or a Projects that match a given criteria'
@@ -44,16 +44,13 @@ export default class ProjectsList extends CommandWithGlobalConfig {
         sort: ProjectsList.sortFlag
     }
 
-    logger?: ILogger
 
     async run() {
         const result = this.parse(ProjectsList)
         this.args = result.args
         this.flags = result.flags
 
-        // TODO: move to CommandWithGlobalConfig
-        this.logger = new ConsoleLogger(!this.flags.debug ? LogLevel.info : LogLevel.debug)
-        this.logger.debug('--debug', true)
+        await super.run();  
 
         const projectsAPIClient = new ProjectsAPIClient(new APIConfiguration({
             clientId: this.globalConfig?.defaultWorkspaceClientId,
