@@ -8,7 +8,7 @@ import { CheckStatus } from './CheckStatus';
 export interface CheckLogResource {
     message: string
     timestamp: string
-    [extra: string]: any
+    attributes: any
 }
 
 

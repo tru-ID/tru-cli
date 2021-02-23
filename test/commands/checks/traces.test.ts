@@ -56,15 +56,25 @@ describe('checks:traces', () => {
 		logs: [
 			{
 				timestamp: "2021-02-03T15:04:30.630Z",
-				message: "Check create: phone number is routable"
+				message: "Check create: phone number is routable",
+				attributes: {
+					"MNO" : "12345"
+				}
 			},
 			{
 				timestamp: "2021-02-03T15:04:30.698Z",
-				message: "Check balance: authorized"
+				message: "Check balance: authorized",
+				attributes: {
+					"amount" : 1,
+					"currency" : "EUR"
+				}
 			},
 			{
 				timestamp: "2021-02-03T15:04:30.705Z",
-				message: "Check create: contacting supplier"
+				message: "Check create: contacting supplier",
+				attributes: {
+					"MNO" : "12345"
+				}
 			}
 		],
 		_links: {
@@ -155,7 +165,7 @@ describe('checks:traces', () => {
 				expect(consoleOutputString).to.contain('trace_id')
 				expect(consoleOutputString).to.contain('timestamp')
 				expect(consoleOutputString).to.contain('message')
-				expect(consoleOutputString).to.contain('full_log')
+				expect(consoleOutputString).to.contain('attributes')
 			})
 	})
 

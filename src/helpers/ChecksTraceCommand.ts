@@ -11,7 +11,7 @@ export interface LogEntry {
     trace_id: string,
     message: string,
     timestamp: string,
-    full_log: CheckLogResource
+    attributes: CheckLogResource
 }
 
 
@@ -112,7 +112,7 @@ export default abstract class ChecksTraceCommand extends CommandWithProjectConfi
                     trace_id: traceResource.trace_id,
                     timestamp: logResource.timestamp,
                     message: logResource.message,
-                    full_log: logResource
+                    attributes: logResource.attributes
                 }
 
                 result.push(transformed);
@@ -135,8 +135,8 @@ export default abstract class ChecksTraceCommand extends CommandWithProjectConfi
             message: {
                 header: 'message'
             },
-            full_log: {
-                header: 'full_log',
+            attributes: {
+                header: 'attributes',
                 extended: true
             }
         }, {
