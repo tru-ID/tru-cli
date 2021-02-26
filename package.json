@@ -71,6 +71,9 @@
   "license": "MIT",
   "main": "lib/index.js",
   "oclif": {
+    "macos": {
+      "identifier": "id.tru.cli"
+    },
     "topics": {
       "projects": {
         "description": "Manage your Projects within your Workspace"
@@ -116,7 +119,7 @@
   "scripts": {
     "postinstall": "node bin/postinstall.js",
     "postpack": "rm -f oclif.manifest.json",
-    "pack": "oclif-dev pack",
+    "pack": "oclif-dev pack:macos",
     "x_posttest": "eslint . --ext .ts --config .eslintrc",
     "prepack": "rm -rf lib && tsc -b && oclif-dev manifest && oclif-dev readme",
     "test": "jest -w 3",
