@@ -1,10 +1,8 @@
 import { cli } from 'cli-ux'
 
-import { ConsoleLogger, LogLevel } from '../../helpers/ConsoleLogger'
 import { APIConfiguration } from '../../api/APIConfiguration'
 import { WorkspacesAPIClient, IWorkspaceResource } from '../../api/WorkspacesAPIClient'
 import CommandWithGlobalConfig from '../../helpers/CommandWithGlobalConfig'
-import ILogger from '../../helpers/ILogger'
 
 export default class WorkspaceDefault extends CommandWithGlobalConfig {
     static description = 'Displays default workspace information'
@@ -16,14 +14,11 @@ export default class WorkspaceDefault extends CommandWithGlobalConfig {
         "no-truncate": cli.table.flags()["no-truncate"]
     }
 
-    logger?: ILogger
 
     async run() {
         this.flags = this.parse(WorkspaceDefault).flags
 
-        // TODO: move to CommandWithGlobalConfig
-        this.logger = new ConsoleLogger(!this.flags.debug ? LogLevel.info : LogLevel.debug)
-        this.logger.debug('--debug', true)
+        await super.run();
 
         const workspacesAPIClient = new WorkspacesAPIClient(new APIConfiguration({
             clientId: this.globalConfig?.defaultWorkspaceClientId,

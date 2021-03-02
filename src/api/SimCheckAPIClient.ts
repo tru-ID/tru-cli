@@ -1,9 +1,10 @@
 import { APIConfiguration } from './APIConfiguration'
-import { HttpClient } from './HttpClient'
 import ILogger from '../helpers/ILogger';
 import AbstractAPIClient from './AbstractAPIClient';
 import { ILink, IListResource, IListResourceParameters } from './IListResource';
 import { CheckStatus } from './CheckStatus';
+import { TraceApiClient, CheckTraceResource, IListCheckTracesResource } from './TraceAPIClient';
+
 
 export interface ICreateSimCheck {
     phone_number: number
@@ -33,7 +34,16 @@ export interface IListSimCheckResource extends IListResource {
 }
 
 
-export class SimCheckAPIClient extends AbstractAPIClient {
+export interface IListCheckResource<T> extends IListResource {
+    _embedded: {
+        checks: T[]
+    }
+}
+
+
+
+
+export class SimCheckAPIClient extends AbstractAPIClient implements TraceApiClient {
 
     basePath = "sim_check"
 
@@ -50,6 +60,18 @@ export class SimCheckAPIClient extends AbstractAPIClient {
     async get(checkId: string): Promise<ICreateSimCheckResponse> {
         const response: ICreateSimCheckResponse =
             await this.httpClient.get<ICreateSimCheckResponse>(`/${this.basePath}/v0.1/checks/${checkId}`, {}, {})
+        return response
+    }
+
+    async getTraces(checkId: string): Promise<IListCheckTracesResource> {
+        const response: IListCheckTracesResource =
+            await this.httpClient.get<IListCheckTracesResource>(`/${this.basePath}/v0.1/checks/${checkId}/traces`, {}, {})
+        return response
+    }
+
+    async getTrace(checkId: string, traceId: string): Promise<CheckTraceResource> {
+        const response: CheckTraceResource =
+            await this.httpClient.get<CheckTraceResource>(`/${this.basePath}/v0.1/checks/${checkId}/traces/${traceId}`, {}, {})
         return response
     }
 

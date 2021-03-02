@@ -1,5 +1,4 @@
-import {APIConfiguration} from './APIConfiguration'
-import {HttpClient} from './HttpClient'
+import { APIConfiguration } from './APIConfiguration'
 import ILogger from '../helpers/ILogger';
 import AbstractAPIClient from './AbstractAPIClient';
 import { IListResourceParameters } from './IListResource';
@@ -7,6 +6,8 @@ import { IListResourceParameters } from './IListResource';
 
 import { ILink, IListResource } from './IListResource';
 import { CheckStatus } from './CheckStatus';
+import { TraceApiClient, CheckTraceResource, IListCheckTracesResource } from './TraceAPIClient';
+
 
 
 export interface ICreateCheckParameters {
@@ -41,6 +42,7 @@ export interface CheckResource {
     }
 }
 
+
 export interface IListCheckResource<T> extends IListResource {
     _embedded: {
         checks: T[]
@@ -48,7 +50,7 @@ export interface IListCheckResource<T> extends IListResource {
 }
 
 
-export abstract class AbstractChecksApiClient<R> extends AbstractAPIClient {
+export abstract class AbstractChecksApiClient<R> extends AbstractAPIClient implements TraceApiClient {
 
     basePath: string
 
@@ -69,10 +71,23 @@ export abstract class AbstractChecksApiClient<R> extends AbstractAPIClient {
         return response
     }
 
+    async getTraces(checkId: string): Promise<IListCheckTracesResource> {
+        const response: IListCheckTracesResource =
+            await this.httpClient.get<IListCheckTracesResource>(`/${this.basePath}/v0.1/checks/${checkId}/traces`, {}, {})
+        return response
+    }
+
+    async getTrace(checkId: string, traceId: string): Promise<CheckTraceResource> {
+        const response: CheckTraceResource =
+            await this.httpClient.get<CheckTraceResource>(`/${this.basePath}/v0.1/checks/${checkId}/traces/${traceId}`, {}, {})
+        return response
+    }
+
+
     async list(parameters?: IListResourceParameters): Promise<IListCheckResource<R>> {
         const response: IListCheckResource<R> =
             await this.httpClient.get<IListCheckResource<R>>(`/${this.basePath}/v0.1/checks`, parameters, {})
         return response
     }
-  
+
 }
