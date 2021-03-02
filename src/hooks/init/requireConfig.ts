@@ -52,15 +52,15 @@ const hook: Hook<'init'> = async function (opts) {
 
   // If the user configuration file does not exist, create it
   if(!fs.existsSync(configFileLocation)) {
-    this.log(figlet.textSync('tru CLI', {
+    this.log(figlet.textSync('tru.ID CLI', {
       font: 'Slant',
       horizontalLayout: 'default',
       verticalLayout: 'default',
     }))
 
-    this.log('Welcome to the tru CLI! Let\'s start by configuring the CLI')
+    this.log('Welcome to the tru.ID CLI! Let\'s start by configuring the CLI')
     this.log('')
-    this.log('Configuration values can be found via http://tru.id/console/getting-started')
+    this.log('Configuration values can be found via http://tru.id/console')
     this.log('')
     await promptForMissingConfig({}, configFileLocation)
   }
