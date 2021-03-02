@@ -2,7 +2,7 @@ const path = require('path')
 const fs = require('fs-extra')
 const os = require('os')
 
-const devBuildBranches = ['dev', 'ci-publish-test']
+const devBuildBranches = ['canary', 'ci-publish-test']
 
 const buildBranch = process.env.CI_COMMIT_BRANCH
 const buildCommitSHA = process.env.CI_COMMIT_SHORT_SHA
