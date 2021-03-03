@@ -82,7 +82,7 @@ publish_aws_dev:
 publish_npm_dev:
   stage: publish
   only:
-    - dev
+    - canary
     - ci-publish-test
   dependencies:
     - package_installers
