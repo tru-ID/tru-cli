@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.6.0](https://github.com/tru-ID/tru-cli/compare/v0.5.0...v0.6.0) (2021-03-03)
+
+### Features
+
+* The CLI checks if a configuration file is present prior to running all commands. If a config file is now found instructions are provided on how to configure the CLI and the command does not run ([afa23fa](https://github.com/tru-ID/tru-cli/commit/afa23faa1f32fbe4d4e6f753d3aa187ed3df9268))
+
 ## 0.5.0 (2021-01-06)
 
 ### Features
