@@ -49,7 +49,7 @@ unit_tests_node_latest:
 package_installers:
   stage: package
   only:
-    - dev
+    - canary
     - main
     - ci-publish-test
   artifacts:
@@ -63,21 +63,21 @@ package_installers:
     - yarn run dev_version_suffix
     - yarn run pack
 
-publish_aws_dev:
-  stage: publish
-  only:
-    - dev
-    - ci-publish-test
-  dependencies:
-    - package_installers
-  needs:
-    - job: package_installers
-      artifacts: true
-  script:
-    - ls dist
-    - yarn install
-    - yarn run dev_version_suffix
-    - yarn run aws:publish
+# publish_aws_dev:
+#   stage: publish
+#   only:
+#     - dev
+#     - ci-publish-test
+#   dependencies:
+#     - package_installers
+#   needs:
+#     - job: package_installers
+#       artifacts: true
+#   script:
+#     - ls dist
+#     - yarn install
+#     - yarn run dev_version_suffix
+#     - yarn run aws:publish
 
 publish_npm_dev:
   stage: publish
