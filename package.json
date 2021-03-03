@@ -95,7 +95,7 @@
     ],
     "hooks": {
       "init": [
-        "./lib/hooks/init/requireConfig"
+        "./lib/hooks/init/check-config"
       ]
     },
     "update": {
