@@ -33,7 +33,7 @@ describe('hooks', () => {
     existsSyncStub = sinon.default.stub(fs, 'existsSync').withArgs(sinon.default.match(new RegExp(/config.json/))).returns(true)
     sinon.default.stub(fs, 'readJson').resolves(expectedUserConfig)
   })
-  .hook('init')
+  .hook('postrun')
   .it('checks that a user configuration file exists', () => {
     expect(existsSyncStub.called).to.be.true
   })
@@ -45,7 +45,7 @@ describe('hooks', () => {
     inquirerPromptStub = sinon.default.stub(inquirer, 'prompt')
     setupDefaultPromptResponses(inquirerPromptStub)
   })
-  .hook('init')
+  .hook('postrun')
   .it('should create a new config file if one does not exist', () => {
     expect(outputFileStub.called).to.be.true
   })
@@ -57,7 +57,7 @@ describe('hooks', () => {
     inquirerPromptStub = sinon.default.stub(inquirer, 'prompt')
     setupDefaultPromptResponses(inquirerPromptStub)
   })
-  .hook('init')
+  .hook('postrun')
   .it('should create a new config file with expected contents if one does not exist', () => {
     const expectedString:string = JSON.stringify(expectedUserConfig, null, 2)
     expect(outputFileStub.getCall(0).args[1]).to.equal(expectedString)
