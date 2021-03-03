@@ -1,7 +1,7 @@
 {
   "name": "@tru_id/cli",
   "description": "The tru.ID CLI",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "author": {
     "name": "tru.ID",
     "email": "community@tru.id",
@@ -84,7 +84,7 @@
       "subscriberchecks": {
         "description": "Manage SubscriberChecks within a Project"
       },
-      "simcheks": {
+      "simchecks": {
         "description": "Manage SIMChecks within a Project"
       }
     },
@@ -95,7 +95,7 @@
     ],
     "hooks": {
       "init": [
-        "./lib/hooks/init/requireConfig"
+        "./lib/hooks/init/check-config"
       ]
     },
     "update": {
@@ -114,7 +114,6 @@
     }
   },
   "scripts": {
-    "postinstall": "node bin/postinstall.js",
     "postpack": "rm -f oclif.manifest.json",
     "pack": "oclif-dev pack",
     "x_posttest": "eslint . --ext .ts --config .eslintrc",
