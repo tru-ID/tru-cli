@@ -27,8 +27,6 @@ export default class SimChecksCreate extends CommandWithProjectConfig {
         }
     ]
 
-    logger?: ILogger
-
     typeOfCheck = "SIMCheck"
 
     tokenScope = "sim_check"
@@ -42,14 +40,13 @@ export default class SimChecksCreate extends CommandWithProjectConfig {
     }
 
     async run() {
+
         const result = this.parseCommand();
         this.args = result.args
         this.flags = result.flags
         await this.loadProjectConfig()
 
-        // TODO: move to CommandWithGlobalConfig
-        this.logger = new ConsoleLogger(!this.flags.debug ? LogLevel.info : LogLevel.debug)
-        this.logger.debug('--debug', true)
+        await super.run();  
 
         if (this.args.phone_number === undefined) {
             const response = await promptForNumber(this.typeOfCheck)

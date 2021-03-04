@@ -35,10 +35,11 @@ export default class Create extends CommandWithProjectConfig {
     this.args = result.args
     this.flags = result.flags
 
-    const logger = new ConsoleLogger(!this.flags.debug? LogLevel.info : LogLevel.debug)
-    logger.debug('--debug', true)
-    logger.debug('args', this.args)
-    logger.debug('flags', this.flags)
+
+    await super.run();  
+  
+    this.logger.debug('args', this.args)
+    this.logger.debug('flags', this.flags)
 
     if(!this.args['project-id']) {
       await this.loadProjectConfig()
@@ -47,14 +48,15 @@ export default class Create extends CommandWithProjectConfig {
     }
 
     if(this.flags[phoneCheckCallbackUrlFlag.flagName] !== undefined) {
-      if(phoneCheckCallbackUrlFlagValidation(this.flags[phoneCheckCallbackUrlFlag.flagName], logger) === false) {
+      if(phoneCheckCallbackUrlFlagValidation(this.flags[phoneCheckCallbackUrlFlag.flagName], this.logger) === false) {
         this.exit(1)
       }
     }
     else if(this.flags[removePhoneCheckCallbackFlag.flagName] === false &&
             this.flags[projectModeFlag.flagName] === undefined) {
-      logger.error('At least one flag must be supplied to indicate the update to be applied to the Project')
-      this.exit(1)
+      this.logger.error('At least one flag must be supplied to indicate the update to be applied to the Project')
+      this.logger.error('')
+      this.showCommandHelp({exitCode: 1})
     }
 
     this.log(`Updated Project with project_id "${this.args['project-id']}"`)
@@ -66,7 +68,7 @@ export default class Create extends CommandWithProjectConfig {
           scopes: ['projects'],
           baseUrl: this.globalConfig?.apiBaseUrlOverride ?? `https://${this.globalConfig?.defaultWorkspaceDataResidency}.api.tru.id`
       }),
-      logger
+      this.logger
     )
 
     let projectCreationResult:ICreateProjectResponse;
@@ -91,7 +93,7 @@ export default class Create extends CommandWithProjectConfig {
 
       projectCreationResult = await projectsAPI.update(this.args['project-id'], updatePayload)
 
-      logger.info('✅ Project updated')
+      this.logger.info('✅ Project updated')
     }
     catch(error) {
       this.log('API Error:',
@@ -99,4 +101,6 @@ export default class Create extends CommandWithProjectConfig {
       this.exit(1)
     }
   }
+
+
 }

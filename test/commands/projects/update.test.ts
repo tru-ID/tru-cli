@@ -127,6 +127,16 @@ describe('Command: projects:update', () => {
 
   test
   .do( () => {
+    consoleLoggerErrorStub = sinon.default.stub(console, 'log')
+  })
+  .command(['projects:update', 'f0f5fb8e-db1c-4e75-bae8-cvxcvxcv'])
+  .exit(1)
+  .it('shows help message if no update flags are provided', ctx => {
+    expect(consoleLoggerErrorStub).to.have.been.calledWith(sinon.default.match('show CLI help'))
+  })
+
+  test
+  .do( () => {
     consoleLoggerErrorStub = sinon.default.stub(consoleLoggerModule.ConsoleLogger.prototype, 'error')
   })
   .command(['projects:update', createProjectAPIResponse.project_id, '--phonecheck-callback', `i am not a url`])

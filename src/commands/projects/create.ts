@@ -47,13 +47,10 @@ Creating Project "My first project"
     this.args = result.args
     this.flags = result.flags
 
-    const logger = new ConsoleLogger(!this.flags.debug? LogLevel.info : LogLevel.debug)
-    logger.debug('--debug', true)
-    logger.debug('args', this.args)
-    logger.debug('flags', this.flags)
+    await super.run();  
 
     if(this.flags[phoneCheckCallbackUrlFlag.flagName] &&
-       phoneCheckCallbackUrlFlagValidation(this.flags[phoneCheckCallbackUrlFlag.flagName], logger) === false) {
+       phoneCheckCallbackUrlFlagValidation(this.flags[phoneCheckCallbackUrlFlag.flagName], this.logger) === false) {
       this.exit()
     }
 
@@ -76,7 +73,7 @@ Creating Project "My first project"
           scopes: ['projects'],
           baseUrl: this.globalConfig?.apiBaseUrlOverride ?? `https://${this.globalConfig?.defaultWorkspaceDataResidency}.api.tru.id`
       }),
-      logger
+      this.logger
     )
 
     let projectCreationResult:ICreateProjectResponse;

@@ -36,7 +36,6 @@ export default abstract class ChecksListCommand<CR> extends CommandWithProjectCo
         sort: ChecksListCommand.sortFlag
     }
 
-    logger?: ILogger
 
     typeOfCheck: string
 
@@ -59,11 +58,8 @@ export default abstract class ChecksListCommand<CR> extends CommandWithProjectCo
         this.flags = result.flags
         await this.loadProjectConfig()
 
-        // TODO: move to CommandWithGlobalConfig
-        this.logger = new ConsoleLogger(!this.flags.debug ? LogLevel.info : LogLevel.debug)
-        this.logger.debug('--debug', true)
-
-
+        await super.run();  
+    
         let apiConfiguration = new APIConfiguration({
             clientId: this.projectConfig?.credentials[0].client_id,
             clientSecret: this.projectConfig?.credentials[0].client_secret,
