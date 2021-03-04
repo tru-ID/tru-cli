@@ -718,7 +718,7 @@ Once the CHANGELOG and version in package.json are correct ensure the file updat
 $ git commit -m 'chore(release): v{current_version}'
   git tag v{currentVersion}
   git push origin v{currentVersion}
-  git push origin dev
+  git push origin canary
 ```
 
 ### Build & Release
