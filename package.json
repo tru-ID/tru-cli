@@ -121,10 +121,10 @@
     }
   },
   "scripts": {
-    "postpack": "rm -f oclif.manifest.json",
-    "pack": "oclif-dev pack:macos",
-    "x_posttest": "eslint . --ext .ts --config .eslintrc",
     "prepack": "rm -rf lib && tsc -b && oclif-dev manifest && oclif-dev readme",
+    "pack": "oclif-dev pack:macos",
+    "postpack": "rm -f oclif.manifest.json",
+    "x_posttest": "eslint . --ext .ts --config .eslintrc",
     "test": "jest -w 3 --testTimeout=10000",
     "test:coverage": "jest -w 3 --coverage --coverageDirectory coverage",
     "version": "oclif-dev readme && git add README.md",
