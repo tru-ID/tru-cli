@@ -3,7 +3,6 @@ image: node:latest
 stages:
   - build
   - test
-  - package
   - publish
   - notify
 
@@ -45,69 +44,26 @@ unit_tests_node_latest:
   script:
     - yarn install
     - yarn test
-    
-package_installers:
-  stage: package
-  only:
-    - canary
-    - main
-    - ci-publish-test
-  artifacts:
-    paths:
-      - dist # all files
-  before_script:
-    - apt update
-    - apt install p7zip-full -y
-  script:
-    - yarn install
-    - yarn run canary_version_suffix
-    - yarn run pack
-
-# publish_aws_dev:
-#   stage: publish
-#   only:
-#     - dev
-#     - ci-publish-test
-#   dependencies:
-#     - package_installers
-#   needs:
-#     - job: package_installers
-#       artifacts: true
-#   script:
-#     - ls dist
-#     - yarn install
-#     - yarn run canary_version_suffix
-#     - yarn run aws:publish
 
 publish_npm_dev:
   stage: publish
   only:
     - canary
     - ci-publish-test
-  dependencies:
-    - package_installers
-  needs:
-    - job: package_installers
-      artifacts: true
   script:
     - ls dist
     - yarn install
     - yarn run canary_version_suffix
     - yarn run npm:publish:dev
 
-publish_aws_prod:
+publish_npm_prod:
   stage: publish
+
   only:
     - main
-  dependencies:
-    - package_installers
-  needs:
-    - job: package_installers
-      artifacts: true
   script:
     - ls dist
     - yarn install
-    - yarn run aws:publish
     - yarn run npm:publish:prod
 
 notify_release:

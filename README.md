@@ -1,4 +1,4 @@
-The tru.ID CLI
+The [**tru.ID**](https://tru.id) CLI
 
 <!-- [![oclif](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://oclif.io)
 [![Version](https://img.shields.io/npm/v/4auth-cli.svg)](https://npmjs.org/package/4auth-cli)
@@ -601,21 +601,23 @@ $ git commit -m 'chore(release): v{current_version}'
 
 ### Build & Release
 
-Merge `dev` into `main` to release and the installers are automatically build and uploaded to AWS.
+Merge `canary` into `main` to release and the installers are automatically test and publish to NPM `@latest`. All commits on `canary` will also publish to NPM with a `@canary` tag.
 
 #### Manual Build & Release process
 
-##### Build Installers
+##### Build MacOS Installer
 
-To create the `tar.gz` installers run:
+The MacOS installer can only be created on a MacOS machine. So at presently it's not possible to automate this build in CI/CD.
+
+To create the `.pkg` installer run:
 
 ```bash
-npm run pack
+yarn run pack
 ```
 
 The installers will be built into the `./dist/{cli_name}-{version}` directory.
 
-##### Release Installers
+##### Release MacOS Installer
 
 To release the installers create a `.env` file with the following, including valid AWS credentials and an [NPM token](https://docs.npmjs.com/about-access-tokens):
 
@@ -630,6 +632,8 @@ To upload to S3 run:
 ```
 npm run aws:publish
 ```
+
+##### Publish to NPM
 
 To publish to NPM tagged with `canary` run:
 
