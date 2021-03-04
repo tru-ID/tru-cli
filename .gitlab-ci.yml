@@ -1,8 +1,9 @@
 image: node:latest
 
 stages:
-  - test
   - build
+  - test
+  - package
   - publish
   - notify
 
@@ -12,16 +13,43 @@ cache:
   paths:
     - node_modules/
 
-unit_tests:
+install_dependencies:
+  stage: build
+  script:
+    - yarn install
+  artifacts:
+    paths:
+      - node_modules/
+
+unit_tests_node_10:
   stage: test
+  image: node:10
+  script:
+    - yarn test
+
+unit_tests_node_12:
+  stage: test
+  image: node:12
+  script:
+    - yarn test
+
+unit_tests_node_14:
+  stage: test
+  image: node:14
+  script:
+    - yarn test
+
+unit_tests_node_latest:
+  stage: test
+  image: node:latest
   script:
     - yarn install
     - yarn test
     
-build_installers:
-  stage: build
+package_installers:
+  stage: package
   only:
-    - dev
+    - canary
     - main
     - ci-publish-test
   artifacts:
@@ -32,25 +60,38 @@ build_installers:
     - apt install p7zip-full -y
   script:
     - yarn install
-    - yarn run dev_version_suffix
+    - yarn run canary_version_suffix
     - yarn run pack
 
-publish_installers:
+publish_npm_dev:
   stage: publish
   only:
-    - dev
-    - main
+    - canary
     - ci-publish-test
   dependencies:
-    - build_installers
+    - package_installers
   needs:
-    - job: build_installers
+    - job: package_installers
       artifacts: true
   script:
     - ls dist
     - yarn install
-    - yarn run dev_version_suffix
-    - yarn run aws:publish
+    - yarn run canary_version_suffix
+    - yarn run npm:publish:dev
+
+publish_npm_prod:
+  stage: publish
+  only:
+    - main
+  dependencies:
+    - package_installers
+  needs:
+    - job: package_installers
+      artifacts: true
+  script:
+    - ls dist
+    - yarn install
+    - yarn run npm:publish:prod
 
 notify_release:
   stage: notify

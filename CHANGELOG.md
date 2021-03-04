@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.7.0](https://github.com/tru-ID/tru-cli/compare/v0.6.0...v0.7.0) (2021-03-04)
+
+### Features
+
+* Add check tracing support to improve the check debugging experience:
+    * `tru phonechecks:trace {check_id}`
+    * `tru simchecks:trace {check_id}`
+    * `tru subscriberchecks:trace {check_id}`
+* Add plugin support via [oclif plugins](https://oclif.io/docs/plugins) ([5247842](https://github.com/tru-ID/tru-cli/commit/5247842f611829a5e97a890755fe6a754e43e48a))
+* User is no longer prompted for credentials after install ([3f7f621](https://github.com/tru-ID/tru-cli/commit/3f7f62137001d878b7590b3440472324aa0f1e25))
+* Support .pkg builds for MacOS installation ([e2260a2](https://github.com/tru-ID/tru-cli/commit/e2260a21c64a674662f624a1702a4f6a40e1c719))
+
+
 ## [0.6.0](https://github.com/tru-ID/tru-cli/compare/v0.5.0...v0.6.0) (2021-03-03)
 
 ### Features
