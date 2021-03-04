@@ -74,6 +74,9 @@
   "license": "MIT",
   "main": "lib/index.js",
   "oclif": {
+    "macos": {
+      "identifier": "id.tru.cli"
+    },
     "topics": {
       "projects": {
         "description": "Manage your Projects within your Workspace"
@@ -119,7 +122,7 @@
   },
   "scripts": {
     "postpack": "rm -f oclif.manifest.json",
-    "pack": "oclif-dev pack",
+    "pack": "oclif-dev pack:macos",
     "x_posttest": "eslint . --ext .ts --config .eslintrc",
     "prepack": "rm -rf lib && tsc -b && oclif-dev manifest && oclif-dev readme",
     "test": "jest -w 3 --testTimeout=10000",
@@ -127,7 +130,7 @@
     "version": "oclif-dev readme && git add README.md",
     "prerelease": "rm -f package-lock.json",
     "release": "npm run version && standard-version --",
-    "dev_version_suffix": "node scripts/dev_version_suffix.js",
+    "canary_version_suffix": "node scripts/canary-version-suffix.js",
     "aws:publish": "scripts/aws-publish.sh",
     "npm:publish:dev": "npm config set //registry.yarnpkg.com/:_authToken $NPM_TOKEN && npm publish --tag canary",
     "npm:publish:prod": "npm config set //registry.yarnpkg.com/:_authToken $NPM_TOKEN && npm publish"
