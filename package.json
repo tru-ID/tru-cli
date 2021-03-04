@@ -122,7 +122,7 @@
   },
   "scripts": {
     "prepack": "rm -rf lib && tsc -b && oclif-dev manifest && oclif-dev readme",
-    "pack": "oclif-dev pack:macos",
+    "pack": "oclif-dev pack",
     "postpack": "rm -f oclif.manifest.json",
     "x_posttest": "eslint . --ext .ts --config .eslintrc",
     "test": "jest -w 3 --testTimeout=10000",
@@ -131,7 +131,10 @@
     "prerelease": "rm -f package-lock.json",
     "release": "npm run version && standard-version --",
     "canary_version_suffix": "node scripts/canary-version-suffix.js",
-    "aws:publish": "scripts/aws-publish.sh",
+    "prepack:mac": "yarn prepack",
+    "pack:mac": "oclif-dev pack:macos",
+    "postpack:mac": "yarn postpack",
+    "publish:mac": "scripts/aws-publish.sh",
     "npm:publish:dev": "npm config set //registry.yarnpkg.com/:_authToken $NPM_TOKEN && npm publish --tag canary",
     "npm:publish:prod": "npm config set //registry.yarnpkg.com/:_authToken $NPM_TOKEN && npm publish"
   },

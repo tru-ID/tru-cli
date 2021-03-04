@@ -612,7 +612,7 @@ The MacOS installer can only be created on a MacOS machine. So at presently it's
 To create the `.pkg` installer run:
 
 ```bash
-yarn run pack
+yarn run pack:mac
 ```
 
 The installers will be built into the `./dist/{cli_name}-{version}` directory.
@@ -630,7 +630,7 @@ NPM_TOKEN=
 To upload to S3 run:
 
 ```
-npm run aws:publish
+npm run publish:mac
 ```
 
 ##### Publish to NPM
