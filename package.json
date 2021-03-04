@@ -130,7 +130,7 @@
     "version": "oclif-dev readme && git add README.md",
     "prerelease": "rm -f package-lock.json",
     "release": "npm run version && standard-version --",
-    "dev_version_suffix": "node scripts/dev_version_suffix.js",
+    "canary_version_suffix": "node scripts/canary-version-suffix.js",
     "aws:publish": "scripts/aws-publish.sh",
     "npm:publish:dev": "npm config set //registry.yarnpkg.com/:_authToken $NPM_TOKEN && npm publish --tag canary",
     "npm:publish:prod": "npm config set //registry.yarnpkg.com/:_authToken $NPM_TOKEN && npm publish"

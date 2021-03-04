@@ -60,7 +60,7 @@ package_installers:
     - apt install p7zip-full -y
   script:
     - yarn install
-    - yarn run dev_version_suffix
+    - yarn run canary_version_suffix
     - yarn run pack
 
 # publish_aws_dev:
@@ -76,7 +76,7 @@ package_installers:
 #   script:
 #     - ls dist
 #     - yarn install
-#     - yarn run dev_version_suffix
+#     - yarn run canary_version_suffix
 #     - yarn run aws:publish
 
 publish_npm_dev:
@@ -92,7 +92,7 @@ publish_npm_dev:
   script:
     - ls dist
     - yarn install
-    - yarn run dev_version_suffix
+    - yarn run canary_version_suffix
     - yarn run npm:publish:dev
 
 publish_aws_prod:
