@@ -9,7 +9,8 @@ const hook: Hook<'init'> = async function (opts) {
   const setupCommand = 'setup:credentials'
 
   // Oclif captures the output of commands in order to update the README during prepack
-  if (process.env.npm_lifecycle_event && process.env.npm_lifecycle_event === 'prepack') return
+  if (process.env.npm_lifecycle_event &&
+      (process.env.npm_lifecycle_event === 'prepack' || process.env.npm_lifecycle_event === 'version')) return
 
   // User is running setup command. Allow this to proceed without check.
   if (opts.id !== setupCommand) {
