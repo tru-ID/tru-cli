@@ -33,6 +33,7 @@ describe('setup:credentials', () => {
         readJsonStub.withArgs(
             sinon.default.match(sinon.default.match(new RegExp(/config.json/))))
             .resolves(expectedUserConfig)
+        outputJsonStub = sinon.default.stub(fs, 'outputJson')
     })
 
     afterEach(() => {
@@ -40,6 +41,9 @@ describe('setup:credentials', () => {
     })
 
     test
+        .do(() => {
+            outputJsonStub.resolves()
+        })
         .stdout()
         .command(['setup:credentials', ...commandArgs])
         .it('should write workspace credentials to global config file', (ctx) => {
@@ -48,7 +52,6 @@ describe('setup:credentials', () => {
 
     test
         .do((_ctx) => {
-            outputJsonStub = sinon.default.stub(fs, 'outputJson')
             let error = {
                 message: 'permission error',
                 code: 'EPERM'
