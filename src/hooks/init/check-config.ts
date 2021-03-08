@@ -26,7 +26,7 @@ const hook: Hook<'init'> = async function (opts) {
 
       this.log('Welcome to the tru.ID CLI! Let\'s start by configuring the CLI')
       this.log('')
-      this.log(`Please run ${chalk.green(setupCommand)} with the credentials found via https://developer.tru.id/console`)
+      this.log(`Please run ${chalk.green(`tru ${setupCommand}`)} with the credentials found via https://developer.tru.id/console`)
       this.log('')
       this.exit(1)
     }
