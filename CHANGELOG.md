@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.8.0](https://github.com/tru-ID/tru-cli/compare/v0.7.0...v0.8.0) (2021-03-08)
+
+### Bug Fixes
+
+* v0.6.0 introduced a bug meaning a prompt was shown for all commands when a config file was not present. This also included the command to write the config file. This has been fixed by checking if the command is `setup:credentials` and allowing it to run ([6f04536](https://github.com/tru-ID/tru-cli/commit/6f045365a652d61fc720ea5bdbb7b4e58a8dd552))
+
 ## [0.7.0](https://github.com/tru-ID/tru-cli/compare/v0.6.0...v0.7.0) (2021-03-04)
 
 ### Features
