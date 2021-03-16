@@ -20,7 +20,7 @@ $ npm install -g @tru_id/cli
 $ tru COMMAND
 running command...
 $ tru (-v|--version|version)
-@tru_id/cli/0.8.0 darwin-x64 node-v15.2.0
+@tru_id/cli/0.8.0 linux-x64 node-v14.5.0
 $ tru --help [COMMAND]
 USAGE
   $ tru COMMAND
@@ -51,6 +51,9 @@ USAGE
 * [`tru subscriberchecks:create [PHONE_NUMBER]`](#tru-subscribercheckscreate-phone_number)
 * [`tru subscriberchecks:list [CHECK_ID]`](#tru-subscribercheckslist-check_id)
 * [`tru subscriberchecks:traces CHECK_ID`](#tru-subscribercheckstraces-check_id)
+* [`tru usage:daily`](#tru-usagedaily)
+* [`tru usage:hourly`](#tru-usagehourly)
+* [`tru usage:monthly`](#tru-usagemonthly)
 * [`tru workspaces`](#tru-workspaces)
 
 ## `tru coverage:country CODE`
@@ -646,6 +649,81 @@ OPTIONS
 ```
 
 _See code: [src/commands/subscriberchecks/traces.ts](https://github.com/tru-ID/tru-cli/blob/v0.8.0/src/commands/subscriberchecks/traces.ts)_
+
+## `tru usage:daily`
+
+Get Daily Usage
+
+```
+USAGE
+  $ tru usage:daily
+
+OPTIONS
+  -h, --help              show CLI help
+  -x, --extended          show extra columns
+  --columns=columns       only show provided columns (comma-separated)
+  --csv                   output is csv format [alias: --output=csv]
+  --debug                 Enables debug logging for the CLI
+  --filter=filter         filter property by partial string matching, ex: name=foo
+  --groupby=groupby       Group results by the specified field e.g product_id or project_id or product_id,project_id
+  --no-header             hide table header from output
+  --no-truncate           do not truncate output to fit screen
+  --output=csv|json|yaml  output in a more machine friendly format
+  --search=search         (required) The RSQL query for usage. date is required.
+  --sort=sort             property to sort by (prepend '-' for descending)
+```
+
+_See code: [src/commands/usage/daily.ts](https://github.com/tru-ID/tru-cli/blob/v0.8.0/src/commands/usage/daily.ts)_
+
+## `tru usage:hourly`
+
+Get Hourly Usage
+
+```
+USAGE
+  $ tru usage:hourly
+
+OPTIONS
+  -h, --help              show CLI help
+  -x, --extended          show extra columns
+  --columns=columns       only show provided columns (comma-separated)
+  --csv                   output is csv format [alias: --output=csv]
+  --debug                 Enables debug logging for the CLI
+  --filter=filter         filter property by partial string matching, ex: name=foo
+  --groupby=groupby       Group results by the specified field e.g product_id or project_id or product_id,project_id
+  --no-header             hide table header from output
+  --no-truncate           do not truncate output to fit screen
+  --output=csv|json|yaml  output in a more machine friendly format
+  --search=search         (required) The RSQL query for usage. date is required.
+  --sort=sort             property to sort by (prepend '-' for descending)
+```
+
+_See code: [src/commands/usage/hourly.ts](https://github.com/tru-ID/tru-cli/blob/v0.8.0/src/commands/usage/hourly.ts)_
+
+## `tru usage:monthly`
+
+Get Monthly Usage
+
+```
+USAGE
+  $ tru usage:monthly
+
+OPTIONS
+  -h, --help              show CLI help
+  -x, --extended          show extra columns
+  --columns=columns       only show provided columns (comma-separated)
+  --csv                   output is csv format [alias: --output=csv]
+  --debug                 Enables debug logging for the CLI
+  --filter=filter         filter property by partial string matching, ex: name=foo
+  --groupby=groupby       Group results by the specified field e.g product_id or project_id or product_id,project_id
+  --no-header             hide table header from output
+  --no-truncate           do not truncate output to fit screen
+  --output=csv|json|yaml  output in a more machine friendly format
+  --search=search         (required) The RSQL query for usage. date is required.
+  --sort=sort             property to sort by (prepend '-' for descending)
+```
+
+_See code: [src/commands/usage/monthly.ts](https://github.com/tru-ID/tru-cli/blob/v0.8.0/src/commands/usage/monthly.ts)_
 
 ## `tru workspaces`
 

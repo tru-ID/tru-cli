@@ -92,6 +92,9 @@
       },
       "simchecks": {
         "description": "Manage SIMChecks within a Project"
+      },
+      "usage": {
+        "description": "Get daily, hourly, monthly usage"
       }
     },
     "commands": "./lib/commands",
