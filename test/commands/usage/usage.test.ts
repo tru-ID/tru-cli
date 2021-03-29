@@ -15,6 +15,7 @@ import { APIConfiguration } from '../../../src/api/APIConfiguration';
 import { ConsoleLogger } from '../../../src/helpers/ConsoleLogger'
 import * as httpClientModule from '../../../src/api/HttpClient';
 import { buildConsoleString } from '../../test_helpers'
+import MockDate from 'mockdate'
 
 describe('usage', () => {
 
@@ -88,21 +89,25 @@ describe('usage', () => {
         httpClientGetStub.withArgs(`/console/v0.1/workspaces/default/usage/hourly`, sinon.default.match.any, sinon.default.match.any).resolves(listUsageResource)
 
         consoleLoggerInfoStub = sinon.default.stub(ConsoleLogger.prototype, 'info')
+        MockDate.set('2020-01-01');
 
     })
 
     afterEach(() => {
         sinon.default.restore()
+        MockDate.reset();
     })
 
 
     testParams.forEach(({ command, subpath }) => {
         test
-            .command([command, '--search=date=2020-10-01','--group-by=product_id'])
+            .command([command, '--search=date=2020-10-01', '--group-by=product_id'])
             .it(`${command} should call /console/v0.1/workspaces/default/usage/${subpath}`, ctx => {
                 expect(httpClientGetStub).to.be.calledWith(`/console/v0.1/workspaces/default/usage/${subpath}`, {
                     search: 'date=2020-10-01',
-                    group_by: 'product_id'
+                    group_by: 'product_id',
+                    page: 1,
+                    size: 10
                 }, sinon.default.match.any)
             })
     })
@@ -121,6 +126,29 @@ describe('usage', () => {
                 expect(consoleOutputString).to.contain('currency')
             })
     })
+
+
+
+    {
+        let params = [
+            { command: 'usage:daily', subpath: "daily", searchParam: 'date>=2020-01-01' },
+            { command: 'usage:monthly', subpath: "monthly", searchParam: 'date>=2020-01' },
+            { command: 'usage:hourly', subpath: "hourly", searchParam: 'date>=2020-01-01T00' }
+        ]
+
+        params.forEach(({ command, subpath, searchParam }) => {
+            test
+                .command([command, '--group-by=product_id'])
+                .it(`${command} should call /console/v0.1/workspaces/default/usage/${subpath} with correct default search`, ctx => {
+                    expect(httpClientGetStub).to.be.calledWith(`/console/v0.1/workspaces/default/usage/${subpath}`, {
+                        search: searchParam,
+                        group_by: 'product_id',
+                        page: 1,
+                        size: 10
+                    }, sinon.default.match.any)
+                })
+        })
+    }
 
 
 

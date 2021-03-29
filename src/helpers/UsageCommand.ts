@@ -5,22 +5,34 @@ import { APIConfiguration } from '../api/APIConfiguration'
 import { UsageApiClient, UsageResource } from '../api/UsageAPIClient'
 import ILogger from '../helpers/ILogger';
 import CommandWithGlobalConfig from '../helpers/CommandWithGlobalConfig'
+import { displayPagination } from '../helpers/ux'
 
 
-export default class UsageCommand extends CommandWithGlobalConfig {
+export default abstract class UsageCommand extends CommandWithGlobalConfig {
+
+    static pageNumberFlag = flags.integer({
+        description: `The page number to return in the list resource.`,
+        default: 1
+    })
+    static pageSizeFlag = flags.integer({
+        description: 'The page size to return in list resource request.',
+        default: 10
+    })
 
     static flags = {
         ...CommandWithGlobalConfig.flags,
         ...cli.table.flags(),
         'search': flags.string({
-            description: 'The RSQL query for usage. date is required.',
-            required: true
+            description: `The RSQL query for usage. date is required e.g --search='date>=2021-03-29'`,
+            required: false
         }),
         'group-by': flags.string({
             description: 'Group results by one or more fields e.g product_id or project_id or product_id,project_id',
             required: false,
 
         }),
+        page_number: UsageCommand.pageNumberFlag,
+        page_size: UsageCommand.pageSizeFlag,
     }
 
     tokenScope: string
@@ -85,8 +97,10 @@ export default class UsageCommand extends CommandWithGlobalConfig {
 
 
         let usageParams = {
-            search: this.flags.search,
-            group_by: this.flags[`group-by`]
+            search: this.flags.search ?? this.defaultSearch(),
+            group_by: this.flags[`group-by`],
+            page: this.flags.page_number,
+            size: this.flags.page_size,
         };
 
 
@@ -94,7 +108,11 @@ export default class UsageCommand extends CommandWithGlobalConfig {
 
             let listResource = await apiCheckClient.getUsage(usageParams, this.typeOfUsage);
 
-            this.displayResults(listResource._embedded.usage);
+            if (listResource._embedded) {
+                this.displayResults(listResource._embedded.usage);
+            }
+
+            displayPagination(this.logger, listResource.page, `Usages`);
 
         }
         catch (error) {
@@ -104,5 +122,8 @@ export default class UsageCommand extends CommandWithGlobalConfig {
         }
 
     }
+
+    abstract defaultSearch(): string;
+
 
 }

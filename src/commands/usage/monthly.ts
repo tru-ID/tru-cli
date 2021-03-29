@@ -11,7 +11,13 @@ export default class MonthlyUsage extends UsageCommand {
     }
 
     constructor(argv: string[], config: Config.IConfig) {
-        super( argv, config, 'monthly')
+        super(argv, config, 'monthly')
+    }
+
+    defaultSearch(): string {
+
+        return `date>=${new Date().toISOString().substring(0, 7)}`;
+
     }
 
 }

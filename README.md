@@ -659,18 +659,26 @@ USAGE
   $ tru usage:daily
 
 OPTIONS
-  -h, --help              show CLI help
-  -x, --extended          show extra columns
-  --columns=columns       only show provided columns (comma-separated)
-  --csv                   output is csv format [alias: --output=csv]
-  --debug                 Enables debug logging for the CLI
-  --filter=filter         filter property by partial string matching, ex: name=foo
-  --groupby=groupby       Group results by the specified field e.g product_id or project_id or product_id,project_id
-  --no-header             hide table header from output
-  --no-truncate           do not truncate output to fit screen
-  --output=csv|json|yaml  output in a more machine friendly format
-  --search=search         (required) The RSQL query for usage. date is required.
-  --sort=sort             property to sort by (prepend '-' for descending)
+  -h, --help                 show CLI help
+  -x, --extended             show extra columns
+  --columns=columns          only show provided columns (comma-separated)
+  --csv                      output is csv format [alias: --output=csv]
+  --debug                    Enables debug logging for the CLI
+  --filter=filter            filter property by partial string matching, ex: name=foo
+  --group-by=group-by        Group results by one or more fields e.g product_id or project_id or product_id,project_id
+  --no-header                hide table header from output
+  --no-truncate              do not truncate output to fit screen
+  --output=csv|json|yaml     output in a more machine friendly format
+
+  --page_number=page_number  [default: 1] The page number to return in the list resource. Ignored if the "check_id"
+                             argument is used.
+
+  --page_size=page_size      [default: 10] The page size to return in list resource request. Ignored if the "check_id"
+                             argument is used.
+
+  --search=search            The RSQL query for usage. date is required e.g --search='date>=2021-03-29
+
+  --sort=sort                property to sort by (prepend '-' for descending)
 ```
 
 _See code: [src/commands/usage/daily.ts](https://github.com/tru-ID/tru-cli/blob/v0.8.0/src/commands/usage/daily.ts)_
@@ -684,18 +692,26 @@ USAGE
   $ tru usage:hourly
 
 OPTIONS
-  -h, --help              show CLI help
-  -x, --extended          show extra columns
-  --columns=columns       only show provided columns (comma-separated)
-  --csv                   output is csv format [alias: --output=csv]
-  --debug                 Enables debug logging for the CLI
-  --filter=filter         filter property by partial string matching, ex: name=foo
-  --groupby=groupby       Group results by the specified field e.g product_id or project_id or product_id,project_id
-  --no-header             hide table header from output
-  --no-truncate           do not truncate output to fit screen
-  --output=csv|json|yaml  output in a more machine friendly format
-  --search=search         (required) The RSQL query for usage. date is required.
-  --sort=sort             property to sort by (prepend '-' for descending)
+  -h, --help                 show CLI help
+  -x, --extended             show extra columns
+  --columns=columns          only show provided columns (comma-separated)
+  --csv                      output is csv format [alias: --output=csv]
+  --debug                    Enables debug logging for the CLI
+  --filter=filter            filter property by partial string matching, ex: name=foo
+  --group-by=group-by        Group results by one or more fields e.g product_id or project_id or product_id,project_id
+  --no-header                hide table header from output
+  --no-truncate              do not truncate output to fit screen
+  --output=csv|json|yaml     output in a more machine friendly format
+
+  --page_number=page_number  [default: 1] The page number to return in the list resource. Ignored if the "check_id"
+                             argument is used.
+
+  --page_size=page_size      [default: 10] The page size to return in list resource request. Ignored if the "check_id"
+                             argument is used.
+
+  --search=search            The RSQL query for usage. date is required e.g --search='date>=2021-03-29
+
+  --sort=sort                property to sort by (prepend '-' for descending)
 ```
 
 _See code: [src/commands/usage/hourly.ts](https://github.com/tru-ID/tru-cli/blob/v0.8.0/src/commands/usage/hourly.ts)_
@@ -709,18 +725,26 @@ USAGE
   $ tru usage:monthly
 
 OPTIONS
-  -h, --help              show CLI help
-  -x, --extended          show extra columns
-  --columns=columns       only show provided columns (comma-separated)
-  --csv                   output is csv format [alias: --output=csv]
-  --debug                 Enables debug logging for the CLI
-  --filter=filter         filter property by partial string matching, ex: name=foo
-  --groupby=groupby       Group results by the specified field e.g product_id or project_id or product_id,project_id
-  --no-header             hide table header from output
-  --no-truncate           do not truncate output to fit screen
-  --output=csv|json|yaml  output in a more machine friendly format
-  --search=search         (required) The RSQL query for usage. date is required.
-  --sort=sort             property to sort by (prepend '-' for descending)
+  -h, --help                 show CLI help
+  -x, --extended             show extra columns
+  --columns=columns          only show provided columns (comma-separated)
+  --csv                      output is csv format [alias: --output=csv]
+  --debug                    Enables debug logging for the CLI
+  --filter=filter            filter property by partial string matching, ex: name=foo
+  --group-by=group-by        Group results by one or more fields e.g product_id or project_id or product_id,project_id
+  --no-header                hide table header from output
+  --no-truncate              do not truncate output to fit screen
+  --output=csv|json|yaml     output in a more machine friendly format
+
+  --page_number=page_number  [default: 1] The page number to return in the list resource. Ignored if the "check_id"
+                             argument is used.
+
+  --page_size=page_size      [default: 10] The page size to return in list resource request. Ignored if the "check_id"
+                             argument is used.
+
+  --search=search            The RSQL query for usage. date is required e.g --search='date>=2021-03-29
+
+  --sort=sort                property to sort by (prepend '-' for descending)
 ```
 
 _See code: [src/commands/usage/monthly.ts](https://github.com/tru-ID/tru-cli/blob/v0.8.0/src/commands/usage/monthly.ts)_

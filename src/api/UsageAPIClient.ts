@@ -7,7 +7,6 @@ import { IListResourceParameters } from './IListResource';
 import { ILink, IListResource } from './IListResource';
 
 
-
 export interface UsageResource {
 
     product_id?: string,
@@ -21,13 +20,14 @@ export interface UsageResource {
 export interface UsageParameter {
 
     search: string,
-    group_by?: string
-
+    group_by?: string,
+    page?: number,
+    size?: number
 }
 
 
 export interface IListUsageResource extends IListResource {
-    _embedded: {
+    _embedded?: {
         usage: UsageResource[]
     }
 }

@@ -58,8 +58,8 @@ export default abstract class ChecksListCommand<CR> extends CommandWithProjectCo
         this.flags = result.flags
         await this.loadProjectConfig()
 
-        await super.run();  
-    
+        await super.run();
+
         let apiConfiguration = new APIConfiguration({
             clientId: this.projectConfig?.credentials[0].client_id,
             clientSecret: this.projectConfig?.credentials[0].client_secret,

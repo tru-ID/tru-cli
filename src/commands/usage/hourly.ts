@@ -13,5 +13,11 @@ export default class HourlyUsage extends UsageCommand {
         super(argv, config, 'hourly')
     }
 
+    defaultSearch(): string {
+
+        return `date>=${new Date().toISOString().substring(0, 13)}`;
+
+    }
+
 
 }

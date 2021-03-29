@@ -11,8 +11,14 @@ export default class DailyUsage extends UsageCommand {
     }
 
     constructor(argv: string[], config: Config.IConfig) {
-        super( argv, config, 'daily')
+        super(argv, config, 'daily')
     }
 
-       
+    defaultSearch(): string {
+
+        return `date>=${new Date().toISOString().substring(0, 10)}`;
+
+    }
+
+
 }
