@@ -652,7 +652,7 @@ _See code: [src/commands/subscriberchecks/traces.ts](https://github.com/tru-ID/t
 
 ## `tru usage:daily`
 
-Get Daily Usage
+Get Daily Usage. The date range defaults to current date.
 
 ```
 USAGE
@@ -669,15 +669,9 @@ OPTIONS
   --no-header                hide table header from output
   --no-truncate              do not truncate output to fit screen
   --output=csv|json|yaml     output in a more machine friendly format
-
-  --page_number=page_number  [default: 1] The page number to return in the list resource. Ignored if the "check_id"
-                             argument is used.
-
-  --page_size=page_size      [default: 10] The page size to return in list resource request. Ignored if the "check_id"
-                             argument is used.
-
-  --search=search            The RSQL query for usage. date is required e.g --search='date>=2021-03-29
-
+  --page_number=page_number  [default: 1] The page number to return in the list resource.
+  --page_size=page_size      [default: 10] The page size to return in list resource request.
+  --search=search            The RSQL query for usage. date is required e.g --search='date>=2021-03-29'
   --sort=sort                property to sort by (prepend '-' for descending)
 ```
 
@@ -685,7 +679,7 @@ _See code: [src/commands/usage/daily.ts](https://github.com/tru-ID/tru-cli/blob/
 
 ## `tru usage:hourly`
 
-Get Hourly Usage
+Get Hourly Usage. The date range defaults to current date.
 
 ```
 USAGE
@@ -702,15 +696,9 @@ OPTIONS
   --no-header                hide table header from output
   --no-truncate              do not truncate output to fit screen
   --output=csv|json|yaml     output in a more machine friendly format
-
-  --page_number=page_number  [default: 1] The page number to return in the list resource. Ignored if the "check_id"
-                             argument is used.
-
-  --page_size=page_size      [default: 10] The page size to return in list resource request. Ignored if the "check_id"
-                             argument is used.
-
-  --search=search            The RSQL query for usage. date is required e.g --search='date>=2021-03-29
-
+  --page_number=page_number  [default: 1] The page number to return in the list resource.
+  --page_size=page_size      [default: 10] The page size to return in list resource request.
+  --search=search            The RSQL query for usage. date is required e.g --search='date>=2021-03-29'
   --sort=sort                property to sort by (prepend '-' for descending)
 ```
 
@@ -718,7 +706,7 @@ _See code: [src/commands/usage/hourly.ts](https://github.com/tru-ID/tru-cli/blob
 
 ## `tru usage:monthly`
 
-Get Monthly Usage
+Get Monthly Usage. The date range defaults to the current calendar month.
 
 ```
 USAGE
@@ -735,15 +723,9 @@ OPTIONS
   --no-header                hide table header from output
   --no-truncate              do not truncate output to fit screen
   --output=csv|json|yaml     output in a more machine friendly format
-
-  --page_number=page_number  [default: 1] The page number to return in the list resource. Ignored if the "check_id"
-                             argument is used.
-
-  --page_size=page_size      [default: 10] The page size to return in list resource request. Ignored if the "check_id"
-                             argument is used.
-
-  --search=search            The RSQL query for usage. date is required e.g --search='date>=2021-03-29
-
+  --page_number=page_number  [default: 1] The page number to return in the list resource.
+  --page_size=page_size      [default: 10] The page size to return in list resource request.
+  --search=search            The RSQL query for usage. date is required e.g --search='date>=2021-03-29'
   --sort=sort                property to sort by (prepend '-' for descending)
 ```
 

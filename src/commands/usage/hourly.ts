@@ -3,7 +3,7 @@ import UsageCommand from '../../helpers/UsageCommand'
 
 export default class HourlyUsage extends UsageCommand {
 
-    static description = 'Get Hourly Usage'
+    static description = 'Get Hourly Usage. The date range defaults to current date.'
 
     static flags = {
         ...UsageCommand.flags

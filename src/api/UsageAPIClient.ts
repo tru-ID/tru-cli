@@ -27,7 +27,7 @@ export interface UsageParameter {
 
 
 export interface IListUsageResource extends IListResource {
-    _embedded?: {
+    _embedded: {
         usage: UsageResource[]
     }
 }

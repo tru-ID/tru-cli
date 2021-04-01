@@ -108,7 +108,7 @@ export default abstract class UsageCommand extends CommandWithGlobalConfig {
 
             let listResource = await apiCheckClient.getUsage(usageParams, this.typeOfUsage);
 
-            if (listResource._embedded) {
+            if (listResource._embedded.usage.length>0) {
                 this.displayResults(listResource._embedded.usage);
             }
 
