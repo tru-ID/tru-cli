@@ -133,7 +133,7 @@ describe('usage', () => {
         let params = [
             { command: 'usage:daily', subpath: "daily", searchParam: 'date>=2020-01-01' },
             { command: 'usage:monthly', subpath: "monthly", searchParam: 'date>=2020-01' },
-            { command: 'usage:hourly', subpath: "hourly", searchParam: 'date>=2020-01-01T00' }
+            { command: 'usage:hourly', subpath: "hourly", searchParam: 'date>=2020-01-01' }
         ]
 
         params.forEach(({ command, subpath, searchParam }) => {

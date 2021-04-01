@@ -15,7 +15,7 @@ export default class HourlyUsage extends UsageCommand {
 
     defaultSearch(): string {
 
-        return `date>=${new Date().toISOString().substring(0, 13)}`;
+        return `date>=${new Date().toISOString().substring(0, 10)}`;
 
     }
 
