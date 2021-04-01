@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.9.0](https://github.com/tru-ID/tru-cli/compare/v0.8.0...v0.9.0) (2021-04-01)
+
+
+### Features
+
+* Add usage in cli ([f703017](https://github.com/tru-ID/tru-cli/commit/f7030178da04f69a5509bf53494b92f3fa295302))
+    * `tru usage:hourly` - Get the default workspace's usage with hourly breakdown
+    * `tru usage:daily` - Get the default workspace's usage with daily breakdown
+    * `tru usage:monthly` - Get the default workspace's usage with monthly breakdown
+    * `tru usage:daily --search='date>=2021-03-03'` - Get daily usage from 2021-03-03
+    * `tru usage:daily --search='date>=2021-03-03' --group-by=product_id` - Get daily usage from 2021-03-03 grouped by product_id
+   
+
 ## [0.8.0](https://github.com/tru-ID/tru-cli/compare/v0.7.0...v0.8.0) (2021-03-08)
 
 ### Bug Fixes
