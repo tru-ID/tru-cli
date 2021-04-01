@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.9.1](https://github.com/tru-ID/tru-cli/compare/v0.9.0...v0.9.1) (2021-04-01)
+
+### Bug Fixes
+
+* Fixed default date range for usage:hourly. It is now correctly set to current date.
+
 ## [0.9.0](https://github.com/tru-ID/tru-cli/compare/v0.8.0...v0.9.0) (2021-04-01)
 
 
