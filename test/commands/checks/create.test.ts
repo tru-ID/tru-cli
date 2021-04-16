@@ -64,7 +64,6 @@ const subscriberCheckMatchedResource: subscriberCheckAPIClientModules.Subscriber
   charge_currency: "API",
   created_at: "2020-06-01T16:43:30+00:00",
   updated_at: "2020-06-01T16:43:30+00:00",
-  last_sim_change_at: "2018-06-01T16:43:30+00:00",
   no_sim_change: true,
   _links: {
     self: {
@@ -81,7 +80,6 @@ const subscriberCheckExpiredResource: subscriberCheckAPIClientModules.Subscriber
   charge_currency: "API",
   created_at: "2020-06-01T16:43:30+00:00",
   updated_at: "2020-06-01T16:43:30+00:00",
-  last_sim_change_at: "2018-06-01T16:43:30+00:00",
   no_sim_change: false,
   _links: {
     self: {
@@ -676,7 +674,6 @@ describe('PhoneCheck and SubscriberCheck Create Scenarios', () => {
     .it(`subscriberchecks:create completed status and match result are logged`, (ctx) => {
       expect(ctx.stdout).to.contain(`match:  true`)
       expect(ctx.stdout).to.contain(`no_sim_change:  true`)
-      expect(ctx.stdout).to.contain(`last_sim_change_at:  2018-06-01T16:43:30+00:00`)
     })
 
     {

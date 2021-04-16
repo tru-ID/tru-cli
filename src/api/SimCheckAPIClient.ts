@@ -20,7 +20,6 @@ export interface ISimCheckResource {
     charge_amount: number
     charge_currency: string
     created_at: string
-    last_sim_change_at: string
     no_sim_change: boolean
     _links: {
         self: ILink

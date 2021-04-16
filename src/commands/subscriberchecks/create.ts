@@ -44,8 +44,7 @@ export default class SubscriberChecksCreate extends ChecksCreateCommand {
     this.log(`${this.typeOfCheck} Workflow result:\n` +
       `\tstatus:  ${checkResponse.status}\n` +
       `\tmatch:  ${checkResponse.match} ${checkResponse.match ? '✅' : '❌'}\n`+
-      `\tno_sim_change:  ${checkResponse.no_sim_change} ${checkResponse.no_sim_change ? '✅' : '❌'}\n` +
-      `\tlast_sim_change_at:  ${checkResponse.last_sim_change_at}`)
+      `\tno_sim_change:  ${checkResponse.no_sim_change} ${checkResponse.no_sim_change ? '✅' : '❌'}\n`);
 
   }
 
