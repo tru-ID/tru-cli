@@ -53,7 +53,6 @@ let createSimCheckResponse: simchecks.ICreateSimCheckResponse = {
     charge_amount: 1,
     charge_currency: "API",
     created_at: "2020-06-01T16:43:30+00:00",
-    last_sim_change_at: "2020-06-01T16:43:30+00:00",
     no_sim_change: false,
     _links: {
         self: {
@@ -242,7 +241,6 @@ describe('SIMCheck Create Scenarios', () => {
         .it(`${command} --logs a successfully created ${typeOfCheck}`, ctx => {
             expect(ctx.stdout).to.contain(`status: COMPLETED`)
             expect(ctx.stdout).to.contain(`no_sim_change: false`)
-            expect(ctx.stdout).to.contain(`last_sim_change_at: 2020-06-01T16:43:30+00:00`)
         })
 
     test

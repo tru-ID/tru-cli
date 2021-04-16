@@ -4,7 +4,6 @@ import { AbstractChecksApiClient, CheckResource } from './ChecksAPIClient';
 
 
 export interface SubscriberCheckResource extends CheckResource {
-    last_sim_change_at: string,
     no_sim_change: boolean
 }
 

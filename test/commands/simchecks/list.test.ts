@@ -58,7 +58,6 @@ describe('simchecks:list', () => {
 		check_id: 'c69bc0e6-a429-11ea-bb37-0242ac130002',
 		created_at: '2020-06-01T16:43:30+00:00',
 		no_sim_change: true,
-		last_sim_change_at: '2020-01-01T16:43:30+00:00',
 		status: CheckStatus.COMPLETED,
 	}
 
@@ -143,7 +142,6 @@ describe('simchecks:list', () => {
 			expect(consoleOutputString).to.contain('charge_currency')
 			expect(consoleOutputString).to.contain('charge_amount')
 			expect(consoleOutputString).to.contain('no_sim_change')
-			expect(consoleOutputString).to.contain('last_sim_change_at')
 		})
 
 	test
@@ -166,7 +164,6 @@ describe('simchecks:list', () => {
 			expect(consoleOutputString).to.contain(simCheckResource.charge_currency)
 			expect(consoleOutputString).to.contain(simCheckResource.status)
 			expect(consoleOutputString).to.contain(simCheckResource.no_sim_change)
-			expect(consoleOutputString).to.contain(simCheckResource.last_sim_change_at)
 		})
 
 	test
@@ -180,6 +177,5 @@ describe('simchecks:list', () => {
 			expect(consoleOutputString).to.contain(simCheckResource.charge_currency)
 			expect(consoleOutputString).to.contain(simCheckResource.status)
 			expect(consoleOutputString).to.contain(simCheckResource.no_sim_change)
-			expect(consoleOutputString).to.contain(simCheckResource.last_sim_change_at)
 		})
 })

@@ -65,9 +65,6 @@ export default class SubscriberCheckList extends ChecksListCommand<ICreateCheckR
       no_sim_change: {
         header: 'no_sim_change',
       },
-      last_sim_change_at: {
-        header: 'last_sim_change_at',
-      },
       url: {
         extended: true,
         header: '_links.self.href',

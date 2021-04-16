@@ -61,7 +61,6 @@ describe('subscriberchecks:list', () => {
 		updated_at: '2020-06-01T16:43:30+00:00',
 		match: false,
 		no_sim_change: true,
-		last_sim_change_at: '2020-01-01T16:43:30+00:00',
 		status: CheckStatus.ACCEPTED,
 	}
 
@@ -172,7 +171,6 @@ describe('subscriberchecks:list', () => {
 			expect(consoleOutputString).to.contain(subscriberCheckResource.match)
 			expect(consoleOutputString).to.contain(subscriberCheckResource.status)
 			expect(consoleOutputString).to.contain(subscriberCheckResource.no_sim_change)
-			expect(consoleOutputString).to.contain(subscriberCheckResource.last_sim_change_at)
 		})
 
 	test
@@ -187,6 +185,5 @@ describe('subscriberchecks:list', () => {
 			expect(consoleOutputString).to.contain(subscriberCheckResource.match)
 			expect(consoleOutputString).to.contain(subscriberCheckResource.status)
 			expect(consoleOutputString).to.contain(subscriberCheckResource.no_sim_change)
-			expect(consoleOutputString).to.contain(subscriberCheckResource.last_sim_change_at)
 		})
 })
