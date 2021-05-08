@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.9.3](https://github.com/tru-ID/tru-cli/compare/v0.9.2...v0.9.3) (2021-05-08)
+
+* Bump handlebar dependency due to [Remote code execution in handlebars when compiling templates](https://github.com/advisories/GHSA-f2jv-r9rf-7988)
+
 ### [0.9.2](https://github.com/tru-ID/tru-cli/compare/v0.9.1...v0.9.2) (2021-04-16)
 
 ### [0.9.1](https://github.com/tru-ID/tru-cli/compare/v0.9.0...v0.9.1) (2021-04-01)
