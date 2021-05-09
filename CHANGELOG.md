@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.9.4](https://github.com/tru-ID/tru-cli/compare/v0.9.2...v0.9.4) (2021-05-09)
+
+* Bump lodash from 4.17.20 to 4.17.21 
+
 ### [0.9.3](https://github.com/tru-ID/tru-cli/compare/v0.9.2...v0.9.3) (2021-05-08)
 
 * Bump handlebar dependency due to [Remote code execution in handlebars when compiling templates](https://github.com/advisories/GHSA-f2jv-r9rf-7988)
