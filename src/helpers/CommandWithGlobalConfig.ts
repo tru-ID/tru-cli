@@ -7,7 +7,6 @@ import ILogger from './ILogger'
 import { ConsoleLogger, LogLevel } from '../helpers/ConsoleLogger'
 import * as Config from '@oclif/config'
 
-
 export default abstract class CommandWithGlobalConfig extends Command {
   static flags = {
     debug: flags.boolean({
@@ -17,10 +16,10 @@ export default abstract class CommandWithGlobalConfig extends Command {
   }
 
   flags: {
-    [name: string]: any;
+    [name: string]: any
   } = {}
   args: {
-    [name: string]: any;
+    [name: string]: any
   } = {}
 
   globalConfig?: IGlobalConfiguration
@@ -28,10 +27,10 @@ export default abstract class CommandWithGlobalConfig extends Command {
   protected logger: ILogger
 
   constructor(argv: string[], config: Config.IConfig) {
-
-    super(argv, config);
-    this.logger = new ConsoleLogger(!this.flags.debug ? LogLevel.info : LogLevel.debug)
-
+    super(argv, config)
+    this.logger = new ConsoleLogger(
+      !this.flags.debug ? LogLevel.info : LogLevel.debug,
+    )
   }
 
   async init() {
@@ -39,17 +38,20 @@ export default abstract class CommandWithGlobalConfig extends Command {
 
     const configLocation = path.join(this.config.configDir, 'config.json')
     if (!fs.existsSync(configLocation)) {
-      this.error(`cannot find config file at ${configLocation}\nRun "tru setup:credentials" to configure the CLI`)
+      this.error(
+        `cannot find config file at ${configLocation}\nRun "tru setup:credentials" to configure the CLI`,
+      )
     }
 
-    this.globalConfig = await fs.readJson(path.join(this.config.configDir, 'config.json'))
-
+    this.globalConfig = await fs.readJson(
+      path.join(this.config.configDir, 'config.json'),
+    )
   }
 
   async run() {
-
-    this.logger = new ConsoleLogger(!this.flags.debug ? LogLevel.info : LogLevel.debug)
+    this.logger = new ConsoleLogger(
+      !this.flags.debug ? LogLevel.info : LogLevel.debug,
+    )
     this.logger.debug('--debug', true)
-
   }
 }
