@@ -6,30 +6,25 @@ import ChecksTraceCommand from '../../helpers/ChecksTraceCommand'
 import { SimCheckAPIClient } from '../../api/SimCheckAPIClient'
 
 export default class SimCheckTraces extends ChecksTraceCommand {
+  static description = 'Get the traces of a SIMCheck'
 
-    static description = 'Get the traces of a SIMCheck'
+  static typeOfCheck = 'SIMCheck'
 
-    static typeOfCheck = "SIMCheck"
+  static flags = {
+    ...ChecksTraceCommand.flags,
+  }
 
-    static flags = {
-        ...ChecksTraceCommand.flags
-    }
+  static args = [...ChecksTraceCommand.args]
 
-    static args = [
-        ...ChecksTraceCommand.args
-    ]
+  constructor(argv: string[], config: Config.IConfig) {
+    super('SIMCheck', 'sim_check', argv, config)
+  }
 
+  parseCommand() {
+    return this.parse(SimCheckTraces)
+  }
 
-    constructor(argv: string[], config: Config.IConfig) {
-        super("SIMCheck", "sim_check", argv, config)
-    }
-
-    parseCommand() {
-        return this.parse(SimCheckTraces);
-    }
-
-    getApiClient(apiConfiguration: APIConfiguration, logger: ILogger) {
-        return new SimCheckAPIClient(apiConfiguration, logger)
-    }
-
+  getApiClient(apiConfiguration: APIConfiguration, logger: ILogger) {
+    return new SimCheckAPIClient(apiConfiguration, logger)
+  }
 }

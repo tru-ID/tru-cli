@@ -8,29 +8,28 @@ import ChecksCreateCommand from '../../helpers/ChecksCreateCommand'
 import { CheckResource } from '../../api/ChecksAPIClient'
 
 export default class PhoneChecksCreate extends ChecksCreateCommand {
-
   static description = 'Creates a PhoneCheck within a project'
 
-  static typeOfCheck = "PhoneCheck"
+  static typeOfCheck = 'PhoneCheck'
 
   static flags = {
-    ...ChecksCreateCommand.flags
+    ...ChecksCreateCommand.flags,
   }
 
-  static args = [
-    ...ChecksCreateCommand.args
-  ]
+  static args = [...ChecksCreateCommand.args]
 
   constructor(argv: string[], config: Config.IConfig) {
-    super("PhoneCheck", "phone_check", argv, config)
+    super('PhoneCheck', 'phone_check', argv, config)
   }
 
   getPolling() {
-    return this.globalConfig?.phoneCheckWorkflowRetryMillisecondsOverride ?? 5000
+    return (
+      this.globalConfig?.phoneCheckWorkflowRetryMillisecondsOverride ?? 5000
+    )
   }
 
   parseCommand() {
-    return this.parse(PhoneChecksCreate);
+    return this.parse(PhoneChecksCreate)
   }
 
   getApiClient(apiConfiguration: APIConfiguration, logger: ILogger) {
@@ -39,9 +38,10 @@ export default class PhoneChecksCreate extends ChecksCreateCommand {
 
   logResult(checkResponse: CheckResource) {
     this.log('')
-    this.log(`${this.typeOfCheck} Workflow result:\n` +
-      `\tstatus:  ${checkResponse.status}\n` +
-      `\tmatch:  ${checkResponse.match} ${checkResponse.match ? '✅' : '❌'}`)
+    this.log(
+      `${this.typeOfCheck} Workflow result:\n` +
+        `\tstatus:  ${checkResponse.status}\n` +
+        `\tmatch:  ${checkResponse.match} ${checkResponse.match ? '✅' : '❌'}`,
+    )
   }
-
 }
