@@ -20,7 +20,7 @@ $ npm install -g @tru_id/cli
 $ tru COMMAND
 running command...
 $ tru (-v|--version|version)
-@tru_id/cli/0.9.4 darwin-x64 node-v15.12.0
+@tru_id/cli/0.9.4 darwin-x64 node-v16.9.1
 $ tru --help [COMMAND]
 USAGE
   $ tru COMMAND
