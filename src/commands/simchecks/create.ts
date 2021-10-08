@@ -77,7 +77,7 @@ export default class SimChecksCreate extends CommandWithProjectConfig {
       this.exit(1)
     }
 
-    if (response.status == CheckStatus.COMPLETED) {
+    if (response.status === CheckStatus.COMPLETED) {
       this.log(`\tcheck_id: ${response.check_id}`)
       this.log(`\tstatus: ${response.status}`)
       this.log(`\tno_sim_change: ${response.no_sim_change}`)

@@ -92,16 +92,16 @@ describe('coverage:country', () => {
     .it('outputs result to cli.table', (ctx) => {
       expect(ctx.stdout).to.contain(ctx.mockedResponse.products[0].product_name)
       expect(ctx.stdout).to.contain(
-        ctx.mockedResponse.products[0].networks[0].network_id,
+        ctx.mockedResponse.products[0].networks?.[0].network_id,
       )
       expect(ctx.stdout).to.contain(
-        ctx.mockedResponse.products[0].networks[0].network_name,
+        ctx.mockedResponse.products[0].networks?.[0].network_name,
       )
       expect(ctx.stdout).to.contain(
-        ctx.mockedResponse.products[0].networks[0].prices[0].currency,
+        ctx.mockedResponse.products[0].networks?.[0].prices?.[0].currency,
       )
       expect(ctx.stdout).to.contain(
-        ctx.mockedResponse.products[0].networks[0].prices[0].amount,
+        ctx.mockedResponse.products[0].networks?.[0].prices?.[0].amount,
       )
     })
 
@@ -117,7 +117,7 @@ describe('coverage:country', () => {
 
   test
     .do((_ctx) => {
-      let projectWithoutRequiredScope = { ...projectConfig }
+      const projectWithoutRequiredScope = { ...projectConfig }
       projectWithoutRequiredScope.credentials[0].scopes = []
       readJsonStub
         .withArgs(sinon.default.match(projectConfigFileLocation))

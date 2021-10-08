@@ -1,4 +1,4 @@
-import { AxiosError } from 'axios'
+import axios from 'axios'
 import AbstractAPIClient from './AbstractAPIClient'
 
 export interface IPrice {
@@ -47,14 +47,15 @@ export class CoverageAPIClient extends AbstractAPIClient {
         {},
       )
     } catch (err) {
-      const axiosErrorResponse = (err as AxiosError).response
-      // we want to handle no reach as a valid response
-      if (
-        axiosErrorResponse &&
-        axiosErrorResponse.status === 404 &&
-        axiosErrorResponse.data?.detail === 'No Reach'
-      ) {
-        response = undefined
+      if (axios.isAxiosError(err)) {
+        if (
+          err.response?.status === 404 &&
+          err.response?.data?.detail === 'No Reach'
+        ) {
+          response = undefined
+        } else {
+          throw err
+        }
       } else {
         throw err
       }
@@ -73,14 +74,15 @@ export class CoverageAPIClient extends AbstractAPIClient {
         {},
       )
     } catch (err) {
-      const axiosErrorResponse = (err as AxiosError).response
-      // we want to handle no reach as a valid response
-      if (
-        axiosErrorResponse &&
-        axiosErrorResponse.status === 404 &&
-        axiosErrorResponse.data?.detail === 'No Reach'
-      ) {
-        response = undefined
+      if (axios.isAxiosError(err)) {
+        if (
+          err.response?.status === 404 &&
+          err.response?.data?.detail === 'No Reach'
+        ) {
+          response = undefined
+        } else {
+          throw err
+        }
       } else {
         throw err
       }

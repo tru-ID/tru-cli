@@ -215,12 +215,12 @@ export class HttpClient {
 
     // Axios errors have a lot of information so strip it down
     // to something more useful
-    if (error.isAxiosError) {
+    if (axios.isAxiosError(error)) {
       toLog = {
-        statusCode: error.response.status,
-        statusText: error.response.statusText,
-        headers: error.response.headers,
-        request: this._filterRequest(error.response.config),
+        statusCode: error.response?.status,
+        statusText: error.response?.statusText,
+        headers: error.response?.headers,
+        request: this._filterRequest(error.response?.config),
         data: error.response?.data || null,
       }
     }
