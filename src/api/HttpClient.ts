@@ -199,12 +199,15 @@ export class HttpClient {
     this.logger.debug('Response:', log)
   }
 
-  _filterRequest(request: any) {
+  _filterRequest(request?: AxiosRequestConfig) {
+    if (!request) {
+      return null
+    }
     const allowed = ['string', 'object', 'number']
     const filtered = Object.keys(request)
-      .filter((key) => allowed.includes(typeof request[key]))
+      .filter((key) => allowed.includes(key))
       .reduce((obj: any, key: string) => {
-        obj[key] = request[key]
+        obj[key] = request[key as keyof AxiosRequestConfig]
         return obj
       }, {})
     return filtered
