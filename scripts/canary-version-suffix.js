@@ -10,23 +10,23 @@ const packageFilePath = path.join(__dirname, '..', 'package.json')
 const packageJson = require(packageFilePath)
 
 function isCanaryBranch(branch) {
-    return branch && canaryBranches.indexOf(branch) !== -1
+  return branch && canaryBranches.indexOf(branch) !== -1
 }
 
 function isNotCanaryVersion(version) {
-    return version.indexOf('-canary') === -1
+  return version.indexOf('-canary') === -1
 }
 
-if( isCanaryBranch(buildBranch) &&
-isNotCanaryVersion(packageJson.version) ) {
-    
-    console.log('Is Dev Build Branch. Appending "-canary" to package.json version for build...')
-    
-    const devVersion = `${packageJson.version}-canary.${buildCommitSHA}`
-    console.log('writing package.json with version', devVersion)
+if (isCanaryBranch(buildBranch) && isNotCanaryVersion(packageJson.version)) {
+  console.log(
+    'Is Dev Build Branch. Appending "-canary" to package.json version for build...',
+  )
 
-    packageJson.version = devVersion
-    fs.writeJSONSync(packageFilePath, packageJson, {spaces: 2,EOL: os.EOL})
+  const devVersion = `${packageJson.version}-canary.${buildCommitSHA}`
+  console.log('writing package.json with version', devVersion)
 
-    console.log('writing package.json complete')
+  packageJson.version = devVersion
+  fs.writeJSONSync(packageFilePath, packageJson, { spaces: 2, EOL: os.EOL })
+
+  console.log('writing package.json complete')
 }

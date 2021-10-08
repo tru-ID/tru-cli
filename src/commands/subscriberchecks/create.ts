@@ -3,32 +3,30 @@ import * as Config from '@oclif/config'
 import { APIConfiguration } from '../../api/APIConfiguration'
 import CommandWithProjectConfig from '../../helpers/CommandWithProjectConfig'
 import ILogger from '../../helpers/ILogger'
-import { SubscriberCheckAPIClient, SubscriberCheckResource } from '../../api/SubscriberCheckAPIClient'
+import {
+  SubscriberCheckAPIClient,
+  SubscriberCheckResource,
+} from '../../api/SubscriberCheckAPIClient'
 import ChecksCreateCommand from '../../helpers/ChecksCreateCommand'
 import { CheckResource } from '../../api/ChecksAPIClient'
 
 export default class SubscriberChecksCreate extends ChecksCreateCommand {
-
-  static typeOfCheck = "SubscriberCheck"
-
+  static typeOfCheck = 'SubscriberCheck'
 
   static description = `Creates SubscriberChecks within a project`
 
-
   static flags = {
-    ...ChecksCreateCommand.flags
+    ...ChecksCreateCommand.flags,
   }
 
-  static args = [
-    ...ChecksCreateCommand.args
-  ]
+  static args = [...ChecksCreateCommand.args]
 
   constructor(argv: string[], config: Config.IConfig) {
-    super("SubscriberCheck", "subscriber_check", argv, config)
+    super('SubscriberCheck', 'subscriber_check', argv, config)
   }
 
   parseCommand() {
-    return this.parse(SubscriberChecksCreate);
+    return this.parse(SubscriberChecksCreate)
   }
 
   getApiClient(apiConfiguration: APIConfiguration, logger: ILogger) {
@@ -36,16 +34,23 @@ export default class SubscriberChecksCreate extends ChecksCreateCommand {
   }
 
   getPolling() {
-    return this.globalConfig?.subscriberCheckWorkflowRetryMillisecondsOverride ?? 5000
+    return (
+      this.globalConfig?.subscriberCheckWorkflowRetryMillisecondsOverride ??
+      5000
+    )
   }
 
   logResult(checkResponse: SubscriberCheckResource) {
     this.log('')
-    this.log(`${this.typeOfCheck} Workflow result:\n` +
-      `\tstatus:  ${checkResponse.status}\n` +
-      `\tmatch:  ${checkResponse.match} ${checkResponse.match ? '✅' : '❌'}\n`+
-      `\tno_sim_change:  ${checkResponse.no_sim_change} ${checkResponse.no_sim_change ? '✅' : '❌'}\n`);
-
+    this.log(
+      `${this.typeOfCheck} Workflow result:\n` +
+        `\tstatus:  ${checkResponse.status}\n` +
+        `\tmatch:  ${checkResponse.match} ${
+          checkResponse.match ? '✅' : '❌'
+        }\n` +
+        `\tno_sim_change:  ${checkResponse.no_sim_change} ${
+          checkResponse.no_sim_change ? '✅' : '❌'
+        }\n`,
+    )
   }
-
 }
