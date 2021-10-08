@@ -1,51 +1,50 @@
 import { APIConfiguration } from './APIConfiguration'
-import ILogger from '../helpers/ILogger';
-import AbstractAPIClient from './AbstractAPIClient';
-import { IListResourceParameters } from './IListResource';
+import ILogger from '../helpers/ILogger'
+import AbstractAPIClient from './AbstractAPIClient'
+import { IListResourceParameters } from './IListResource'
 
-
-import { ILink, IListResource } from './IListResource';
-
+import { ILink, IListResource } from './IListResource'
 
 export interface UsageResource {
-
-    product_id?: string,
-    project_id?: string,
-    amount: number,
-    date: string,
-    currency: string,
-    counter: number
+  product_id?: string
+  project_id?: string
+  amount: number
+  date: string
+  currency: string
+  counter: number
 }
 
 export interface UsageParameter {
-
-    search: string,
-    group_by?: string,
-    page?: number,
-    size?: number
+  search: string
+  group_by?: string
+  page?: number
+  size?: number
 }
 
-
 export interface IListUsageResource extends IListResource {
-    _embedded: {
-        usage: UsageResource[]
-    }
+  _embedded: {
+    usage: UsageResource[]
+  }
 }
 
 export class UsageApiClient extends AbstractAPIClient {
+  constructor(apiConfig: APIConfiguration, logger: ILogger) {
+    super(apiConfig, logger)
+  }
 
-    constructor(apiConfig: APIConfiguration, logger: ILogger) {
-        super(apiConfig, logger)
-    }
+  async getUsage(
+    usageParameter: UsageParameter,
+    typeOfUsage: string,
+  ): Promise<IListUsageResource> {
+    this.logger.debug('Get Usage parameters', usageParameter)
 
-    async getUsage(usageParameter: UsageParameter, typeOfUsage: string): Promise<IListUsageResource> {
+    const response: IListUsageResource =
+      await this.httpClient.get<IListUsageResource>(
+        `/console/v0.1/workspaces/default/usage/${typeOfUsage}`,
+        usageParameter,
+        {},
+      )
 
-        this.logger.debug('Get Usage parameters', usageParameter);
-
-        const response: IListUsageResource =
-            await this.httpClient.get<IListUsageResource>(`/console/v0.1/workspaces/default/usage/${typeOfUsage}`, usageParameter, {})
-
-        return response
-    }
-
+    return response
+  }
 }
