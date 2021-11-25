@@ -1,7 +1,11 @@
 import { Command } from '@oclif/command'
 import * as fs from 'fs-extra'
 import * as path from 'path'
+import { APIConfiguration } from '../../api/APIConfiguration'
+import { OAuth2APIClient } from '../../api/OAuth2APIClient'
+import { ConsoleLogger, LogLevel } from '../../helpers/ConsoleLogger'
 import IGlobalConfiguration from '../../IGlobalConfiguration'
+import { logApiError } from '../../utilities'
 
 export default class SetupCredentials extends Command {
   static description = 'Setup the CLI with workspace credentials'
@@ -35,6 +39,8 @@ export default class SetupCredentials extends Command {
     cfg.defaultWorkspaceDataResidency = (
       args['data-residency'] as string
     ).toLowerCase()
+
+    await this.validateConfig(cfg)
 
     await this.saveConfig(configLocation, cfg)
 
@@ -75,6 +81,37 @@ export default class SetupCredentials extends Command {
       } else {
         throw new Error(`failed to save config file: ${err.message}`)
       }
+    }
+  }
+
+  async validateConfig(configuration: IGlobalConfiguration): Promise<void> {
+    const consoleLogger = new ConsoleLogger(LogLevel.info)
+
+    let apiClient = new OAuth2APIClient(
+      new APIConfiguration({
+        clientId: configuration.defaultWorkspaceClientId,
+        clientSecret: configuration.defaultWorkspaceClientSecret,
+        scopes: ['workspaces', 'projects', 'usage', 'balances'],
+        baseUrl:
+          configuration.apiBaseUrlOverride ??
+          `https://${configuration.defaultWorkspaceDataResidency}.api.tru.id`,
+      }),
+      consoleLogger,
+    )
+
+    try {
+      let tokenCreationResult = await apiClient.create()
+
+      this.log(
+        'Validation Test: Create token with workspace credentials SUCCESSFUL',
+      )
+    } catch (error) {
+      this.log(
+        'Validation Test: Create token with workspace credentials FAILED',
+      )
+
+      logApiError(this.log, error)
+      this.exit(1)
     }
   }
 }
