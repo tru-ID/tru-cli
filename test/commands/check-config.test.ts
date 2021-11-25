@@ -1,16 +1,17 @@
 import { test } from '@oclif/test'
 import * as chai from 'chai'
+import * as fs from 'fs-extra'
 import * as sinonChai from 'sinon-chai'
 import * as sinon from 'ts-sinon'
+import { OAuth2APIClient } from '../../src/api/OAuth2APIClient'
 
 const expect = chai.expect
 chai.use(sinonChai)
 
-import * as fs from 'fs-extra'
-
 describe('hooks', () => {
   let existsSyncStub: any = null
   let outputJsonStub: any = null
+  let apiClientStub: any = null
   const expectedUserConfig = {
     defaultWorkspaceClientId: 'my client id',
     defaultWorkspaceClientSecret: 'my client secret',
@@ -74,6 +75,9 @@ describe('hooks', () => {
         .withArgs(sinon.default.match(new RegExp(/config.json/)))
         .returns(false)
       outputJsonStub = sinon.default.stub(fs, 'outputJson').resolves()
+      apiClientStub = sinon.default
+        .stub(OAuth2APIClient.prototype, 'create')
+        .resolves()
     })
     .command([
       'setup:credentials',

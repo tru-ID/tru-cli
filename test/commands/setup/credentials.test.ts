@@ -1,15 +1,13 @@
 import { test } from '@oclif/test'
-import * as sinon from 'ts-sinon'
 import * as chai from 'chai'
+import * as fs from 'fs-extra'
 import * as sinonChai from 'sinon-chai'
-import { ConsoleLogger } from '../../../src/helpers/ConsoleLogger'
+import * as sinon from 'ts-sinon'
+import { OAuth2APIClient } from '../../../src/api/OAuth2APIClient'
+import IGlobalConfiguration from '../../../src/IGlobalConfiguration'
 
 const expect = chai.expect
 chai.use(sinonChai)
-
-import * as fs from 'fs-extra'
-import { buildConsoleString } from '../../test_helpers'
-import IGlobalConfiguration from '../../../src/IGlobalConfiguration'
 
 describe('setup:credentials', () => {
   let workspaceId = 'workspaceId'
@@ -19,6 +17,7 @@ describe('setup:credentials', () => {
 
   let outputJsonStub: any
   let readJsonStub: any
+  let apiClientStub: any
 
   beforeEach(() => {
     let expectedUserConfig: IGlobalConfiguration = {
@@ -38,6 +37,7 @@ describe('setup:credentials', () => {
       )
       .resolves(expectedUserConfig)
     outputJsonStub = sinon.default.stub(fs, 'outputJson')
+    apiClientStub = sinon.default.stub(OAuth2APIClient.prototype, 'create')
   })
 
   afterEach(() => {
@@ -47,6 +47,7 @@ describe('setup:credentials', () => {
   test
     .do(() => {
       outputJsonStub.resolves()
+      apiClientStub.resolves()
     })
     .stdout()
     .command(['setup:credentials', ...commandArgs])
@@ -55,12 +56,26 @@ describe('setup:credentials', () => {
     })
 
   test
+    .do(() => {
+      let error = {
+        message: 'I used weird permission',
+      }
+      outputJsonStub.resolves()
+      apiClientStub.rejects(error)
+    })
+    .stdout()
+    .command(['setup:credentials', ...commandArgs])
+    .exit(1)
+    .it('should handle failed to create workspace credentials')
+
+  test
     .do((_ctx) => {
       let error = {
         message: 'permission error',
         code: 'EPERM',
       }
       outputJsonStub.rejects(error)
+      apiClientStub.resolves()
     })
     .stdout()
     .command(['setup:credentials', ...commandArgs])
