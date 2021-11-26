@@ -115,7 +115,7 @@ export default class ProjectsList extends CommandWithGlobalConfig {
         credentials_client_id: {
           header: 'credentials[0].client_id',
           extended: true,
-          get: (row) => row.credentials[0].client_id,
+          get: (row) => (row.credentials ? row.credentials[0].client_id : null),
         },
         url: {
           header: '_links.self.href',

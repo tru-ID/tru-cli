@@ -2,19 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-### [0.9.6](https://github.com/tru-ID/tru-cli/compare/v0.9.4...v0.9.6) (2021-11-25)
-
-
-### Bug Fixes
-
-* Added validation to setup:credentials ([1d87e50](https://github.com/tru-ID/tru-cli/commit/1d87e50fbde160a2839b940d07ed9c6bce2f1a26))
-
-### [0.9.6](https://github.com/tru-ID/tru-cli/compare/v0.9.4...v0.9.6) (2021-11-25)
-
+### [0.9.7](https://github.com/tru-ID/tru-cli/compare/v0.9.6...v0.9.7) (2021-11-26)
 
 ### Bug Fixes
 
-* Added validation to setup:credentials ([1d87e50](https://github.com/tru-ID/tru-cli/commit/1d87e50fbde160a2839b940d07ed9c6bce2f1a26))
+- projects:list throws exceptions if no credentials ([a682463](https://github.com/tru-ID/tru-cli/commit/a682463b01bc52fb929f3b31af5549dfcd641a02))
+
+### [0.9.6](https://github.com/tru-ID/tru-cli/compare/v0.9.4...v0.9.6) (2021-11-25)
+
+### Bug Fixes
+
+- Added validation to setup:credentials ([1d87e50](https://github.com/tru-ID/tru-cli/commit/1d87e50fbde160a2839b940d07ed9c6bce2f1a26))
 
 ### [0.9.5](https://github.com/tru-ID/tru-cli/compare/v0.9.4...v0.9.5) (2021-10-08)
 
