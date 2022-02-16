@@ -1,14 +1,12 @@
-import { APIConfiguration } from './APIConfiguration'
 import ILogger from '../helpers/ILogger'
 import AbstractAPIClient from './AbstractAPIClient'
-import { IListResourceParameters } from './IListResource'
-
-import { ILink, IListResource } from './IListResource'
+import { APIConfiguration } from './APIConfiguration'
 import { CheckStatus } from './CheckStatus'
+import { ILink, IListResource, IListResourceParameters } from './IListResource'
 import {
-  TraceApiClient,
   CheckTraceResource,
   IListCheckTracesResource,
+  TraceApiClient,
 } from './TraceAPIClient'
 
 export interface ICreateCheckParameters {
@@ -30,7 +28,7 @@ export interface ICreateCheckResponse {
   }
 }
 
-export interface CheckResource {
+export type CheckResource = {
   check_id: string
   status: CheckStatus
   match: boolean
@@ -68,6 +66,18 @@ export abstract class AbstractChecksApiClient<R>
         `/${this.basePath}/v0.1/checks`,
         parameters,
         {},
+      )
+    return response
+  }
+
+  async patch(checkId: string, code: string): Promise<ICreateCheckResponse> {
+    const response: ICreateCheckResponse =
+      await this.httpClient.patch<ICreateCheckResponse>(
+        `/${this.basePath}/v0.1/checks/${checkId}`,
+        [{ op: 'add', path: '/code', value: code }],
+        {
+          'Content-Type': 'application/json-patch+json',
+        },
       )
     return response
   }

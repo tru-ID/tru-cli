@@ -1,11 +1,9 @@
-import { flags } from '@oclif/command'
-import * as Config from '@oclif/config'
+import { Config } from '@oclif/core'
 import { APIConfiguration } from '../../api/APIConfiguration'
-import { PhoneChecksAPIClient } from '../../api/PhoneChecksAPIClient'
-import CommandWithProjectConfig from '../../helpers/CommandWithProjectConfig'
-import ILogger from '../../helpers/ILogger'
-import ChecksCreateCommand from '../../helpers/ChecksCreateCommand'
 import { CheckResource } from '../../api/ChecksAPIClient'
+import { PhoneChecksAPIClient } from '../../api/PhoneChecksAPIClient'
+import ChecksCreateCommand from '../../helpers/ChecksCreateCommand'
+import ILogger from '../../helpers/ILogger'
 
 export default class PhoneChecksCreate extends ChecksCreateCommand {
   static description = 'Creates a PhoneCheck within a project'
@@ -18,7 +16,7 @@ export default class PhoneChecksCreate extends ChecksCreateCommand {
 
   static args = [...ChecksCreateCommand.args]
 
-  constructor(argv: string[], config: Config.IConfig) {
+  constructor(argv: string[], config: Config) {
     super('PhoneCheck', 'phone_check', argv, config)
   }
 
@@ -28,8 +26,9 @@ export default class PhoneChecksCreate extends ChecksCreateCommand {
     )
   }
 
-  parseCommand() {
-    return this.parse(PhoneChecksCreate)
+  async parseCommand() {
+    const command = await this.parse(PhoneChecksCreate)
+    return command
   }
 
   getApiClient(apiConfiguration: APIConfiguration, logger: ILogger) {

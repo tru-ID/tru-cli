@@ -1,22 +1,19 @@
 import { test } from '@oclif/test'
-import * as sinon from 'ts-sinon'
-import * as chai from 'chai'
-import * as sinonChai from 'sinon-chai'
+import chai from 'chai'
+import fs from 'fs-extra'
+import sinonChai from 'sinon-chai'
+import sinon from 'ts-sinon'
+import { APIConfiguration } from '../../../src/api/APIConfiguration'
+import { CheckStatus } from '../../../src/api/CheckStatus'
+import * as httpClientModule from '../../../src/api/HttpClient'
+import * as simchecks from '../../../src/api/SimCheckAPIClient'
+import { ConsoleLogger } from '../../../src/helpers/ConsoleLogger'
+import IGlobalConfiguration from '../../../src/IGlobalConfiguration'
+import { IProjectConfiguration } from '../../../src/IProjectConfiguration'
+import { buildConsoleString } from '../../test_helpers'
 
 const expect = chai.expect
 chai.use(sinonChai)
-
-import * as fs from 'fs-extra'
-
-import * as simchecks from '../../../src/api/SimCheckAPIClient'
-import IGlobalConfiguration from '../../../src/IGlobalConfiguration'
-import { IProjectConfiguration } from '../../../src/IProjectConfiguration'
-import { APIConfiguration } from '../../../src/api/APIConfiguration'
-import { ConsoleLogger } from '../../../src/helpers/ConsoleLogger'
-import { CheckStatus } from '../../../src/api/CheckStatus'
-import * as httpClientModule from '../../../src/api/HttpClient'
-
-import { buildConsoleString } from '../../test_helpers'
 
 describe('simchecks:list', () => {
   let simChecksApiClientConstructorStub: any
@@ -24,7 +21,7 @@ describe('simchecks:list', () => {
   let consoleLoggerInfoStub: any
   let httpClientGetStub: any
 
-  let expectedUserConfig: IGlobalConfiguration = {
+  const expectedUserConfig: IGlobalConfiguration = {
     defaultWorkspaceClientId: 'my client id',
     defaultWorkspaceClientSecret: 'my client secret',
     defaultWorkspaceDataResidency: 'eu',
@@ -80,59 +77,50 @@ describe('simchecks:list', () => {
   }
 
   beforeEach(() => {
-    sinon.default
+    sinon
       .stub(fs, 'existsSync')
-      .withArgs(sinon.default.match(new RegExp(/config.json/)))
+      .withArgs(sinon.match(new RegExp(/config.json/)))
       .returns(true)
 
-    readJsonStub = sinon.default.stub(fs, 'readJson')
+    readJsonStub = sinon.stub(fs, 'readJson')
 
     readJsonStub
-      .withArgs(
-        sinon.default.match(sinon.default.match(new RegExp(/config.json/))),
-      )
+      .withArgs(sinon.match(sinon.match(new RegExp(/config.json/))))
       .resolves(expectedUserConfig)
 
     readJsonStub
-      .withArgs(sinon.default.match(projectConfigFileLocation))
+      .withArgs(sinon.match(projectConfigFileLocation))
       .resolves(projectConfig)
 
-    httpClientGetStub = sinon.default.stub(
-      httpClientModule.HttpClient.prototype,
-      'get',
-    )
+    httpClientGetStub = sinon.stub(httpClientModule.HttpClient.prototype, 'get')
     httpClientGetStub
-      .withArgs(
-        '/sim_check/v0.1/checks',
-        sinon.default.match.any,
-        sinon.default.match.any,
-      )
+      .withArgs('/sim_check/v0.1/checks', sinon.match.any, sinon.match.any)
       .resolves(listResource)
     httpClientGetStub
       .withArgs(
         `/sim_check/v0.1/checks/${simCheckResource.check_id}`,
-        sinon.default.match.any,
-        sinon.default.match.any,
+        sinon.match.any,
+        sinon.match.any,
       )
       .resolves(simCheckResource)
     httpClientGetStub
       .withArgs(
         `/sim_check/v0.1/checks/check_id_value`,
-        sinon.default.match.any,
-        sinon.default.match.any,
+        sinon.match.any,
+        sinon.match.any,
       )
       .resolves(simCheckResource)
 
-    consoleLoggerInfoStub = sinon.default.stub(ConsoleLogger.prototype, 'info')
+    consoleLoggerInfoStub = sinon.stub(ConsoleLogger.prototype, 'info')
   })
 
   afterEach(() => {
-    sinon.default.restore()
+    sinon.restore()
   })
 
   test
     .do(() => {
-      simChecksApiClientConstructorStub = sinon.default.spy(
+      simChecksApiClientConstructorStub = sinon.spy(
         simchecks,
         'SimCheckAPIClient',
       )
@@ -140,9 +128,9 @@ describe('simchecks:list', () => {
     .command(['simchecks:list'])
     .it(
       'SimCheckAPIClient: it should instantiate SimCheckAPIClient with expected arguments',
-      (ctx) => {
+      () => {
         expect(simChecksApiClientConstructorStub).to.be.calledWith(
-          sinon.default.match.instanceOf(APIConfiguration),
+          sinon.match.instanceOf(APIConfiguration),
         )
       },
     )
@@ -151,11 +139,11 @@ describe('simchecks:list', () => {
     .command(['simchecks:list'])
     .it(
       'SimCheckAPIClient: should call SimCheckAPIClient.list() if optional check_id argment is not supplied',
-      (ctx) => {
+      () => {
         expect(httpClientGetStub).to.be.calledWith(
           '/sim_check/v0.1/checks',
-          sinon.default.match.any,
-          sinon.default.match.any,
+          sinon.match.any,
+          sinon.match.any,
         )
       },
     )
@@ -164,18 +152,18 @@ describe('simchecks:list', () => {
     .command(['simchecks:list', 'check_id_value'])
     .it(
       'should call SimCheckAPIClient.get(checkId) if optional check_id argment is supplied',
-      (ctx) => {
+      () => {
         expect(httpClientGetStub).to.be.calledWith(
           '/sim_check/v0.1/checks/check_id_value',
-          sinon.default.match.any,
-          sinon.default.match.any,
+          sinon.match.any,
+          sinon.match.any,
         )
       },
     )
 
   test
     .command(['simchecks:list'])
-    .it('should contain header table output', (ctx) => {
+    .it('should contain header table output', () => {
       const consoleOutputString = buildConsoleString(consoleLoggerInfoStub)
 
       expect(consoleOutputString).to.contain('check_id')
@@ -188,7 +176,7 @@ describe('simchecks:list', () => {
 
   test
     .command(['simchecks:list'])
-    .it('should contain pagination output', (ctx) => {
+    .it('should contain pagination output', () => {
       const consoleOutputString = buildConsoleString(consoleLoggerInfoStub)
 
       expect(consoleOutputString).to.contain('Page 1 of 1')
@@ -197,7 +185,7 @@ describe('simchecks:list', () => {
 
   test
     .command(['simchecks:list'])
-    .it('outputs resource list to cli.table', (ctx) => {
+    .it('outputs resource list to cli.table', () => {
       const consoleOutputString = buildConsoleString(consoleLoggerInfoStub)
 
       expect(consoleOutputString).to.contain(simCheckResource.check_id)
@@ -210,7 +198,7 @@ describe('simchecks:list', () => {
 
   test
     .command(['simchecks:list', `${simCheckResource.check_id}`])
-    .it('outputs result of a single resource to cli.table', (ctx) => {
+    .it('outputs result of a single resource to cli.table', () => {
       const consoleOutputString = buildConsoleString(consoleLoggerInfoStub)
 
       expect(consoleOutputString).to.contain(simCheckResource.check_id)

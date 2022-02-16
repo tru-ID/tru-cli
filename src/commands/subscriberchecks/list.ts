@@ -1,22 +1,13 @@
-import { flags } from '@oclif/command'
-import { cli } from 'cli-ux'
-import * as Config from '@oclif/config'
-
+import { CliUx, Config } from '@oclif/core'
 import { APIConfiguration } from '../../api/APIConfiguration'
-import CommandWithProjectConfig from '../../helpers/CommandWithProjectConfig'
-import ILogger from '../../helpers/ILogger'
 import {
   SubscriberCheckAPIClient,
   SubscriberCheckResource,
 } from '../../api/SubscriberCheckAPIClient'
 import ChecksListCommand from '../../helpers/ChecksListCommand'
-import {
-  AbstractChecksApiClient,
-  CheckResource,
-  ICreateCheckResponse,
-} from '../../api/ChecksAPIClient'
+import ILogger from '../../helpers/ILogger'
 
-export default class SubscriberCheckList extends ChecksListCommand<ICreateCheckResponse> {
+export default class SubscriberCheckList extends ChecksListCommand {
   static description =
     'Lists details for all SubscriberChecks or a specific SubscriberCheck if the a check-id argument is passed'
 
@@ -32,7 +23,7 @@ export default class SubscriberCheckList extends ChecksListCommand<ICreateCheckR
     ...ChecksListCommand.flags,
   }
 
-  constructor(argv: string[], config: Config.IConfig) {
+  constructor(argv: string[], config: Config) {
     super('SubscriberCheck', 'subscriber_check', argv, config)
   }
 
@@ -45,7 +36,7 @@ export default class SubscriberCheckList extends ChecksListCommand<ICreateCheckR
   }
 
   displayResults(resources: SubscriberCheckResource[]) {
-    cli.table(
+    CliUx.ux.table(
       resources,
       {
         check_id: {

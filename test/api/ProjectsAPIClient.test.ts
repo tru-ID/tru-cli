@@ -1,20 +1,18 @@
-import * as sinon from 'ts-sinon'
-import * as chai from 'chai'
-import * as sinonChai from 'sinon-chai'
-
-import {
-  ICreateProjectResponse,
-  ProjectsAPIClient,
-} from '../../src/api/ProjectsAPIClient'
+import chai from 'chai'
+import sinonChai from 'sinon-chai'
+import sinon from 'ts-sinon'
 import { APIConfiguration } from '../../src/api/APIConfiguration'
 import * as httpClientModule from '../../src/api/HttpClient'
+import {
+  IProjectResource,
+  ProjectsAPIClient,
+} from '../../src/api/ProjectsAPIClient'
 
 const expect = chai.expect
 chai.use(sinonChai)
 
 describe('API: projects', () => {
-  const projectName: string = 'a project'
-  const accessToken: string = 'i am an access token'
+  const projectName = 'a project'
 
   let httpClientConstructorStub: any = null
   let httpClientPostStub: any = null
@@ -34,7 +32,7 @@ describe('API: projects', () => {
 
   // ensure a new object instance is returned for each usage
   // this is important when determining at PATCH operations
-  function getProjectObject(): ICreateProjectResponse {
+  function getProjectObject(): IProjectResource {
     return {
       project_id: 'c69bc0e6-a429-11ea-bb37-0242ac130003',
       name: 'my project',
@@ -57,42 +55,29 @@ describe('API: projects', () => {
   }
 
   beforeEach(() => {
-    httpClientPostStub = sinon.default.stub(
+    httpClientPostStub = sinon.stub(
       httpClientModule.HttpClient.prototype,
       'post',
     )
     httpClientPostStub
-      .withArgs(
-        '/console/v0.1/projects',
-        sinon.default.match.any,
-        sinon.default.match.any,
-      )
+      .withArgs('/console/v0.1/projects', sinon.match.any, sinon.match.any)
       .resolves({ name: projectName })
 
-    httpClientPatchStub = sinon.default.stub(
+    httpClientPatchStub = sinon.stub(
       httpClientModule.HttpClient.prototype,
       'patch',
     )
 
-    httpClientGetStub = sinon.default.stub(
-      httpClientModule.HttpClient.prototype,
-      'get',
-    )
+    httpClientGetStub = sinon.stub(httpClientModule.HttpClient.prototype, 'get')
   })
 
   afterEach(() => {
-    sinon.default.restore()
+    sinon.restore()
   })
 
   it('should create a HTTPClient with expected arguments', () => {
-    httpClientConstructorStub = sinon.default.stub(
-      httpClientModule,
-      'HttpClient',
-    )
-    const projectsAPI: ProjectsAPIClient = new ProjectsAPIClient(
-      apiConfig,
-      console,
-    )
+    httpClientConstructorStub = sinon.stub(httpClientModule, 'HttpClient')
+    new ProjectsAPIClient(apiConfig, console)
 
     expect(httpClientConstructorStub).to.have.been.calledWith(
       apiConfig,
@@ -103,26 +88,26 @@ describe('API: projects', () => {
   it('should make a request to create a project with the expected name', async () => {
     const projectsAPI: ProjectsAPIClient = createDefaultProjectsAPI()
 
-    const projectName: string = 'a unique project name'
+    const projectName = 'a unique project name'
     await projectsAPI.create({ name: projectName })
 
     expect(httpClientPostStub).to.have.been.calledWith(
-      sinon.default.match.any,
+      sinon.match.any,
       { name: projectName },
-      sinon.default.match.any,
+      sinon.match.any,
     )
   })
 
   it('should make a request to create a project with the expected API endpoint path', async () => {
     const projectsAPI: ProjectsAPIClient = createDefaultProjectsAPI()
 
-    const projectName: string = 'a unique project name'
+    const projectName = 'a unique project name'
     await projectsAPI.create({ name: projectName })
 
     expect(httpClientPostStub).to.have.been.calledWith(
       '/console/v0.1/projects',
-      sinon.default.match.any,
-      sinon.default.match.any,
+      sinon.match.any,
+      sinon.match.any,
     )
   })
 
@@ -142,8 +127,8 @@ describe('API: projects', () => {
 
     expect(httpClientGetStub).to.have.been.calledWith(
       `/console/v0.1/projects/${projectId}`,
-      sinon.default.match.any,
-      sinon.default.match.any,
+      sinon.match.any,
+      sinon.match.any,
     )
   })
 
@@ -163,8 +148,8 @@ describe('API: projects', () => {
 
     expect(httpClientPatchStub).to.have.been.calledWith(
       `/console/v0.1/projects/${projectId}`,
-      sinon.default.match.any,
-      sinon.default.match.any,
+      sinon.match.any,
+      sinon.match.any,
     )
   })
 
@@ -183,7 +168,7 @@ describe('API: projects', () => {
     })
 
     expect(httpClientPatchStub).to.have.been.calledWith(
-      sinon.default.match.any,
+      sinon.match.any,
       [
         {
           op: 'add',
@@ -195,7 +180,7 @@ describe('API: projects', () => {
           },
         },
       ],
-      sinon.default.match.any,
+      sinon.match.any,
     )
   })
 
@@ -220,7 +205,7 @@ describe('API: projects', () => {
     })
 
     expect(httpClientPatchStub).to.have.been.calledWith(
-      sinon.default.match.any,
+      sinon.match.any,
       [
         {
           op: 'replace',
@@ -228,7 +213,7 @@ describe('API: projects', () => {
           value: 'https://example.com/updated_callback',
         },
       ],
-      sinon.default.match.any,
+      sinon.match.any,
     )
   })
 
@@ -253,7 +238,7 @@ describe('API: projects', () => {
     })
 
     expect(httpClientPatchStub).to.have.been.calledWith(
-      sinon.default.match.any,
+      sinon.match.any,
       [
         {
           op: 'replace',
@@ -261,7 +246,7 @@ describe('API: projects', () => {
           value: 'https://example.com/updated_callback',
         },
       ],
-      sinon.default.match.any,
+      sinon.match.any,
     )
   })
 
@@ -284,14 +269,14 @@ describe('API: projects', () => {
     })
 
     expect(httpClientPatchStub).to.have.been.calledWith(
-      sinon.default.match.any,
+      sinon.match.any,
       [
         {
           op: 'remove',
           path: '/configuration/phone_check/callback_url',
         },
       ],
-      sinon.default.match.any,
+      sinon.match.any,
     )
   })
 
@@ -307,7 +292,7 @@ describe('API: projects', () => {
     })
 
     expect(httpClientPatchStub).to.have.been.calledWith(
-      sinon.default.match.any,
+      sinon.match.any,
       [
         {
           op: 'replace',
@@ -315,7 +300,7 @@ describe('API: projects', () => {
           value: 'sandbox',
         },
       ],
-      sinon.default.match.any,
+      sinon.match.any,
     )
   })
 
@@ -336,7 +321,7 @@ describe('API: projects', () => {
     })
 
     expect(httpClientPatchStub).to.have.been.calledWith(
-      sinon.default.match.any,
+      sinon.match.any,
       [
         {
           op: 'replace',
@@ -353,7 +338,7 @@ describe('API: projects', () => {
           },
         },
       ],
-      sinon.default.match.any,
+      sinon.match.any,
     )
   })
 
@@ -364,8 +349,8 @@ describe('API: projects', () => {
 
     expect(httpClientGetStub).to.have.been.calledWith(
       '/console/v0.1/projects',
-      sinon.default.match.any,
-      sinon.default.match.any,
+      sinon.match.any,
+      sinon.match.any,
     )
   })
 
@@ -376,8 +361,8 @@ describe('API: projects', () => {
 
     expect(httpClientGetStub).to.have.been.calledWith(
       '/console/v0.1/projects',
-      sinon.default.match.has('sort', 'name,asc'),
-      sinon.default.match.any,
+      sinon.match.has('sort', 'name,asc'),
+      sinon.match.any,
     )
   })
 
@@ -388,8 +373,8 @@ describe('API: projects', () => {
 
     expect(httpClientGetStub).to.have.been.calledWith(
       '/console/v0.1/projects',
-      sinon.default.match.has('search', 'name==p*'),
-      sinon.default.match.any,
+      sinon.match.has('search', 'name==p*'),
+      sinon.match.any,
     )
   })
 
@@ -400,8 +385,8 @@ describe('API: projects', () => {
 
     expect(httpClientGetStub).to.have.been.calledWith(
       '/console/v0.1/projects',
-      sinon.default.match.has('page', 1),
-      sinon.default.match.any,
+      sinon.match.has('page', 1),
+      sinon.match.any,
     )
   })
 
@@ -412,8 +397,8 @@ describe('API: projects', () => {
 
     expect(httpClientGetStub).to.have.been.calledWith(
       '/console/v0.1/projects',
-      sinon.default.match.has('size', 100),
-      sinon.default.match.any,
+      sinon.match.has('size', 100),
+      sinon.match.any,
     )
   })
 })

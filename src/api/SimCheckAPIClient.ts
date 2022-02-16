@@ -1,12 +1,12 @@
-import { APIConfiguration } from './APIConfiguration'
 import ILogger from '../helpers/ILogger'
 import AbstractAPIClient from './AbstractAPIClient'
-import { ILink, IListResource, IListResourceParameters } from './IListResource'
+import { APIConfiguration } from './APIConfiguration'
 import { CheckStatus } from './CheckStatus'
+import { ILink, IListResource, IListResourceParameters } from './IListResource'
 import {
-  TraceApiClient,
   CheckTraceResource,
   IListCheckTracesResource,
+  TraceApiClient,
 } from './TraceAPIClient'
 
 export interface ICreateSimCheck {
@@ -17,7 +17,7 @@ export interface ICreateSimCheckResponse extends ISimCheckResource {
   snapshot_balance: number
 }
 
-export interface ISimCheckResource {
+export type ISimCheckResource = {
   check_id: string
   status: CheckStatus.COMPLETED | CheckStatus.ERROR
   charge_amount: number

@@ -1,16 +1,14 @@
-import * as sinon from 'ts-sinon'
-import * as chai from 'chai'
-import * as sinonChai from 'sinon-chai'
-
-import { OAuth2APIClient } from '../../src/api/OAuth2APIClient'
+import chai from 'chai'
+import sinonChai from 'sinon-chai'
+import sinon from 'ts-sinon'
 import { APIConfiguration } from '../../src/api/APIConfiguration'
 import * as httpClientModule from '../../src/api/HttpClient'
+import { OAuth2APIClient } from '../../src/api/OAuth2APIClient'
 
 const expect = chai.expect
 chai.use(sinonChai)
 
 describe('API: projects', () => {
-  const projectName: string = 'a project'
   const accessToken: httpClientModule.ICreateTokenResponse = {
     access_token: 'i am an access token',
     id_token: 'adfasdfa',
@@ -34,7 +32,7 @@ describe('API: projects', () => {
   }
 
   beforeEach(() => {
-    createAccessTokenStub = sinon.default.stub(
+    createAccessTokenStub = sinon.stub(
       httpClientModule.HttpClient.prototype,
       'createAccessToken',
     )
@@ -42,7 +40,7 @@ describe('API: projects', () => {
   })
 
   afterEach(() => {
-    sinon.default.restore()
+    sinon.restore()
   })
 
   it('should call createAccessToken on HttpClient', async () => {

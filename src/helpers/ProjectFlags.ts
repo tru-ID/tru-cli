@@ -1,4 +1,4 @@
-import { flags } from '@oclif/command'
+import { Flags } from '@oclif/core'
 import ILogger from './ILogger'
 
 const PHONECHECK_CALLBACK_URL_FLAG_NAME = 'phonecheck-callback'
@@ -8,7 +8,7 @@ const PROJECT_MODE_FLAG_NAME = 'mode'
 export const phoneCheckCallbackUrlFlag = {
   flagName: PHONECHECK_CALLBACK_URL_FLAG_NAME,
   flag: {
-    'phonecheck-callback': flags.string({
+    'phonecheck-callback': Flags.string({
       description:
         'set a callback to be invoked when a PhoneCheck reaches an end state',
       exclusive: [REMOVE_PHONECHECK_CALLBACK_URL_FLAG_NAME],
@@ -19,7 +19,7 @@ export const phoneCheckCallbackUrlFlag = {
 export const removePhoneCheckCallbackFlag = {
   flagName: REMOVE_PHONECHECK_CALLBACK_URL_FLAG_NAME,
   flag: {
-    'remove-phonecheck-callback': flags.boolean({
+    'remove-phonecheck-callback': Flags.boolean({
       description:
         'remove the PhoneCheck callback configuration from the Project',
       default: false,
@@ -51,7 +51,7 @@ export const phoneCheckCallbackUrlFlagValidation = (
 export const projectModeFlag = {
   flagName: PROJECT_MODE_FLAG_NAME,
   flag: {
-    mode: flags.string({
+    mode: Flags.string({
       description: 'Set the project mode to "live" or "sandbox"',
       options: ['live', 'sandbox'],
     }),

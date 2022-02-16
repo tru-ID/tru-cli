@@ -18,12 +18,12 @@ interface IResponseLog {
   headers: any
 }
 
-export declare interface ICreateTokenResponse {
+export declare type ICreateTokenResponse = {
   access_token: string
-  id_token: string
+  id_token?: string
   expires_in: number
   token_type: string
-  refresh_token: string
+  refresh_token?: string
   scope: string
 }
 

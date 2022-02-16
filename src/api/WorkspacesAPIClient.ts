@@ -1,10 +1,10 @@
-import { APIConfiguration } from './APIConfiguration'
 import ILogger from '../helpers/ILogger'
 import AbstractAPIClient from './AbstractAPIClient'
+import { APIConfiguration } from './APIConfiguration'
 import IAPICredentials from './IAPICredentails'
 import { ILink } from './IListResource'
 
-export interface IWorkspaceResource {
+export type IWorkspaceResource = {
   data_residency: string
   created_at: string
   updated_at?: string

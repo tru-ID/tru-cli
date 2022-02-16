@@ -1,9 +1,8 @@
-import * as Config from '@oclif/config'
+import { Config } from '@oclif/core'
 import { APIConfiguration } from '../../api/APIConfiguration'
-import { SubscriberCheckAPIClient } from '../../api/SubscriberCheckAPIClient'
-import ILogger from '../../helpers/ILogger'
-import ChecksTraceCommand from '../../helpers/ChecksTraceCommand'
 import { SimCheckAPIClient } from '../../api/SimCheckAPIClient'
+import ChecksTraceCommand from '../../helpers/ChecksTraceCommand'
+import ILogger from '../../helpers/ILogger'
 
 export default class SimCheckTraces extends ChecksTraceCommand {
   static description = 'Get the traces of a SIMCheck'
@@ -16,7 +15,7 @@ export default class SimCheckTraces extends ChecksTraceCommand {
 
   static args = [...ChecksTraceCommand.args]
 
-  constructor(argv: string[], config: Config.IConfig) {
+  constructor(argv: string[], config: Config) {
     super('SIMCheck', 'sim_check', argv, config)
   }
 

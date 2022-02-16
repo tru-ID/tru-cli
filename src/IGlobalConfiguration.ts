@@ -25,23 +25,6 @@ export default interface IGlobalConfiguration {
   apiBaseUrlOverride?: string
 
   /**
-   * If present, the `phonechecks:create --workflow` command will create a QR code for this URL.
-   *
-   * The CLI replaces `{CHECK_URL}` within the provided configuration string with the PhoneCheck check_url which has been encoded with `encodeURIComponent`
-   */
-  qrCodeUrlHandlerOverride?: string
-
-  /**
-   * If present, is used to determine how frequently the PhoneCheck `/checks/{check_id}` endpoint is polled to check if the status has changed.
-   */
-  phoneCheckWorkflowRetryMillisecondsOverride?: number
-
-  /**
-   * If present, is used to determine how frequently the SubscriberCheck `/checks/{check_id}` endpoint is polled to check if the status has changed.
-   */
-  subscriberCheckWorkflowRetryMillisecondsOverride?: number
-
-  /**
    * Allow configuration values to be iterated over
    */
   [index: string]: any

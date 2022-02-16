@@ -1,4 +1,4 @@
-import { cli } from 'cli-ux'
+import { CliUx } from '@oclif/core'
 import { APIConfiguration } from '../../api/APIConfiguration'
 import {
   CoverageAPIClient,
@@ -22,11 +22,11 @@ export default class CoverageCountry extends CommandWithProjectConfig {
 
   static flags = {
     ...CommandWithProjectConfig.flags,
-    ...cli.table.flags(),
+    ...CliUx.ux.table.flags(),
   }
 
   async run(): Promise<any> {
-    const { args, flags } = this.parse(CoverageCountry)
+    const { args, flags } = await this.parse(CoverageCountry)
     const code = args.code
 
     this.flags = flags
@@ -43,13 +43,13 @@ export default class CoverageCountry extends CommandWithProjectConfig {
     try {
       response = await apiClient.countryReach(code)
     } catch (error) {
-      logApiError(this.log, error)
+      logApiError(this, error)
       this.exit(1)
     }
 
     if (response) {
       const transformed = this.transformResult(response)
-      cli.table(
+      CliUx.ux.table(
         transformed,
         {
           country_code: { header: 'country_code', extended: true },

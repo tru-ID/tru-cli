@@ -1,6 +1,5 @@
 import { APIConfiguration } from '../../api/APIConfiguration'
 import {
-  ICreateProjectResponse,
   IUpdateProjectPayload,
   ProjectsAPIClient,
 } from '../../api/ProjectsAPIClient'
@@ -13,7 +12,7 @@ import {
 } from '../../helpers/ProjectFlags'
 import { logApiError } from '../../utilities'
 
-export default class Create extends CommandWithProjectConfig {
+export default class ProjectsUpdate extends CommandWithProjectConfig {
   static description = 'Update an existing Project'
 
   static examples = [
@@ -39,7 +38,7 @@ export default class Create extends CommandWithProjectConfig {
   ]
 
   async run() {
-    const result = this.parse(Create)
+    const result = await this.parse(ProjectsUpdate)
     this.args = result.args
     this.flags = result.flags
 
@@ -88,7 +87,6 @@ export default class Create extends CommandWithProjectConfig {
       this.logger,
     )
 
-    let projectCreationResult: ICreateProjectResponse
     try {
       const updatePayload: IUpdateProjectPayload = {}
 
@@ -108,14 +106,11 @@ export default class Create extends CommandWithProjectConfig {
         updatePayload.mode = this.flags[projectModeFlag.flagName]
       }
 
-      projectCreationResult = await projectsAPI.update(
-        this.args['project-id'],
-        updatePayload,
-      )
+      await projectsAPI.update(this.args['project-id'], updatePayload)
 
       this.logger.info('✅ Project updated')
     } catch (error) {
-      logApiError(this.log, error)
+      logApiError(this, error)
       this.exit(1)
     }
   }

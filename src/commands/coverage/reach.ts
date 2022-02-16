@@ -1,4 +1,4 @@
-import { cli } from 'cli-ux'
+import { CliUx } from '@oclif/core'
 import { APIConfiguration } from '../../api/APIConfiguration'
 import {
   CoverageAPIClient,
@@ -23,11 +23,11 @@ export default class CoverageReach extends CommandWithProjectConfig {
 
   static flags = {
     ...CommandWithProjectConfig.flags,
-    ...cli.table.flags(),
+    ...CliUx.ux.table.flags(),
   }
 
   async run(): Promise<any> {
-    const { args, flags } = this.parse(CoverageReach)
+    const { args, flags } = await this.parse(CoverageReach)
     const deviceIp = args['device-ip']
 
     this.flags = flags
@@ -44,12 +44,12 @@ export default class CoverageReach extends CommandWithProjectConfig {
     try {
       response = await apiClient.reach(deviceIp)
     } catch (error) {
-      logApiError(this.log, error)
+      logApiError(this, error)
       this.exit(1)
     }
 
     if (response) {
-      cli.table(
+      CliUx.ux.table(
         [response],
         {
           network_id: { header: 'network_id' },
@@ -57,7 +57,7 @@ export default class CoverageReach extends CommandWithProjectConfig {
           country_code: { header: 'country_code' },
           supported_products: {
             header: 'supported_products',
-            get: (row) =>
+            get: (row: ICoverageReachResponse) =>
               row.products.map((p: IProduct) => p.product_name).join(','),
           },
         },

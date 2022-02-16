@@ -1,26 +1,23 @@
 import { test } from '@oclif/test'
-import * as sinon from 'ts-sinon'
-import * as chai from 'chai'
-import * as sinonChai from 'sinon-chai'
-
-const expect = chai.expect
-chai.use(sinonChai)
-
-import * as fs from 'fs-extra'
-
-import * as phoneCheckAPIClientModules from '../../../src/api/PhoneChecksAPIClient'
-import IGlobalConfiguration from '../../../src/IGlobalConfiguration'
-import { IProjectConfiguration } from '../../../src/IProjectConfiguration'
+import chai from 'chai'
+import fs from 'fs-extra'
+import sinonChai from 'sinon-chai'
+import sinon from 'ts-sinon'
 import { APIConfiguration } from '../../../src/api/APIConfiguration'
-import { ConsoleLogger } from '../../../src/helpers/ConsoleLogger'
-
-import { buildConsoleString } from '../../test_helpers'
 import {
   CheckResource,
   IListCheckResource,
 } from '../../../src/api/ChecksAPIClient'
 import { CheckStatus } from '../../../src/api/CheckStatus'
 import * as httpClientModule from '../../../src/api/HttpClient'
+import * as phoneCheckAPIClientModules from '../../../src/api/PhoneChecksAPIClient'
+import { ConsoleLogger } from '../../../src/helpers/ConsoleLogger'
+import IGlobalConfiguration from '../../../src/IGlobalConfiguration'
+import { IProjectConfiguration } from '../../../src/IProjectConfiguration'
+import { buildConsoleString } from '../../test_helpers'
+
+const expect = chai.expect
+chai.use(sinonChai)
 
 describe('phonechecks:list', () => {
   let phoneChecksApiClientConstructorStub: any
@@ -28,7 +25,7 @@ describe('phonechecks:list', () => {
   let consoleLoggerInfoStub: any
   let httpClientGetStub: any
 
-  let expectedUserConfig: IGlobalConfiguration = {
+  const expectedUserConfig: IGlobalConfiguration = {
     defaultWorkspaceClientId: 'my client id',
     defaultWorkspaceClientSecret: 'my client secret',
     defaultWorkspaceDataResidency: 'eu',
@@ -85,59 +82,50 @@ describe('phonechecks:list', () => {
   }
 
   beforeEach(() => {
-    sinon.default
+    sinon
       .stub(fs, 'existsSync')
-      .withArgs(sinon.default.match(new RegExp(/config.json/)))
+      .withArgs(sinon.match(new RegExp(/config.json/)))
       .returns(true)
 
-    readJsonStub = sinon.default.stub(fs, 'readJson')
+    readJsonStub = sinon.stub(fs, 'readJson')
 
     readJsonStub
-      .withArgs(
-        sinon.default.match(sinon.default.match(new RegExp(/config.json/))),
-      )
+      .withArgs(sinon.match(sinon.match(new RegExp(/config.json/))))
       .resolves(expectedUserConfig)
 
     readJsonStub
-      .withArgs(sinon.default.match(projectConfigFileLocation))
+      .withArgs(sinon.match(projectConfigFileLocation))
       .resolves(projectConfig)
 
-    httpClientGetStub = sinon.default.stub(
-      httpClientModule.HttpClient.prototype,
-      'get',
-    )
+    httpClientGetStub = sinon.stub(httpClientModule.HttpClient.prototype, 'get')
     httpClientGetStub
-      .withArgs(
-        '/phone_check/v0.1/checks',
-        sinon.default.match.any,
-        sinon.default.match.any,
-      )
+      .withArgs('/phone_check/v0.1/checks', sinon.match.any, sinon.match.any)
       .resolves(checksListResource)
     httpClientGetStub
       .withArgs(
         `/phone_check/v0.1/checks/${phoneCheckResource.check_id}`,
-        sinon.default.match.any,
-        sinon.default.match.any,
+        sinon.match.any,
+        sinon.match.any,
       )
       .resolves(phoneCheckResource)
     httpClientGetStub
       .withArgs(
         `/phone_check/v0.1/checks/check_id_value`,
-        sinon.default.match.any,
-        sinon.default.match.any,
+        sinon.match.any,
+        sinon.match.any,
       )
       .resolves(phoneCheckResource)
 
-    consoleLoggerInfoStub = sinon.default.stub(ConsoleLogger.prototype, 'info')
+    consoleLoggerInfoStub = sinon.stub(ConsoleLogger.prototype, 'info')
   })
 
   afterEach(() => {
-    sinon.default.restore()
+    sinon.restore()
   })
 
   test
     .do(() => {
-      phoneChecksApiClientConstructorStub = sinon.default.spy(
+      phoneChecksApiClientConstructorStub = sinon.spy(
         phoneCheckAPIClientModules,
         'PhoneChecksAPIClient',
       )
@@ -145,9 +133,9 @@ describe('phonechecks:list', () => {
     .command(['phonechecks:list'])
     .it(
       'phonechecks/list/PhoneChecksAPIClient: it should instantiate PhoneChecksAPIClient with expected arguments',
-      (ctx) => {
+      () => {
         expect(phoneChecksApiClientConstructorStub).to.be.calledWith(
-          sinon.default.match.instanceOf(APIConfiguration),
+          sinon.match.instanceOf(APIConfiguration),
         )
       },
     )
@@ -156,11 +144,11 @@ describe('phonechecks:list', () => {
     .command(['phonechecks:list'])
     .it(
       'phonechecks/list/PhoneChecksAPIClient.list: should call PhoneChecksAPIClient.list() if optional check_id argment is not supplied',
-      (ctx) => {
+      () => {
         expect(httpClientGetStub).to.be.calledWith(
           '/phone_check/v0.1/checks',
-          sinon.default.match.any,
-          sinon.default.match.any,
+          sinon.match.any,
+          sinon.match.any,
         )
       },
     )
@@ -169,18 +157,18 @@ describe('phonechecks:list', () => {
     .command(['phonechecks:list', 'check_id_value'])
     .it(
       'should call PhoneChecksAPIClient.get(checkId) if optional check_id argment is supplied',
-      (ctx) => {
+      () => {
         expect(httpClientGetStub).to.be.calledWith(
           '/phone_check/v0.1/checks/check_id_value',
-          sinon.default.match.any,
-          sinon.default.match.any,
+          sinon.match.any,
+          sinon.match.any,
         )
       },
     )
 
   test
     .command(['phonechecks:list'])
-    .it('should contain header table output', (ctx) => {
+    .it('should contain header table output', () => {
       const consoleOutputString = buildConsoleString(consoleLoggerInfoStub)
 
       expect(consoleOutputString).to.contain('check_id')
@@ -193,7 +181,7 @@ describe('phonechecks:list', () => {
 
   test
     .command(['phonechecks:list'])
-    .it('should contain pagination output', (ctx) => {
+    .it('should contain pagination output', () => {
       const consoleOutputString = buildConsoleString(consoleLoggerInfoStub)
 
       expect(consoleOutputString).to.contain('Page 1 of 1')
@@ -202,7 +190,7 @@ describe('phonechecks:list', () => {
 
   test
     .command(['phonechecks:list'])
-    .it('outputs resource list to cli.table', (ctx) => {
+    .it('outputs resource list to cli.table', () => {
       const consoleOutputString = buildConsoleString(consoleLoggerInfoStub)
 
       expect(consoleOutputString).to.contain(phoneCheckResource.check_id)
@@ -215,7 +203,7 @@ describe('phonechecks:list', () => {
 
   test
     .command(['phonechecks:list', 'check_id_value'])
-    .it('outputs result of a single resource to cli.table', (ctx) => {
+    .it('outputs result of a single resource to cli.table', () => {
       const consoleOutputString = buildConsoleString(consoleLoggerInfoStub)
 
       expect(consoleOutputString).to.contain(phoneCheckResource.check_id)

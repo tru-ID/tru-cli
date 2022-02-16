@@ -1,29 +1,23 @@
 import { test } from '@oclif/test'
-import * as sinon from 'ts-sinon'
-import * as chai from 'chai'
-import * as sinonChai from 'sinon-chai'
+import chai from 'chai'
+import fs from 'fs-extra'
+import path from 'path'
+import sinonChai from 'sinon-chai'
+import sinon from 'ts-sinon'
+import { ICreateTokenResponse } from '../../../src/api/HttpClient'
+import * as apiModule from '../../../src/api/OAuth2APIClient'
+import { OAuth2APIClient } from '../../../src/api/OAuth2APIClient'
+import { IProjectResource } from '../../../src/api/ProjectsAPIClient'
+import CommandWithProjectConfig from '../../../src/helpers/CommandWithProjectConfig'
+import IGlobalConfiguration from '../../../src/IGlobalConfiguration'
 
 const expect = chai.expect
 chai.use(sinonChai)
 
-import * as fs from 'fs-extra'
-import * as path from 'path'
-import * as inquirer from 'inquirer'
-
-import * as apiModule from '../../../src/api/OAuth2APIClient'
-import { OAuth2APIClient } from '../../../src/api/OAuth2APIClient'
-import { IProjectResource } from '../../../src/api/ProjectsAPIClient'
-import IGlobalConfiguration from '../../../src/IGlobalConfiguration'
-import * as consoleLoggerModule from '../../../src/helpers/ConsoleLogger'
-import CommandWithProjectConfig from '../../../src/helpers/CommandWithProjectConfig'
-import { APIConfiguration } from '../../../src/api/APIConfiguration'
-import { ICreateTokenResponse } from '../../../src/api/HttpClient'
-import { AnyCnameRecord } from 'dns'
-
 let constructorStub: any = null
 let apiClientStub: any = null
 
-let expectedUserConfig: IGlobalConfiguration = {
+const expectedUserConfig: IGlobalConfiguration = {
   defaultWorkspaceClientId: 'my client id',
   defaultWorkspaceClientSecret: 'my client secret',
   defaultWorkspaceDataResidency: 'eu',
@@ -40,12 +34,9 @@ const accessToken: ICreateTokenResponse = {
 
 // Stubs
 let existsSyncStub: any
-let projectConfigFileCreationStub: any
 let readJsonStub: any
-let consoleLoggerConstructorStub: any
-let consoleLoggerDebugStub: any
 
-const newProjectName: string = 'My First Project'
+const newProjectName = 'My First Project'
 const expectedProjectDirectoryName = 'my_first_project'
 const expectedProjectFullPath = path.join(
   process.cwd(),
@@ -108,22 +99,22 @@ delete expectedProjectConfigJson._links
 
 describe('Command: oauth2:create', () => {
   beforeEach(() => {
-    existsSyncStub = sinon.default.stub(fs, 'existsSync')
+    existsSyncStub = sinon.stub(fs, 'existsSync')
     existsSyncStub
-      .withArgs(sinon.default.match(new RegExp(/config.json/)))
+      .withArgs(sinon.match(new RegExp(/config.json/)))
       .returns(true)
 
-    apiClientStub = sinon.default.stub(OAuth2APIClient.prototype, 'create')
+    apiClientStub = sinon.stub(OAuth2APIClient.prototype, 'create')
     apiClientStub.resolves(accessToken)
 
-    readJsonStub = sinon.default.stub(fs, 'readJson')
+    readJsonStub = sinon.stub(fs, 'readJson')
     readJsonStub
-      .withArgs(sinon.default.match(new RegExp(/config.json/)))
+      .withArgs(sinon.match(new RegExp(/config.json/)))
       .resolves(expectedUserConfig)
   })
 
   afterEach(() => {
-    sinon.default.restore()
+    sinon.restore()
   })
 
   test
@@ -131,26 +122,23 @@ describe('Command: oauth2:create', () => {
       existsSyncStub
         .withArgs(expectedCurrentWorkingDirectoryConfig)
         .returns(false)
-      constructorStub = sinon.default.spy(apiModule, 'OAuth2APIClient')
+      constructorStub = sinon.spy(apiModule, 'OAuth2APIClient')
     })
     .command(['oauth2:token'])
     .it(
       `should use workspace credentials when the --${CommandWithProjectConfig.projectDirFlagName} flag is not set`,
-      (ctx) => {
+      () => {
         expect(constructorStub).to.have.been.calledWith(
-          sinon.default.match
+          sinon.match
             .has('clientId', expectedUserConfig.defaultWorkspaceClientId)
             .and(
-              sinon.default.match.has(
+              sinon.match.has(
                 'clientSecret',
                 expectedUserConfig.defaultWorkspaceClientSecret,
               ),
             )
             .and(
-              sinon.default.match.has(
-                'scopes',
-                'workspaces projects usage balances',
-              ),
+              sinon.match.has('scopes', 'workspaces projects usage balances'),
             ),
         )
       },
@@ -158,7 +146,7 @@ describe('Command: oauth2:create', () => {
 
   test
     .do(() => {
-      constructorStub = sinon.default.spy(apiModule, 'OAuth2APIClient')
+      constructorStub = sinon.spy(apiModule, 'OAuth2APIClient')
 
       readJsonStub
         .withArgs(expectedProjectConfigFileFullPath)
@@ -171,18 +159,18 @@ describe('Command: oauth2:create', () => {
     ])
     .it(
       `should use project credentials when the --${CommandWithProjectConfig.projectDirFlagName} flag is set`,
-      (ctx) => {
+      () => {
         expect(constructorStub).to.have.been.calledWith(
-          sinon.default.match
+          sinon.match
             .has('clientId', expectedProjectConfigJson.credentials[0].client_id)
             .and(
-              sinon.default.match.has(
+              sinon.match.has(
                 'clientSecret',
                 expectedProjectConfigJson.credentials[0].client_secret,
               ),
             )
             .and(
-              sinon.default.match.has(
+              sinon.match.has(
                 'scopes',
                 expectedProjectConfigJson.credentials[0].scopes.join(' '),
               ),
@@ -193,7 +181,7 @@ describe('Command: oauth2:create', () => {
 
   test
     .do(() => {
-      constructorStub = sinon.default.spy(apiModule, 'OAuth2APIClient')
+      constructorStub = sinon.spy(apiModule, 'OAuth2APIClient')
 
       readJsonStub
         .withArgs(expectedProjectConfigFileFullPath)
@@ -206,24 +194,24 @@ describe('Command: oauth2:create', () => {
     ])
     .it(
       `should use default project credentials when the --${CommandWithProjectConfig.projectDirFlagName} flag is set and no scopes in credentials is there`,
-      (ctx) => {
+      () => {
         expect(constructorStub).to.have.been.calledWith(
-          sinon.default.match
+          sinon.match
             .has('clientId', oldProjectConfig.credentials[0].client_id)
             .and(
-              sinon.default.match.has(
+              sinon.match.has(
                 'clientSecret',
                 oldProjectConfig.credentials[0].client_secret,
               ),
             )
-            .and(sinon.default.match.has('scopes', 'phone_check')),
+            .and(sinon.match.has('scopes', 'phone_check')),
         )
       },
     )
 
   test
     .do(() => {
-      constructorStub = sinon.default.spy(apiModule, 'OAuth2APIClient')
+      constructorStub = sinon.spy(apiModule, 'OAuth2APIClient')
 
       readJsonStub
         .withArgs(expectedProjectConfigFileFullPath)
@@ -236,19 +224,19 @@ describe('Command: oauth2:create', () => {
     ])
     .it(
       `should call the client to create an access token when project config is used`,
-      (ctx) => {
+      () => {
         expect(apiClientStub).to.have.been.called
       },
     )
 
   test
     .do(() => {
-      constructorStub = sinon.default.spy(apiModule, 'OAuth2APIClient')
+      constructorStub = sinon.spy(apiModule, 'OAuth2APIClient')
     })
     .command(['oauth2:token'])
     .it(
       `should call the client to create an access token when workspace config is used`,
-      (ctx) => {
+      () => {
         expect(apiClientStub).to.have.been.called
       },
     )

@@ -1,6 +1,6 @@
+import ILogger from '../helpers/ILogger'
 import { APIConfiguration } from './APIConfiguration'
 import { HttpClient } from './HttpClient'
-import ILogger from '../helpers/ILogger'
 
 export default abstract class AbstractAPIClient {
   httpClient: HttpClient

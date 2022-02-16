@@ -1,10 +1,9 @@
-import * as chai from 'chai'
-import * as sinonChai from 'sinon-chai'
+import chai from 'chai'
+import sinonChai from 'sinon-chai'
+import { stringToSnakeCase } from '../src/utilities'
 
 const expect = chai.expect
 chai.use(sinonChai)
-
-import { stringToSnakeCase } from '../src/utilities'
 
 describe('stringToSnakeCase', () => {
   it('should convert a string to snake-case', () => {

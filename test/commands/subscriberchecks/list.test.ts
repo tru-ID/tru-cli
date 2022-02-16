@@ -1,8 +1,8 @@
 import { test } from '@oclif/test'
-import * as chai from 'chai'
-import * as fs from 'fs-extra'
-import * as sinonChai from 'sinon-chai'
-import * as sinon from 'ts-sinon'
+import chai from 'chai'
+import fs from 'fs-extra'
+import sinonChai from 'sinon-chai'
+import sinon from 'ts-sinon'
 import { APIConfiguration } from '../../../src/api/APIConfiguration'
 import { IListCheckResource } from '../../../src/api/ChecksAPIClient'
 import { CheckStatus } from '../../../src/api/CheckStatus'
@@ -82,59 +82,54 @@ describe('subscriberchecks:list', () => {
     }
 
   beforeEach(() => {
-    sinon.default
+    sinon
       .stub(fs, 'existsSync')
-      .withArgs(sinon.default.match(new RegExp(/config.json/)))
+      .withArgs(sinon.match(new RegExp(/config.json/)))
       .returns(true)
 
-    readJsonStub = sinon.default.stub(fs, 'readJson')
+    readJsonStub = sinon.stub(fs, 'readJson')
 
     readJsonStub
-      .withArgs(
-        sinon.default.match(sinon.default.match(new RegExp(/config.json/))),
-      )
+      .withArgs(sinon.match(sinon.match(new RegExp(/config.json/))))
       .resolves(expectedUserConfig)
 
     readJsonStub
-      .withArgs(sinon.default.match(projectConfigFileLocation))
+      .withArgs(sinon.match(projectConfigFileLocation))
       .resolves(projectConfig)
 
-    httpClientGetStub = sinon.default.stub(
-      httpClientModule.HttpClient.prototype,
-      'get',
-    )
+    httpClientGetStub = sinon.stub(httpClientModule.HttpClient.prototype, 'get')
     httpClientGetStub
       .withArgs(
         '/subscriber_check/v0.1/checks',
-        sinon.default.match.any,
-        sinon.default.match.any,
+        sinon.match.any,
+        sinon.match.any,
       )
       .resolves(subscriberListCheckResource)
     httpClientGetStub
       .withArgs(
         `/subscriber_check/v0.1/checks/${subscriberCheckResource.check_id}`,
-        sinon.default.match.any,
-        sinon.default.match.any,
+        sinon.match.any,
+        sinon.match.any,
       )
       .resolves(subscriberCheckResource)
     httpClientGetStub
       .withArgs(
         `/subscriber_check/v0.1/checks/check_id_value`,
-        sinon.default.match.any,
-        sinon.default.match.any,
+        sinon.match.any,
+        sinon.match.any,
       )
       .resolves(subscriberCheckResource)
 
-    consoleLoggerInfoStub = sinon.default.stub(ConsoleLogger.prototype, 'info')
+    consoleLoggerInfoStub = sinon.stub(ConsoleLogger.prototype, 'info')
   })
 
   afterEach(() => {
-    sinon.default.restore()
+    sinon.restore()
   })
 
   test
     .do(() => {
-      subscriberChecksApiClientConstructorStub = sinon.default.spy(
+      subscriberChecksApiClientConstructorStub = sinon.spy(
         subscriberCheckAPIClientModules,
         'SubscriberCheckAPIClient',
       )
@@ -144,7 +139,7 @@ describe('subscriberchecks:list', () => {
       'subscriberchecks/list/SubscriberCheckAPIClient: it should instantiate SubscriberCheckAPIClient with expected arguments',
       () => {
         expect(subscriberChecksApiClientConstructorStub).to.be.calledWith(
-          sinon.default.match.instanceOf(APIConfiguration),
+          sinon.match.instanceOf(APIConfiguration),
         )
       },
     )
@@ -156,8 +151,8 @@ describe('subscriberchecks:list', () => {
       () => {
         expect(httpClientGetStub).to.be.calledWith(
           '/subscriber_check/v0.1/checks',
-          sinon.default.match.any,
-          sinon.default.match.any,
+          sinon.match.any,
+          sinon.match.any,
         )
       },
     )
@@ -169,8 +164,8 @@ describe('subscriberchecks:list', () => {
       () => {
         expect(httpClientGetStub).to.be.calledWith(
           '/subscriber_check/v0.1/checks/check_id_value',
-          sinon.default.match.any,
-          sinon.default.match.any,
+          sinon.match.any,
+          sinon.match.any,
         )
       },
     )

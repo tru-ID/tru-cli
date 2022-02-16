@@ -1,11 +1,9 @@
-import { flags } from '@oclif/command'
-import * as chalk from 'chalk'
-import * as fs from 'fs-extra'
-import * as inquirer from 'inquirer'
+import fs from 'fs-extra'
+import inquirer from 'inquirer'
 import { APIConfiguration } from '../../api/APIConfiguration'
 import {
   ICreateProjectPayload,
-  ICreateProjectResponse,
+  IProjectResource,
   ProjectsAPIClient,
 } from '../../api/ProjectsAPIClient'
 import CommandWithProjectConfig from '../../helpers/CommandWithProjectConfig'
@@ -15,9 +13,8 @@ import {
   projectModeFlag,
 } from '../../helpers/ProjectFlags'
 import { logApiError, stringToSnakeCase } from '../../utilities'
-import PhoneChecksCreate from '../phonechecks/create'
 
-export default class Create extends CommandWithProjectConfig {
+export default class ProjectsCreate extends CommandWithProjectConfig {
   static description = 'Creates a new Project'
 
   static examples = [
@@ -32,10 +29,6 @@ Creating Project "My first project"
 
   static flags = {
     ...CommandWithProjectConfig.flags,
-    quickstart: flags.boolean({
-      description:
-        'Create a Project and also create a PhoneCheck in workflow mode.',
-    }),
     ...phoneCheckCallbackUrlFlag.flag,
     ...projectModeFlag.flag,
   }
@@ -49,7 +42,7 @@ Creating Project "My first project"
   ]
 
   async run() {
-    const result = this.parse(Create)
+    const result = await this.parse(ProjectsCreate)
     this.args = result.args
     this.flags = result.flags
 
@@ -89,7 +82,7 @@ Creating Project "My first project"
       this.logger,
     )
 
-    let projectCreationResult: ICreateProjectResponse
+    let projectCreationResult: IProjectResource
     try {
       const createPayload: ICreateProjectPayload = {
         name: this.args.name,
@@ -108,8 +101,9 @@ Creating Project "My first project"
 
       projectCreationResult = await projectsAPI.create(createPayload)
     } catch (error) {
-      logApiError(this.log, error)
+      logApiError(this, error)
       this.exit(1)
+      return
     }
 
     const pathToProjectDirectory =
@@ -125,9 +119,10 @@ Creating Project "My first project"
     } else {
       try {
         // Save the project configuration to match the Project resource excluding the _links property
-        const projectConfig = {
-          ...projectCreationResult,
-        }
+        const projectConfig = { ...projectCreationResult }
+        // TODO find a better way to do this
+        // eslint-disable-next-line
+        // @ts-ignore
         delete projectConfig._links
         await fs.outputJson(configFileFullPathToCreate, projectConfig, {
           spaces: '\t',
@@ -136,24 +131,6 @@ Creating Project "My first project"
         this.log(
           `Project configuration saved to "${configFileFullPathToCreate}".`,
         )
-
-        // See https://oclif.io/docs/running_programmatically
-        // The approach below of using `.run` is not recommended
-        if (this.flags.quickstart) {
-          this.log('')
-          this.log(chalk.green.visible("Ok, let's run your first PhoneCheck!"))
-          this.log('')
-
-          const phoneCheckRunParams = [
-            `--${CommandWithProjectConfig.projectDirFlagName}`,
-            pathToProjectDirectory,
-            '--workflow',
-          ]
-          if (this.flags.debug) {
-            phoneCheckRunParams.push('--debug')
-          }
-          await PhoneChecksCreate.run(phoneCheckRunParams)
-        }
       } catch (error) {
         this.error(`An unexpected error occurred: ${error}`, { exit: 1 })
       }

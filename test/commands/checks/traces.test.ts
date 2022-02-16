@@ -1,8 +1,8 @@
 import { test } from '@oclif/test'
-import * as chai from 'chai'
-import * as fs from 'fs-extra'
-import * as sinonChai from 'sinon-chai'
-import * as sinon from 'ts-sinon'
+import chai from 'chai'
+import fs from 'fs-extra'
+import sinonChai from 'sinon-chai'
+import sinon from 'ts-sinon'
 import * as httpClientModule from '../../../src/api/HttpClient'
 import {
   CheckTraceResource,
@@ -89,72 +89,71 @@ describe('checks:traces', () => {
   }
 
   const testParams = [
-    { command: 'subscriberchecks:traces', basepath: 'subscriber_check' },
-    { command: 'phonechecks:traces', basepath: 'phone_check' },
-    { command: 'simchecks:traces', basepath: 'sim_check' },
+    {
+      command: 'subscriberchecks:traces',
+      basepath: 'subscriber_check',
+      version: 'v0.1',
+    },
+    { command: 'phonechecks:traces', basepath: 'phone_check', version: 'v0.1' },
+    { command: 'simchecks:traces', basepath: 'sim_check', version: 'v0.1' },
   ]
 
   beforeEach(() => {
-    sinon.default
+    sinon
       .stub(fs, 'existsSync')
-      .withArgs(sinon.default.match(new RegExp(/config.json/)))
+      .withArgs(sinon.match(new RegExp(/config.json/)))
       .returns(true)
 
-    readJsonStub = sinon.default.stub(fs, 'readJson')
+    readJsonStub = sinon.stub(fs, 'readJson')
 
     readJsonStub
-      .withArgs(
-        sinon.default.match(sinon.default.match(new RegExp(/config.json/))),
-      )
+      .withArgs(sinon.match(sinon.match(new RegExp(/config.json/))))
       .resolves(expectedUserConfig)
 
     readJsonStub
-      .withArgs(sinon.default.match(projectConfigFileLocation))
+      .withArgs(sinon.match(projectConfigFileLocation))
       .resolves(projectConfig)
 
-    httpClientGetStub = sinon.default.stub(
-      httpClientModule.HttpClient.prototype,
-      'get',
-    )
+    httpClientGetStub = sinon.stub(httpClientModule.HttpClient.prototype, 'get')
     httpClientGetStub
       .withArgs(
         `/phone_check/v0.1/checks/check_id_value/traces`,
-        sinon.default.match.any,
-        sinon.default.match.any,
+        sinon.match.any,
+        sinon.match.any,
       )
       .resolves(listTraceResource)
     httpClientGetStub
       .withArgs(
         `/sim_check/v0.1/checks/check_id_value/traces`,
-        sinon.default.match.any,
-        sinon.default.match.any,
+        sinon.match.any,
+        sinon.match.any,
       )
       .resolves(listTraceResource)
     httpClientGetStub
       .withArgs(
         `/subscriber_check/v0.1/checks/check_id_value/traces`,
-        sinon.default.match.any,
-        sinon.default.match.any,
+        sinon.match.any,
+        sinon.match.any,
       )
       .resolves(listTraceResource)
 
-    consoleLoggerInfoStub = sinon.default.stub(ConsoleLogger.prototype, 'info')
+    consoleLoggerInfoStub = sinon.stub(ConsoleLogger.prototype, 'info')
   })
 
   afterEach(() => {
-    sinon.default.restore()
+    sinon.restore()
   })
 
-  testParams.forEach(({ command, basepath }) => {
+  testParams.forEach(({ command, basepath, version }) => {
     test
       .command([command, 'check_id_value'])
       .it(
-        `${command} should call /${basepath}/v0.1/checks/check_id_value/traces`,
+        `${command} should call /${basepath}/${version}/checks/check_id_value/traces`,
         () => {
           expect(httpClientGetStub).to.be.calledWith(
-            `/${basepath}/v0.1/checks/check_id_value/traces`,
-            sinon.default.match.any,
-            sinon.default.match.any,
+            `/${basepath}/${version}/checks/check_id_value/traces`,
+            sinon.match.any,
+            sinon.match.any,
           )
         },
       )

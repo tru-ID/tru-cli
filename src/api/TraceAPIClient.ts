@@ -1,8 +1,4 @@
-import { APIConfiguration } from './APIConfiguration'
-import ILogger from '../helpers/ILogger'
-import AbstractAPIClient from './AbstractAPIClient'
-import { ILink, IListResource, IListResourceParameters } from './IListResource'
-import { CheckStatus } from './CheckStatus'
+import { ILink } from './IListResource'
 
 export interface CheckLogResource {
   message: string

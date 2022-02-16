@@ -1,11 +1,9 @@
-import { APIConfiguration } from './APIConfiguration'
 import ILogger from '../helpers/ILogger'
 import AbstractAPIClient from './AbstractAPIClient'
-import { IListResourceParameters } from './IListResource'
+import { APIConfiguration } from './APIConfiguration'
+import { IListResource } from './IListResource'
 
-import { ILink, IListResource } from './IListResource'
-
-export interface UsageResource {
+export type UsageResource = {
   product_id?: string
   project_id?: string
   amount: number

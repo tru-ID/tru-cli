@@ -24,7 +24,7 @@ export interface ICoverageInfo {
 
 export type IProductCoverage = IProduct & ICoverageInfo
 
-export interface ICoverageReachResponse {
+export type ICoverageReachResponse = {
   network_id: string
   network_name: string
   country_code: string

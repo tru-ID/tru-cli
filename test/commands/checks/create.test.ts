@@ -1,43 +1,30 @@
 import { test } from '@oclif/test'
-import * as path from 'path'
-import * as sinon from 'ts-sinon'
-import * as chai from 'chai'
-import * as sinonChai from 'sinon-chai'
+import chai from 'chai'
+import fs from 'fs-extra'
+import inquirer from 'inquirer'
+import path from 'path'
+import sinonChai from 'sinon-chai'
+import sinon from 'ts-sinon'
+import { ICreateCheckResponse } from '../../../src/api/ChecksAPIClient'
+import { CheckStatus } from '../../../src/api/CheckStatus'
+import { ICreateTokenResponse } from '../../../src/api/HttpClient'
+import { OAuth2APIClient } from '../../../src/api/OAuth2APIClient'
+import * as phoneCheckAPIClientModules from '../../../src/api/PhoneChecksAPIClient'
+import * as subscriberCheckAPIClientModules from '../../../src/api/SubscriberCheckAPIClient'
+import CommandWithProjectConfig from '../../../src/helpers/CommandWithProjectConfig'
+import * as consoleLoggerModule from '../../../src/helpers/ConsoleLogger'
+import IGlobalConfiguration from '../../../src/IGlobalConfiguration'
+import { IProjectConfiguration } from '../../../src/IProjectConfiguration'
 
 const expect = chai.expect
 chai.use(sinonChai)
 
-import * as fs from 'fs-extra'
-import * as inquirer from 'inquirer'
-import * as qrcode from 'qrcode-terminal'
-
-import IGlobalConfiguration from '../../../src/IGlobalConfiguration'
-import * as subscriberCheckAPIClientModules from '../../../src/api/SubscriberCheckAPIClient'
-import { IProjectConfiguration } from '../../../src/IProjectConfiguration'
-import * as consoleLoggerModule from '../../../src/helpers/ConsoleLogger'
-import CommandWithProjectConfig from '../../../src/helpers/CommandWithProjectConfig'
-import { ICreateTokenResponse } from '../../../src/api/HttpClient'
-import { OAuth2APIClient } from '../../../src/api/OAuth2APIClient'
-import {
-  ICreateCheckResponse,
-  CheckResource,
-} from '../../../src/api/ChecksAPIClient'
-import { CheckStatus } from '../../../src/api/CheckStatus'
-
-import * as phoneCheckAPIClientModules from '../../../src/api/PhoneChecksAPIClient'
-
-let globalConfig: IGlobalConfiguration = {
+const globalConfig: IGlobalConfiguration = {
   defaultWorkspaceClientId: 'my client id',
   defaultWorkspaceClientSecret: 'my client secret',
   defaultWorkspaceDataResidency: 'eu',
   phoneCheckWorkflowRetryMillisecondsOverride: 500, // override to speed up tests
   subscriberCheckWorkflowRetryMillisecondsOverride: 500,
-}
-
-const overrideQrCodeHandlerConfig = {
-  ...globalConfig,
-  qrCodeUrlHandlerOverride:
-    'http://example.com/thing/blah?u={CHECK_URL}&c={CHECK_ID}&t={ACCESS_TOKEN}',
 }
 
 const createSubscriberCheckResponse: ICreateCheckResponse = {
@@ -54,59 +41,6 @@ const createSubscriberCheckResponse: ICreateCheckResponse = {
     },
     check_url: {
       href: 'https://us.api.tru.id/subscriber_check/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002/redirect',
-    },
-  },
-  snapshot_balance: 100,
-}
-
-const subscriberCheckMatchedResource: subscriberCheckAPIClientModules.SubscriberCheckResource =
-  {
-    check_id: 'c69bc0e6-a429-11ea-bb37-0242ac130002',
-    status: CheckStatus.COMPLETED,
-    match: true,
-    charge_amount: 1,
-    charge_currency: 'API',
-    created_at: '2020-06-01T16:43:30+00:00',
-    updated_at: '2020-06-01T16:43:30+00:00',
-    no_sim_change: true,
-    _links: {
-      self: {
-        href: 'https://us.api.tru.id/subscriber_check/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002',
-      },
-    },
-  }
-
-const subscriberCheckExpiredResource: subscriberCheckAPIClientModules.SubscriberCheckResource =
-  {
-    check_id: 'c69bc0e6-a429-11ea-bb37-0242ac130002',
-    status: CheckStatus.EXPIRED,
-    match: false,
-    charge_amount: 1,
-    charge_currency: 'API',
-    created_at: '2020-06-01T16:43:30+00:00',
-    updated_at: '2020-06-01T16:43:30+00:00',
-    no_sim_change: false,
-    _links: {
-      self: {
-        href: 'https://us.api.tru.id/subscriber_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002',
-      },
-    },
-  }
-
-const subscriberCheckPendingResource: ICreateCheckResponse = {
-  check_id: 'c69bc0e6-a429-11ea-bb37-0242ac130002',
-  status: CheckStatus.PENDING,
-  match: false,
-  charge_amount: 1,
-  charge_currency: 'API',
-  created_at: '2020-06-01T16:43:30+00:00',
-  ttl: 60,
-  _links: {
-    self: {
-      href: 'https://us.api.tru.id/subscriber_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002',
-    },
-    check_url: {
-      href: 'https://us.api.tru.id/subscriber_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002/redirect',
     },
   },
   snapshot_balance: 100,
@@ -131,64 +65,12 @@ const createPhoneCheckResponse: ICreateCheckResponse = {
   snapshot_balance: 100,
 }
 
-const phoneCheckMatchedResource: CheckResource = {
-  check_id: 'c69bc0e6-a429-11ea-bb37-0242ac130002',
-  status: CheckStatus.COMPLETED,
-  match: true,
-  charge_amount: 1,
-  charge_currency: 'API',
-  created_at: '2020-06-01T16:43:30+00:00',
-  updated_at: '2020-06-01T16:44:00+00:00',
-  _links: {
-    self: {
-      href: 'https://us.api.tru.id/phone_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002',
-    },
-  },
-}
-
-const phoneCheckExpiredResource: CheckResource = {
-  check_id: 'c69bc0e6-a429-11ea-bb37-0242ac130002',
-  status: CheckStatus.EXPIRED,
-  match: false,
-  charge_amount: 1,
-  charge_currency: 'API',
-  created_at: '2020-06-01T16:43:30+00:00',
-  updated_at: '2020-06-01T16:43:30+00:00',
-  _links: {
-    self: {
-      href: 'https://us.api.tru.id/phone_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002',
-    },
-  },
-}
-
-const phoneCheckPendingResource: ICreateCheckResponse = {
-  check_id: 'c69bc0e6-a429-11ea-bb37-0242ac130002',
-  status: CheckStatus.PENDING,
-  match: false,
-  charge_amount: 1,
-  charge_currency: 'API',
-  created_at: '2020-06-01T16:43:30+00:00',
-  ttl: 60,
-  _links: {
-    self: {
-      href: 'https://us.api.tru.id/phone_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002',
-    },
-    check_url: {
-      href: 'https://us.api.tru.id/phone_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002/redirect',
-    },
-  },
-  snapshot_balance: 40,
-}
-
 let existsSyncStub: any
 let readJsonStub: any
 let inquirerStub: any
 let subscriberCheckAPIClientCreateStub: any
-let SubscriberCheckAPIClientGetStub: any
 let phoneCheckAPIClientCreateStub: any
-let phoneCheckAPIClientGetStub: any
 let oauth2CreateStub: any
-let qrCodeGenerateSpy: any
 
 const phoneNumberToTest = '447700900000'
 const projectConfigFileLocation = path.join(process.cwd(), 'tru.json')
@@ -217,67 +99,61 @@ const qrCodeHandlerAccessTokenResponse: ICreateTokenResponse = {
 
 describe('PhoneCheck and SubscriberCheck Create Scenarios', () => {
   beforeEach(() => {
-    existsSyncStub = sinon.default.stub(fs, 'existsSync')
+    existsSyncStub = sinon.stub(fs, 'existsSync')
     existsSyncStub
-      .withArgs(sinon.default.match(new RegExp(/config.json/)))
+      .withArgs(sinon.match(new RegExp(/config.json/)))
       .returns(true)
 
-    readJsonStub = sinon.default.stub(fs, 'readJson')
+    readJsonStub = sinon.stub(fs, 'readJson')
 
     readJsonStub
-      .withArgs(
-        sinon.default.match(sinon.default.match(new RegExp(/config.json/))),
-      )
+      .withArgs(sinon.match(sinon.match(new RegExp(/config.json/))))
       .resolves(globalConfig)
 
     readJsonStub
-      .withArgs(sinon.default.match(projectConfigFileLocation))
+      .withArgs(sinon.match(projectConfigFileLocation))
       .resolves(projectConfig)
 
-    inquirerStub = sinon.default.stub(inquirer, 'prompt')
+    inquirerStub = sinon.stub(inquirer, 'prompt')
 
     // SubscriberCheckClient
-    subscriberCheckAPIClientCreateStub = sinon.default.stub(
+    subscriberCheckAPIClientCreateStub = sinon.stub(
       subscriberCheckAPIClientModules.SubscriberCheckAPIClient.prototype,
       'create',
     )
     subscriberCheckAPIClientCreateStub.resolves(createSubscriberCheckResponse)
-    SubscriberCheckAPIClientGetStub = sinon.default.stub(
+    sinon.stub(
       subscriberCheckAPIClientModules.SubscriberCheckAPIClient.prototype,
       'get',
     )
 
     // PhoneCheckClient
-    phoneCheckAPIClientCreateStub = sinon.default.stub(
+    phoneCheckAPIClientCreateStub = sinon.stub(
       phoneCheckAPIClientModules.PhoneChecksAPIClient.prototype,
       'create',
     )
     phoneCheckAPIClientCreateStub.resolves(createPhoneCheckResponse)
 
-    phoneCheckAPIClientGetStub = sinon.default.stub(
-      phoneCheckAPIClientModules.PhoneChecksAPIClient.prototype,
-      'get',
-    )
+    sinon.stub(phoneCheckAPIClientModules.PhoneChecksAPIClient.prototype, 'get')
 
     // QR Code
-    oauth2CreateStub = sinon.default.stub(OAuth2APIClient.prototype, 'create')
+    oauth2CreateStub = sinon.stub(OAuth2APIClient.prototype, 'create')
     oauth2CreateStub.resolves(qrCodeHandlerAccessTokenResponse)
-    qrCodeGenerateSpy = sinon.default.spy(qrcode, 'generate')
   })
 
   afterEach(() => {
-    sinon.default.restore()
+    sinon.restore()
   })
 
   {
-    let params = [
+    const params = [
       { command: 'subscriberchecks:create', typeOfCheck: 'SubscriberCheck' },
       { command: 'phonechecks:create', typeOfCheck: 'PhoneCheck' },
     ]
     params.forEach(({ command }) => {
       test
         .do(() => {
-          jest.setTimeout(30000)
+          // jest.setTimeout(30000)
           existsSyncStub.withArgs(projectConfigFileLocation).returns(false)
         })
         .stdout()
@@ -295,14 +171,14 @@ describe('PhoneCheck and SubscriberCheck Create Scenarios', () => {
   }
 
   {
-    let customProjectConfigDirPath = path.join('alternative', 'path', 'to')
-    let customProjectConfigFullPath = path.join(
+    const customProjectConfigDirPath = path.join('alternative', 'path', 'to')
+    const customProjectConfigFullPath = path.join(
       'alternative',
       'path',
       'to',
       'tru.json',
     )
-    let params = [
+    const params = [
       { command: 'subscriberchecks:create', typeOfCheck: 'SubscriberCheck' },
       { command: 'phonechecks:create', typeOfCheck: 'PhoneCheck' },
     ]
@@ -310,7 +186,7 @@ describe('PhoneCheck and SubscriberCheck Create Scenarios', () => {
       test
         .do(() => {
           readJsonStub
-            .withArgs(sinon.default.match(customProjectConfigFullPath))
+            .withArgs(sinon.match(customProjectConfigFullPath))
             .resolves(projectConfig)
         })
         .stdout()
@@ -321,7 +197,7 @@ describe('PhoneCheck and SubscriberCheck Create Scenarios', () => {
         ])
         .it(
           `${command} -- should load the project configuration from the location specified by the ${CommandWithProjectConfig.projectDirFlagName} flag`,
-          (ctx) => {
+          () => {
             expect(readJsonStub).to.have.been.calledWith(
               customProjectConfigFullPath,
             )
@@ -331,7 +207,7 @@ describe('PhoneCheck and SubscriberCheck Create Scenarios', () => {
   }
 
   {
-    let params = [
+    const params = [
       { command: 'subscriberchecks:create', typeOfCheck: 'SubscriberCheck' },
       { command: 'phonechecks:create', typeOfCheck: 'PhoneCheck' },
     ]
@@ -339,7 +215,7 @@ describe('PhoneCheck and SubscriberCheck Create Scenarios', () => {
     params.forEach(({ command }) => {
       test
         .command([command, phoneNumberToTest])
-        .it(`${command} -- project configuration is read`, (ctx) => {
+        .it(`${command} -- project configuration is read`, () => {
           expect(readJsonStub).to.have.been.calledWith(
             projectConfigFileLocation,
           )
@@ -348,7 +224,7 @@ describe('PhoneCheck and SubscriberCheck Create Scenarios', () => {
   }
 
   {
-    let params = [
+    const params = [
       { command: 'subscriberchecks:create', typeOfCheck: 'SubscriberCheck' },
       { command: 'phonechecks:create', typeOfCheck: 'PhoneCheck' },
     ]
@@ -361,14 +237,14 @@ describe('PhoneCheck and SubscriberCheck Create Scenarios', () => {
         .command([command])
         .it(
           `${command} -- prompts the user for a ${typeOfCheck} to check when an inline argument is not provided`,
-          (ctx) => {
+          () => {
             expect(inquirerStub).to.have.been.calledWith([
               {
                 name: 'phone_number',
                 message: `Please enter the phone number you would like to ${typeOfCheck}`,
                 type: 'input',
-                filter: sinon.default.match.func,
-                validate: sinon.default.match.func,
+                filter: sinon.match.func,
+                validate: sinon.match.func,
               },
             ])
           },
@@ -378,7 +254,7 @@ describe('PhoneCheck and SubscriberCheck Create Scenarios', () => {
 
   {
     let constructorStub: any
-    let params = [
+    const params = [
       {
         command: 'subscriberchecks:create',
         clientName: 'SubscriberCheckAPIClient',
@@ -393,17 +269,17 @@ describe('PhoneCheck and SubscriberCheck Create Scenarios', () => {
         .command([command, phoneNumberToTest])
         .it(
           `${command} -- should instantiate a ${clientName} object with project configuration`,
-          (ctx) => {
+          () => {
             expect(constructorStub).to.have.been.calledWith(
-              sinon.default.match
+              sinon.match
                 .has('clientId', projectConfig.credentials[0].client_id)
                 .and(
-                  sinon.default.match.has(
+                  sinon.match.has(
                     'clientSecret',
                     projectConfig.credentials[0].client_secret,
                   ),
                 ),
-              sinon.default.match.any,
+              sinon.match.any,
             )
           },
         )
@@ -412,7 +288,7 @@ describe('PhoneCheck and SubscriberCheck Create Scenarios', () => {
 
   {
     let constructorStub: any
-    let params = [
+    const params = [
       {
         command: 'subscriberchecks:create',
         clientName: 'SubscriberCheckAPIClient',
@@ -432,10 +308,10 @@ describe('PhoneCheck and SubscriberCheck Create Scenarios', () => {
         .command([command, phoneNumberToTest])
         .it(
           `${command} -- should instantiate a ${clientName}  with ${scope} scopes`,
-          (ctx) => {
+          () => {
             expect(constructorStub).to.have.been.calledWith(
-              sinon.default.match.has('scopes', scope),
-              sinon.default.match.any,
+              sinon.match.has('scopes', scope),
+              sinon.match.any,
             )
           },
         )
@@ -444,7 +320,7 @@ describe('PhoneCheck and SubscriberCheck Create Scenarios', () => {
 
   {
     let constructorStub: any
-    let params = [
+    const params = [
       {
         command: 'subscriberchecks:create',
         clientName: 'SubscriberCheckAPIClient',
@@ -459,13 +335,13 @@ describe('PhoneCheck and SubscriberCheck Create Scenarios', () => {
         .command([command, phoneNumberToTest])
         .it(
           `${command} --should instantiate a ${clientName} object with global baseUrl configuration`,
-          (ctx) => {
+          () => {
             expect(constructorStub).to.have.been.calledWith(
-              sinon.default.match.has(
+              sinon.match.has(
                 'baseUrl',
                 `https://${globalConfig.defaultWorkspaceDataResidency}.api.tru.id`,
               ),
-              sinon.default.match.any,
+              sinon.match.any,
             )
           },
         )
@@ -474,7 +350,7 @@ describe('PhoneCheck and SubscriberCheck Create Scenarios', () => {
 
   {
     let constructorStub: any
-    let params = [
+    const params = [
       {
         command: 'subscriberchecks:create',
         clientName: 'SubscriberCheckAPIClient',
@@ -489,10 +365,10 @@ describe('PhoneCheck and SubscriberCheck Create Scenarios', () => {
         .command([command, phoneNumberToTest])
         .it(
           `${command} -- should instantiate a ${clientName} object with a logger`,
-          (ctx) => {
+          () => {
             expect(constructorStub).to.have.been.calledWith(
-              sinon.default.match.any,
-              sinon.default.match.instanceOf(consoleLoggerModule.ConsoleLogger),
+              sinon.match.any,
+              sinon.match.instanceOf(consoleLoggerModule.ConsoleLogger),
             )
           },
         )
@@ -501,7 +377,7 @@ describe('PhoneCheck and SubscriberCheck Create Scenarios', () => {
 
   {
     let apiClientStub: any
-    let params = [
+    const params = [
       {
         command: 'subscriberchecks:create',
         clientName: 'SubscriberCheckAPIClient',
@@ -516,7 +392,7 @@ describe('PhoneCheck and SubscriberCheck Create Scenarios', () => {
         .command([command, phoneNumberToTest, '--debug'])
         .it(
           `${command} -- calls the ${clientName} with the supplied phone number`,
-          (ctx) => {
+          () => {
             expect(apiClientStub).to.have.been.calledWith({
               phone_number: phoneNumberToTest,
             })
@@ -526,7 +402,7 @@ describe('PhoneCheck and SubscriberCheck Create Scenarios', () => {
   }
 
   {
-    let params = [
+    const params = [
       { command: 'subscriberchecks:create', typeOfCheck: 'SubscriberCheck' },
       { command: 'phonechecks:create', typeOfCheck: 'PhoneCheck' },
     ]
@@ -544,7 +420,7 @@ describe('PhoneCheck and SubscriberCheck Create Scenarios', () => {
   }
 
   {
-    let params = [
+    const params = [
       { command: 'subscriberchecks:create', typeOfCheck: 'SubscriberCheck' },
       { command: 'phonechecks:create', typeOfCheck: 'PhoneCheck' },
     ]
@@ -552,7 +428,7 @@ describe('PhoneCheck and SubscriberCheck Create Scenarios', () => {
       test
         .do(() => {
           subscriberCheckAPIClientCreateStub.restore()
-          subscriberCheckAPIClientCreateStub = sinon.default.stub(
+          subscriberCheckAPIClientCreateStub = sinon.stub(
             subscriberCheckAPIClientModules.SubscriberCheckAPIClient.prototype,
             'create',
           )
@@ -562,7 +438,7 @@ describe('PhoneCheck and SubscriberCheck Create Scenarios', () => {
           })
 
           phoneCheckAPIClientCreateStub.restore()
-          phoneCheckAPIClientCreateStub = sinon.default.stub(
+          phoneCheckAPIClientCreateStub = sinon.stub(
             phoneCheckAPIClientModules.PhoneChecksAPIClient.prototype,
             'create',
           )
@@ -585,367 +461,17 @@ describe('PhoneCheck and SubscriberCheck Create Scenarios', () => {
     })
   }
 
-  describe('checks:create --workflow', () => {
-    {
-      let params = [
-        { command: 'subscriberchecks:create', typeOfCheck: 'SubscriberCheck' },
-        { command: 'phonechecks:create', typeOfCheck: 'PhoneCheck' },
-      ]
-      params.forEach(({ command, typeOfCheck }) => {
-        test
-          .do(() => {
-            SubscriberCheckAPIClientGetStub.resolves(
-              subscriberCheckMatchedResource,
-            )
-            phoneCheckAPIClientGetStub.resolves(phoneCheckMatchedResource)
-          })
-          .command([command, phoneNumberToTest, '--workflow'])
-          .it(`${command} creates a QR code`, () => {
-            expect(qrCodeGenerateSpy).to.have.been.called
-          })
-      })
-    }
-
-    {
-      let params = [
-        {
-          command: 'subscriberchecks:create',
-          typeOfCheck: 'SubscriberCheck',
-          response: createSubscriberCheckResponse,
-        },
-        {
-          command: 'phonechecks:create',
-          typeOfCheck: 'PhoneCheck',
-          response: createPhoneCheckResponse,
-        },
-      ]
-      params.forEach(({ command, typeOfCheck, response }) => {
-        test
-          .do(() => {
-            SubscriberCheckAPIClientGetStub.resolves(
-              subscriberCheckMatchedResource,
-            )
-            phoneCheckAPIClientGetStub.resolves(phoneCheckMatchedResource)
-          })
-          .command([command, phoneNumberToTest, '--workflow'])
-          .it(`${command} creates a QR code with expected URL`, () => {
-            expect(qrCodeGenerateSpy).to.have.been.calledWith(
-              `https://r.tru.id?u=${encodeURIComponent(
-                response._links.check_url.href,
-              )}` +
-                `&c=${response.check_id}` +
-                `&t=${qrCodeHandlerAccessTokenResponse.access_token}`,
-              sinon.default.match.any,
-            )
-          })
-      })
-    }
-
-    {
-      let params = [
-        {
-          command: 'subscriberchecks:create',
-          typeOfCheck: 'SubscriberCheck',
-          response: createSubscriberCheckResponse,
-        },
-        {
-          command: 'phonechecks:create',
-          typeOfCheck: 'PhoneCheck',
-          response: createPhoneCheckResponse,
-        },
-      ]
-      params.forEach(({ command, typeOfCheck, response }) => {
-        test
-          .do(() => {
-            SubscriberCheckAPIClientGetStub.resolves(
-              subscriberCheckMatchedResource,
-            )
-            phoneCheckAPIClientGetStub.resolves(phoneCheckMatchedResource)
-          })
-          .command([command, phoneNumberToTest, '--workflow', '--debug'])
-          .it(
-            `${command} creates a QR code with debug in the URL if the debug flag is set`,
-            () => {
-              expect(qrCodeGenerateSpy).to.have.been.calledWith(
-                `https://r.tru.id?u=${encodeURIComponent(
-                  response._links.check_url.href,
-                )}` +
-                  `&c=${response.check_id}` +
-                  `&t=${qrCodeHandlerAccessTokenResponse.access_token}` +
-                  `&debug=true`,
-                sinon.default.match.any,
-              )
-            },
-          )
-      })
-    }
-
-    {
-      let params = [
-        { command: 'subscriberchecks:create', typeOfCheck: 'SubscriberCheck' },
-        { command: 'phonechecks:create', typeOfCheck: 'PhoneCheck' },
-      ]
-      params.forEach(({ command, typeOfCheck }) => {
-        test
-          .do(() => {
-            SubscriberCheckAPIClientGetStub.resolves(
-              subscriberCheckMatchedResource,
-            )
-            phoneCheckAPIClientGetStub.resolves(phoneCheckMatchedResource)
-            oauth2CreateStub.restore()
-
-            oauth2CreateStub = sinon.default.stub(
-              OAuth2APIClient.prototype,
-              'create',
-            )
-            oauth2CreateStub.throws()
-          })
-          .command([command, phoneNumberToTest, '--workflow', '--debug'])
-          .exit(1)
-          .it(`${command} -- should handle an access token creation failure`)
-      })
-    }
-
-    {
-      let params = [
-        {
-          command: 'subscriberchecks:create',
-          typeOfCheck: 'SubscriberCheck',
-          response: createSubscriberCheckResponse,
-        },
-        {
-          command: 'phonechecks:create',
-          typeOfCheck: 'PhoneCheck',
-          response: createPhoneCheckResponse,
-        },
-      ]
-      params.forEach(({ command, typeOfCheck, response }) => {
-        test
-          .do(() => {
-            readJsonStub.restore()
-            readJsonStub = sinon.default.stub(fs, 'readJson')
-
-            readJsonStub
-              .withArgs(
-                sinon.default.match(
-                  sinon.default.match(new RegExp(/config.json/)),
-                ),
-              )
-              .resolves(overrideQrCodeHandlerConfig)
-
-            readJsonStub
-              .withArgs(sinon.default.match(projectConfigFileLocation))
-              .resolves(projectConfig)
-
-            SubscriberCheckAPIClientGetStub.resolves(
-              subscriberCheckMatchedResource,
-            )
-            phoneCheckAPIClientGetStub.resolves(phoneCheckMatchedResource)
-          })
-          .command([command, phoneNumberToTest, '--workflow'])
-          .it(`${command} creates a QR code with expected URL override`, () => {
-            const expectedUrl =
-              overrideQrCodeHandlerConfig.qrCodeUrlHandlerOverride
-                .replace(
-                  '{CHECK_URL}',
-                  `${encodeURIComponent(response._links.check_url.href)}`,
-                )
-                .replace('{CHECK_ID}', response.check_id)
-                .replace(
-                  '{ACCESS_TOKEN}',
-                  qrCodeHandlerAccessTokenResponse.access_token,
-                )
-
-            expect(qrCodeGenerateSpy).to.have.been.calledWith(
-              expectedUrl,
-              sinon.default.match.any,
-            )
-          })
-      })
-    }
-
-    {
-      let params = [
-        {
-          command: 'subscriberchecks:create',
-          typeOfCheck: 'SubscriberCheck',
-          response: createSubscriberCheckResponse,
-        },
-        {
-          command: 'phonechecks:create',
-          typeOfCheck: 'PhoneCheck',
-          response: createPhoneCheckResponse,
-        },
-      ]
-      params.forEach(({ command, typeOfCheck, response }) => {
-        test
-          .do(() => {
-            SubscriberCheckAPIClientGetStub.resolves(
-              subscriberCheckMatchedResource,
-            )
-            phoneCheckAPIClientGetStub.resolves(phoneCheckMatchedResource)
-          })
-          .command([
-            command,
-            phoneNumberToTest,
-            '--workflow',
-            '--skip-qrcode-handler',
-          ])
-          .it(
-            `${command} -- creates a QR code with expected URL skipping r.tru.id`,
-            () => {
-              expect(qrCodeGenerateSpy).to.have.been.calledWith(
-                response._links.check_url.href,
-                sinon.default.match.any,
-              )
-            },
-          )
-      })
-    }
-
-    {
-      let checkApiClientStub: any
-      let params = [
-        {
-          command: 'subscriberchecks:create',
-          typeOfCheck: 'SubscriberCheck',
-          response: createSubscriberCheckResponse,
-        },
-        {
-          command: 'phonechecks:create',
-          typeOfCheck: 'PhoneCheck',
-          response: createPhoneCheckResponse,
-        },
-      ]
-      params.forEach(({ command, typeOfCheck, response }) => {
-        test
-          .do(() => {
-            SubscriberCheckAPIClientGetStub.resolves(
-              subscriberCheckMatchedResource,
-            )
-            phoneCheckAPIClientGetStub.resolves(phoneCheckMatchedResource)
-
-            switch (typeOfCheck) {
-              case 'SubscriberCheck':
-                checkApiClientStub = SubscriberCheckAPIClientGetStub
-                break
-              case 'PhoneCheck':
-                checkApiClientStub = phoneCheckAPIClientGetStub
-                break
-            }
-          })
-          .command([command, phoneNumberToTest, '--workflow'])
-          .it(`${command} checks the status of the ${typeOfCheck}`, () => {
-            expect(checkApiClientStub).to.have.been.calledWith(
-              response.check_id,
-            )
-          })
-      })
-    }
-
-    test
-      .do(() => {
-        phoneCheckAPIClientGetStub.resolves(phoneCheckMatchedResource)
-      })
-      .stdout()
-      .command(['phonechecks:create', phoneNumberToTest, '--workflow'])
-      .it(
-        `phonechecks:create completed status and match result are logged`,
-        (ctx) => {
-          expect(ctx.stdout).to.contain(`match:  true`)
-          expect(ctx.stdout).to.contain(`status:  COMPLETED`)
-        },
-      )
-
-    test
-      .do(() => {
-        SubscriberCheckAPIClientGetStub.resolves(subscriberCheckMatchedResource)
-      })
-      .stdout()
-      .command(['subscriberchecks:create', phoneNumberToTest, '--workflow'])
-      .it(
-        `subscriberchecks:create completed status and match result are logged`,
-        (ctx) => {
-          expect(ctx.stdout).to.contain(`match:  true`)
-          expect(ctx.stdout).to.contain(`no_sim_change:  true`)
-        },
-      )
-
-    {
-      let checkApiClientStub: any
-      let params = [
-        { command: 'subscriberchecks:create', typeOfCheck: 'SubscriberCheck' },
-        { command: 'phonechecks:create', typeOfCheck: 'PhoneCheck' },
-      ]
-      params.forEach(({ command, typeOfCheck }) => {
-        test
-          .do(() => {
-            SubscriberCheckAPIClientGetStub.onCall(0).resolves(
-              subscriberCheckPendingResource,
-            )
-            SubscriberCheckAPIClientGetStub.onCall(1).resolves(
-              subscriberCheckMatchedResource,
-            )
-
-            phoneCheckAPIClientGetStub
-              .onCall(0)
-              .resolves(phoneCheckPendingResource)
-            phoneCheckAPIClientGetStub
-              .onCall(1)
-              .resolves(phoneCheckMatchedResource)
-
-            switch (typeOfCheck) {
-              case 'SubscriberCheck':
-                checkApiClientStub = SubscriberCheckAPIClientGetStub
-                break
-              case 'PhoneCheck':
-                checkApiClientStub = phoneCheckAPIClientGetStub
-                break
-            }
-          })
-          .command([command, phoneNumberToTest, '--workflow'])
-          .it(
-            `${command} -- checks the status of the ${typeOfCheck} again if the first check status is not a final state`,
-            () => {
-              expect(checkApiClientStub).to.have.been.calledTwice
-            },
-          )
-      })
-    }
-
-    {
-      let params = [
-        { command: 'subscriberchecks:create', typeOfCheck: 'SubscriberCheck' },
-        { command: 'phonechecks:create', typeOfCheck: 'PhoneCheck' },
-      ]
-      params.forEach(({ command, typeOfCheck }) => {
-        test
-          .do(() => {
-            SubscriberCheckAPIClientGetStub.resolves(
-              subscriberCheckExpiredResource,
-            )
-            phoneCheckAPIClientGetStub.resolves(phoneCheckExpiredResource)
-          })
-          .stdout()
-          .command([command, phoneNumberToTest, '--workflow'])
-          .it(`${command} exits if the ${typeOfCheck} expires`, (ctx) => {
-            expect(ctx.stdout).to.contain(`status:  EXPIRED`)
-          })
-      })
-    }
-  })
-
   function getConstructorApiClientSpy(clientName: string) {
     let constructorStub: any
     switch (clientName) {
       case 'SubscriberCheckAPIClient':
-        constructorStub = sinon.default.spy(
+        constructorStub = sinon.spy(
           subscriberCheckAPIClientModules,
           'SubscriberCheckAPIClient',
         )
         break
       case 'PhoneChecksAPIClient':
-        constructorStub = sinon.default.spy(
+        constructorStub = sinon.spy(
           phoneCheckAPIClientModules,
           'PhoneChecksAPIClient',
         )

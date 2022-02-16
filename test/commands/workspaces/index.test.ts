@@ -1,19 +1,16 @@
 import { test } from '@oclif/test'
-import * as sinon from 'ts-sinon'
-import * as chai from 'chai'
-import * as sinonChai from 'sinon-chai'
+import chai from 'chai'
+import fs from 'fs-extra'
+import sinonChai from 'sinon-chai'
+import sinon from 'ts-sinon'
+import { APIConfiguration } from '../../../src/api/APIConfiguration'
+import * as workspacesAPIClientModules from '../../../src/api/WorkspacesAPIClient'
+import { ConsoleLogger } from '../../../src/helpers/ConsoleLogger'
+import IGlobalConfiguration from '../../../src/IGlobalConfiguration'
+import { buildConsoleString } from '../../test_helpers'
 
 const expect = chai.expect
 chai.use(sinonChai)
-
-import * as fs from 'fs-extra'
-
-import * as workspacesAPIClientModules from '../../../src/api/WorkspacesAPIClient'
-import IGlobalConfiguration from '../../../src/IGlobalConfiguration'
-import { APIConfiguration } from '../../../src/api/APIConfiguration'
-import { ConsoleLogger } from '../../../src/helpers/ConsoleLogger'
-
-import { buildConsoleString } from '../../test_helpers'
 
 describe('workspaces', () => {
   let workspacesApiClientConstructorStub: any
@@ -21,7 +18,7 @@ describe('workspaces', () => {
   let readJsonStub: any
   let consoleLoggerInfoStub: any
 
-  let expectedUserConfig: IGlobalConfiguration = {
+  const expectedUserConfig: IGlobalConfiguration = {
     defaultWorkspaceClientId: 'my client id',
     defaultWorkspaceClientSecret: 'my client secret',
     defaultWorkspaceDataResidency: 'eu',
@@ -52,35 +49,33 @@ describe('workspaces', () => {
   }
 
   beforeEach(() => {
-    sinon.default
+    sinon
       .stub(fs, 'existsSync')
-      .withArgs(sinon.default.match(new RegExp(/config.json/)))
+      .withArgs(sinon.match(new RegExp(/config.json/)))
       .returns(true)
 
-    readJsonStub = sinon.default.stub(fs, 'readJson')
+    readJsonStub = sinon.stub(fs, 'readJson')
 
     readJsonStub
-      .withArgs(
-        sinon.default.match(sinon.default.match(new RegExp(/config.json/))),
-      )
+      .withArgs(sinon.match(sinon.match(new RegExp(/config.json/))))
       .resolves(expectedUserConfig)
 
-    workspacesApiClientGetStub = sinon.default.stub(
+    workspacesApiClientGetStub = sinon.stub(
       workspacesAPIClientModules.WorkspacesAPIClient.prototype,
       'get',
     )
     workspacesApiClientGetStub.resolves(workspaceResource)
 
-    consoleLoggerInfoStub = sinon.default.stub(ConsoleLogger.prototype, 'info')
+    consoleLoggerInfoStub = sinon.stub(ConsoleLogger.prototype, 'info')
   })
 
   afterEach(() => {
-    sinon.default.restore()
+    sinon.restore()
   })
 
   test
     .do(() => {
-      workspacesApiClientConstructorStub = sinon.default.spy(
+      workspacesApiClientConstructorStub = sinon.spy(
         workspacesAPIClientModules,
         'WorkspacesAPIClient',
       )
@@ -88,22 +83,22 @@ describe('workspaces', () => {
     .command(['workspaces'])
     .it(
       'projects/list/ProjectsAPIClient: it should instantiate ProjectsAPIClient with expected arguments',
-      (ctx) => {
+      () => {
         expect(workspacesApiClientConstructorStub).to.be.calledWith(
-          sinon.default.match.instanceOf(APIConfiguration),
+          sinon.match.instanceOf(APIConfiguration),
         )
       },
     )
 
   test
     .command(['workspaces'])
-    .it('should call ProjectsAPIClient.get("default")', (ctx) => {
+    .it('should call ProjectsAPIClient.get("default")', () => {
       expect(workspacesApiClientGetStub).to.be.calledWith('default')
     })
 
   test
     .command(['workspaces'])
-    .it('outputs result of a single resource to cli.table', (ctx) => {
+    .it('outputs result of a single resource to cli.table', () => {
       const consoleOutputString = buildConsoleString(consoleLoggerInfoStub)
 
       expect(consoleOutputString).to.contain(workspaceResource.data_residency)

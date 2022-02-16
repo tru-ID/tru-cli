@@ -1,5 +1,4 @@
-import { flags } from '@oclif/command'
-import { cli } from 'cli-ux'
+import { CliUx, Flags } from '@oclif/core'
 import { APIConfiguration } from '../../api/APIConfiguration'
 import {
   IListProjectsResponse,
@@ -22,20 +21,20 @@ export default class ProjectsList extends CommandWithGlobalConfig {
     },
   ]
 
-  static pageNumberFlag = flags.integer({
+  static pageNumberFlag = Flags.integer({
     description: `The page number to return in the list resource. Ignored if the "project_id" argument is used.`,
     default: 1,
   })
-  static pageSizeFlag = flags.integer({
+  static pageSizeFlag = Flags.integer({
     description:
       'The page size to return in list resource request. Ignored if the "project_id" argument is used.',
     default: 10,
   })
-  static searchFlag = flags.string({
+  static searchFlag = Flags.string({
     description:
       'A RSQL search query. To ensure correct parsing put your query in quotes. For example "--search \'name=p*\'". Ignored if the "check_id" argument is used.',
   })
-  static sortFlag = flags.string({
+  static sortFlag = Flags.string({
     description:
       'Sort query in the form "{parameter_name},{direction}". For example, "created_at,asc" or "created_at,desc". Ignored if the "check_id" argument is used.',
     //default: 'created_at,asc' API current expects createdAt so no default at present
@@ -43,7 +42,7 @@ export default class ProjectsList extends CommandWithGlobalConfig {
 
   static flags = {
     ...CommandWithGlobalConfig.flags,
-    ...cli.table.flags(),
+    ...CliUx.ux.table.flags(),
     page_number: ProjectsList.pageNumberFlag,
     page_size: ProjectsList.pageSizeFlag,
     search: ProjectsList.searchFlag,
@@ -51,7 +50,7 @@ export default class ProjectsList extends CommandWithGlobalConfig {
   }
 
   async run() {
-    const result = this.parse(ProjectsList)
+    const result = await this.parse(ProjectsList)
     this.args = result.args
     this.flags = result.flags
 
@@ -76,7 +75,7 @@ export default class ProjectsList extends CommandWithGlobalConfig {
 
         this.displayResults([singleResource])
       } catch (error) {
-        logApiError(this.log, error)
+        logApiError(this, error)
         this.exit(1)
       }
     } else {
@@ -92,14 +91,14 @@ export default class ProjectsList extends CommandWithGlobalConfig {
         this.displayResults(listResource._embedded.projects)
         displayPagination(this.logger, listResource.page, 'Projects')
       } catch (error) {
-        logApiError(this.log, error)
+        logApiError(this, error)
         this.exit(1)
       }
     }
   }
 
   displayResults(resources: IProjectResource[]) {
-    cli.table(
+    CliUx.ux.table(
       resources,
       {
         name: {
@@ -115,17 +114,19 @@ export default class ProjectsList extends CommandWithGlobalConfig {
         credentials_client_id: {
           header: 'credentials[0].client_id',
           extended: true,
-          get: (row) => (row.credentials ? row.credentials[0].client_id : null),
+          get: (row: IProjectResource) =>
+            row.credentials ? row.credentials[0].client_id : null,
         },
         url: {
           header: '_links.self.href',
           extended: true,
-          get: (row) => row._links.self.href,
+          get: (row: IProjectResource) => row._links.self.href,
         },
         phonecheck_callback_url: {
           header: 'configuration.phone_check.callback_url',
           extended: true,
-          get: (row) => row.configuration?.phone_check?.callback_url,
+          get: (row: IProjectResource) =>
+            row.configuration?.phone_check?.callback_url,
         },
       },
       {

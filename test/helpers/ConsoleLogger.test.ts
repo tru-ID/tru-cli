@@ -1,15 +1,14 @@
-import * as chai from 'chai'
-import * as sinon from 'ts-sinon'
-import * as sinonChai from 'sinon-chai'
+import chai from 'chai'
+import sinonChai from 'sinon-chai'
+import sinon from 'ts-sinon'
+import { ConsoleLogger, LogLevel } from '../../src/helpers/ConsoleLogger'
 
 const expect = chai.expect
 chai.use(sinonChai)
 
-import { ConsoleLogger, LogLevel } from '../../src/helpers/ConsoleLogger'
-
 describe('constructor', () => {
   afterEach(() => {
-    sinon.default.restore()
+    sinon.restore()
   })
 
   it('should use LogLevel.info by default', () => {
@@ -23,7 +22,7 @@ describe('constructor', () => {
   })
 
   it('should use global.console as the underlying logger', () => {
-    const consoleInfoStub = sinon.default.stub(global.console, 'info')
+    const consoleInfoStub = sinon.stub(global.console, 'info')
 
     const logger = new ConsoleLogger()
     const msg = 'hello'
@@ -32,8 +31,8 @@ describe('constructor', () => {
   })
 
   it('should only log at info level when LogLevel.info is set', () => {
-    const consoleInfoStub = sinon.default.stub(global.console, 'info')
-    const consoleDebugStub = sinon.default.stub(global.console, 'debug')
+    const consoleInfoStub = sinon.stub(global.console, 'info')
+    const consoleDebugStub = sinon.stub(global.console, 'debug')
 
     const logger = new ConsoleLogger(LogLevel.info)
     const msg = 'hello'
@@ -44,8 +43,8 @@ describe('constructor', () => {
   })
 
   it('should log at info and debug level when LogLevel.debug is set', () => {
-    const consoleInfoStub = sinon.default.stub(global.console, 'info')
-    const consoleDebugStub = sinon.default.stub(global.console, 'debug')
+    const consoleInfoStub = sinon.stub(global.console, 'info')
+    const consoleDebugStub = sinon.stub(global.console, 'debug')
 
     const logger = new ConsoleLogger(LogLevel.debug)
     const msg = 'hello'

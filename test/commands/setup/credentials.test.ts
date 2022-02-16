@@ -1,8 +1,8 @@
 import { test } from '@oclif/test'
-import * as chai from 'chai'
-import * as fs from 'fs-extra'
-import * as sinonChai from 'sinon-chai'
-import * as sinon from 'ts-sinon'
+import chai from 'chai'
+import fs from 'fs-extra'
+import sinonChai from 'sinon-chai'
+import sinon from 'ts-sinon'
 import { OAuth2APIClient } from '../../../src/api/OAuth2APIClient'
 import IGlobalConfiguration from '../../../src/IGlobalConfiguration'
 
@@ -10,38 +10,36 @@ const expect = chai.expect
 chai.use(sinonChai)
 
 describe('setup:credentials', () => {
-  let workspaceId = 'workspaceId'
-  let workspaceSecret = 'workspaceSecret'
-  let dataResidency = 'eu'
-  let commandArgs = [workspaceId, workspaceSecret, dataResidency]
+  const workspaceId = 'workspaceId'
+  const workspaceSecret = 'workspaceSecret'
+  const dataResidency = 'eu'
+  const commandArgs = [workspaceId, workspaceSecret, dataResidency]
 
   let outputJsonStub: any
   let readJsonStub: any
   let apiClientStub: any
 
   beforeEach(() => {
-    let expectedUserConfig: IGlobalConfiguration = {
+    const expectedUserConfig: IGlobalConfiguration = {
       defaultWorkspaceClientId: 'my client id',
       defaultWorkspaceClientSecret: 'my client secret',
       defaultWorkspaceDataResidency: 'eu',
     }
-    sinon.default
+    sinon
       .stub(fs, 'existsSync')
-      .withArgs(sinon.default.match(new RegExp(/config.json/)))
+      .withArgs(sinon.match(new RegExp(/config.json/)))
       .returns(true)
 
-    readJsonStub = sinon.default.stub(fs, 'readJson')
+    readJsonStub = sinon.stub(fs, 'readJson')
     readJsonStub
-      .withArgs(
-        sinon.default.match(sinon.default.match(new RegExp(/config.json/))),
-      )
+      .withArgs(sinon.match(sinon.match(new RegExp(/config.json/))))
       .resolves(expectedUserConfig)
-    outputJsonStub = sinon.default.stub(fs, 'outputJson')
-    apiClientStub = sinon.default.stub(OAuth2APIClient.prototype, 'create')
+    outputJsonStub = sinon.stub(fs, 'outputJson')
+    apiClientStub = sinon.stub(OAuth2APIClient.prototype, 'create')
   })
 
   afterEach(() => {
-    sinon.default.restore()
+    sinon.restore()
   })
 
   test
@@ -57,7 +55,7 @@ describe('setup:credentials', () => {
 
   test
     .do(() => {
-      let error = {
+      const error = {
         message: 'I used weird permission',
       }
       outputJsonStub.resolves()
@@ -70,10 +68,8 @@ describe('setup:credentials', () => {
 
   test
     .do((_ctx) => {
-      let error = {
-        message: 'permission error',
-        code: 'EPERM',
-      }
+      const error = new Error('permission error') as NodeJS.ErrnoException
+      error.code = 'EPERM'
       outputJsonStub.rejects(error)
       apiClientStub.resolves()
     })

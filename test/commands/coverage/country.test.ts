@@ -1,9 +1,9 @@
 import { test } from '@oclif/test'
-import * as chai from 'chai'
-import * as fs from 'fs-extra'
-import * as path from 'path'
-import * as sinonChai from 'sinon-chai'
-import * as sinon from 'ts-sinon'
+import chai from 'chai'
+import fs from 'fs-extra'
+import path from 'path'
+import sinonChai from 'sinon-chai'
+import sinon from 'ts-sinon'
 import * as coverageAPIClientModules from '../../../src/api/CoverageAPIClient'
 import IGlobalConfiguration from '../../../src/IGlobalConfiguration'
 import { IProjectConfiguration } from '../../../src/IProjectConfiguration'
@@ -11,53 +11,56 @@ import { IProjectConfiguration } from '../../../src/IProjectConfiguration'
 const expect = chai.expect
 chai.use(sinonChai)
 
+const reachableCountryCode = 'US'
+const unreachableIp = 'IT'
+
+const globalConfig: IGlobalConfiguration = {
+  defaultWorkspaceClientId: 'clientID',
+  defaultWorkspaceClientSecret: 'clientSecret',
+  defaultWorkspaceDataResidency: 'eu',
+}
+
+const projectConfigFileLocation = path.join(process.cwd(), 'tru.json')
+const projectConfig: IProjectConfiguration = {
+  project_id: 'c69bc0e6-a429-11ea-bb37-0242ac130003',
+  name: 'My test project',
+  created_at: '2020-06-01T16:43:30+00:00',
+  updated_at: '2020-06-01T16:43:30+00:00',
+  credentials: [
+    {
+      client_id: 'project client id',
+      client_secret: 'project client secret',
+      scopes: ['coverage'],
+      created_at: '2020-06-01T16:43:30+00:00',
+    },
+  ],
+}
+let existsSyncStub: any
+let coverageAPICountryReachStub: any
+let readJsonStub: any
 describe('coverage:country', () => {
-  const reachableCountryCode = 'US'
-  const unreachableIp = 'IT'
-
-  const globalConfig: IGlobalConfiguration = {
-    defaultWorkspaceClientId: 'clientID',
-    defaultWorkspaceClientSecret: 'clientSecret',
-    defaultWorkspaceDataResidency: 'eu',
-  }
-
-  const projectConfigFileLocation = path.join(process.cwd(), 'tru.json')
-  const projectConfig: IProjectConfiguration = {
-    project_id: 'c69bc0e6-a429-11ea-bb37-0242ac130003',
-    name: 'My test project',
-    created_at: '2020-06-01T16:43:30+00:00',
-    updated_at: '2020-06-01T16:43:30+00:00',
-    credentials: [
-      {
-        client_id: 'project client id',
-        client_secret: 'project client secret',
-        scopes: ['coverage'],
-        created_at: '2020-06-01T16:43:30+00:00',
-      },
-    ],
-  }
-
-  const existsSyncStub: any = sinon.default.stub(fs, 'existsSync')
-  const coverageAPICountryReachStub: any = sinon.default.stub(
-    coverageAPIClientModules.CoverageAPIClient.prototype,
-    'countryReach',
-  )
-  const readJsonStub: any = sinon.default.stub(fs, 'readJson')
-
   beforeEach(() => {
+    existsSyncStub = sinon.stub(fs, 'existsSync')
+    coverageAPICountryReachStub = sinon.stub(
+      coverageAPIClientModules.CoverageAPIClient.prototype,
+      'countryReach',
+    )
+    readJsonStub = sinon.stub(fs, 'readJson')
     existsSyncStub
-      .withArgs(sinon.default.match(new RegExp(/config.json/)))
+      .withArgs(sinon.match(new RegExp(/config.json/)))
       .returns(true)
 
     readJsonStub
-      .withArgs(
-        sinon.default.match(sinon.default.match(new RegExp(/config.json/))),
-      )
+      .withArgs(sinon.match(sinon.match(new RegExp(/config.json/))))
       .resolves(globalConfig)
 
     readJsonStub
-      .withArgs(sinon.default.match(projectConfigFileLocation))
+      .withArgs(sinon.match(projectConfigFileLocation))
       .resolves(projectConfig)
+  })
+
+  afterEach(() => {
+    sinon.restore()
   })
 
   test
@@ -120,7 +123,7 @@ describe('coverage:country', () => {
       const projectWithoutRequiredScope = { ...projectConfig }
       projectWithoutRequiredScope.credentials[0].scopes = []
       readJsonStub
-        .withArgs(sinon.default.match(projectConfigFileLocation))
+        .withArgs(sinon.match(projectConfigFileLocation))
         .resolves(projectWithoutRequiredScope)
     })
     .command(['coverage:country', 'anything'])

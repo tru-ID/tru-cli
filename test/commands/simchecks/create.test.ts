@@ -1,24 +1,22 @@
 import { test } from '@oclif/test'
-import * as sinon from 'ts-sinon'
-import * as chai from 'chai'
-import * as sinonChai from 'sinon-chai'
+import chai from 'chai'
+import fs from 'fs-extra'
+import inquirer from 'inquirer'
+import path from 'path'
+import sinonChai from 'sinon-chai'
+import sinon from 'ts-sinon'
+import { CheckStatus } from '../../../src/api/CheckStatus'
+import * as httpClientModule from '../../../src/api/HttpClient'
+import * as simchecks from '../../../src/api/SimCheckAPIClient'
+import CommandWithProjectConfig from '../../../src/helpers/CommandWithProjectConfig'
+import * as consoleLoggerModule from '../../../src/helpers/ConsoleLogger'
+import IGlobalConfiguration from '../../../src/IGlobalConfiguration'
+import { IProjectConfiguration } from '../../../src/IProjectConfiguration'
 
 const expect = chai.expect
 chai.use(sinonChai)
 
-import * as fs from 'fs-extra'
-import * as inquirer from 'inquirer'
-import * as path from 'path'
-
-import IGlobalConfiguration from '../../../src/IGlobalConfiguration'
-import { IProjectConfiguration } from '../../../src/IProjectConfiguration'
-import * as consoleLoggerModule from '../../../src/helpers/ConsoleLogger'
-import CommandWithProjectConfig from '../../../src/helpers/CommandWithProjectConfig'
-import { CheckStatus } from '../../../src/api/CheckStatus'
-import * as simchecks from '../../../src/api/SimCheckAPIClient'
-import * as httpClientModule from '../../../src/api/HttpClient'
-
-let globalConfig: IGlobalConfiguration = {
+const globalConfig: IGlobalConfiguration = {
   defaultWorkspaceClientId: 'my client id',
   defaultWorkspaceClientSecret: 'my client secret',
   defaultWorkspaceDataResidency: 'eu',
@@ -43,7 +41,7 @@ const projectConfig: IProjectConfiguration = {
   ],
 }
 
-let createSimCheckResponse: simchecks.ICreateSimCheckResponse = {
+const createSimCheckResponse: simchecks.ICreateSimCheckResponse = {
   check_id: 'c69bc0e6-a429-11ea-bb37-0242ac130002',
   status: CheckStatus.COMPLETED,
   charge_amount: 1,
@@ -67,56 +65,46 @@ let existsSyncStub: any
 let readJsonStub: any
 let inquirerStub: any
 let httpClientPostStub: any
-let httpClientGetStub: any
 
 describe('SIMCheck Create Scenarios', () => {
   beforeEach(() => {
-    existsSyncStub = sinon.default.stub(fs, 'existsSync')
+    existsSyncStub = sinon.stub(fs, 'existsSync')
     existsSyncStub
-      .withArgs(sinon.default.match(new RegExp(/config.json/)))
+      .withArgs(sinon.match(new RegExp(/config.json/)))
       .returns(true)
 
-    readJsonStub = sinon.default.stub(fs, 'readJson')
+    readJsonStub = sinon.stub(fs, 'readJson')
 
     readJsonStub
-      .withArgs(
-        sinon.default.match(sinon.default.match(new RegExp(/config.json/))),
-      )
+      .withArgs(sinon.match(sinon.match(new RegExp(/config.json/))))
       .resolves(globalConfig)
 
     readJsonStub
-      .withArgs(sinon.default.match(projectConfigFileLocation))
+      .withArgs(sinon.match(projectConfigFileLocation))
       .resolves(projectConfig)
 
-    inquirerStub = sinon.default.stub(inquirer, 'prompt')
+    inquirerStub = sinon.stub(inquirer, 'prompt')
 
     // SimCheckClient
 
-    httpClientPostStub = sinon.default.stub(
+    httpClientPostStub = sinon.stub(
       httpClientModule.HttpClient.prototype,
       'post',
     )
     httpClientPostStub
-      .withArgs(
-        '/sim_check/v0.1/checks',
-        sinon.default.match.any,
-        sinon.default.match.any,
-      )
+      .withArgs('/sim_check/v0.1/checks', sinon.match.any, sinon.match.any)
       .resolves(createSimCheckResponse)
 
-    httpClientGetStub = sinon.default.stub(
-      httpClientModule.HttpClient.prototype,
-      'get',
-    )
+    sinon.stub(httpClientModule.HttpClient.prototype, 'get')
   })
 
   afterEach(() => {
-    sinon.default.restore()
+    sinon.restore()
   })
 
   {
-    let customProjectConfigDirPath = path.join('alternative', 'path', 'to')
-    let customProjectConfigFullPath = path.join(
+    const customProjectConfigDirPath = path.join('alternative', 'path', 'to')
+    const customProjectConfigFullPath = path.join(
       'alternative',
       'path',
       'to',
@@ -125,7 +113,7 @@ describe('SIMCheck Create Scenarios', () => {
     test
       .do(() => {
         readJsonStub
-          .withArgs(sinon.default.match(customProjectConfigFullPath))
+          .withArgs(sinon.match(customProjectConfigFullPath))
           .resolves(projectConfig)
       })
       .stdout()
@@ -136,7 +124,7 @@ describe('SIMCheck Create Scenarios', () => {
       ])
       .it(
         `${command} -- should load the project configuration from the location specified by the ${CommandWithProjectConfig.projectDirFlagName} flag`,
-        (ctx) => {
+        () => {
           expect(readJsonStub).to.have.been.calledWith(
             customProjectConfigFullPath,
           )
@@ -146,7 +134,7 @@ describe('SIMCheck Create Scenarios', () => {
 
   test
     .command([command, phoneNumberToTest])
-    .it(`${command} -- project configuration is read`, (ctx) => {
+    .it(`${command} -- project configuration is read`, () => {
       expect(readJsonStub).to.have.been.calledWith(projectConfigFileLocation)
     })
 
@@ -157,14 +145,14 @@ describe('SIMCheck Create Scenarios', () => {
     .command([command])
     .it(
       `${command} -- prompts the user for a ${typeOfCheck} to check when an inline argument is not provided`,
-      (ctx) => {
+      () => {
         expect(inquirerStub).to.have.been.calledWith([
           {
             name: 'phone_number',
             message: `Please enter the phone number you would like to ${typeOfCheck}`,
             type: 'input',
-            filter: sinon.default.match.func,
-            validate: sinon.default.match.func,
+            filter: sinon.match.func,
+            validate: sinon.match.func,
           },
         ])
       },
@@ -175,22 +163,22 @@ describe('SIMCheck Create Scenarios', () => {
 
     test
       .do(() => {
-        constructorStub = sinon.default.spy(simchecks, 'SimCheckAPIClient')
+        constructorStub = sinon.spy(simchecks, 'SimCheckAPIClient')
       })
       .command([command, phoneNumberToTest])
       .it(
         `${command} -- should instantiate a ${clientName} object with project configuration`,
-        (ctx) => {
+        () => {
           expect(constructorStub).to.have.been.calledWith(
-            sinon.default.match
+            sinon.match
               .has('clientId', projectConfig.credentials[0].client_id)
               .and(
-                sinon.default.match.has(
+                sinon.match.has(
                   'clientSecret',
                   projectConfig.credentials[0].client_secret,
                 ),
               ),
-            sinon.default.match.any,
+            sinon.match.any,
           )
         },
       )
@@ -200,15 +188,15 @@ describe('SIMCheck Create Scenarios', () => {
     let constructorStub: any
     test
       .do(() => {
-        constructorStub = sinon.default.spy(simchecks, 'SimCheckAPIClient')
+        constructorStub = sinon.spy(simchecks, 'SimCheckAPIClient')
       })
       .command([command, phoneNumberToTest])
       .it(
         `${command} -- should instantiate a ${clientName}  with ${scope} scopes`,
-        (ctx) => {
+        () => {
           expect(constructorStub).to.have.been.calledWith(
-            sinon.default.match.has('scopes', scope),
-            sinon.default.match.any,
+            sinon.match.has('scopes', scope),
+            sinon.match.any,
           )
         },
       )
@@ -219,18 +207,18 @@ describe('SIMCheck Create Scenarios', () => {
 
     test
       .do(() => {
-        constructorStub = sinon.default.spy(simchecks, 'SimCheckAPIClient')
+        constructorStub = sinon.spy(simchecks, 'SimCheckAPIClient')
       })
       .command([command, phoneNumberToTest])
       .it(
         `${command} --should instantiate a ${clientName} object with global baseUrl configuration`,
-        (ctx) => {
+        () => {
           expect(constructorStub).to.have.been.calledWith(
-            sinon.default.match.has(
+            sinon.match.has(
               'baseUrl',
               `https://${globalConfig.defaultWorkspaceDataResidency}.api.tru.id`,
             ),
-            sinon.default.match.any,
+            sinon.match.any,
           )
         },
       )
@@ -241,15 +229,15 @@ describe('SIMCheck Create Scenarios', () => {
 
     test
       .do(() => {
-        constructorStub = sinon.default.spy(simchecks, 'SimCheckAPIClient')
+        constructorStub = sinon.spy(simchecks, 'SimCheckAPIClient')
       })
       .command([command, phoneNumberToTest])
       .it(
         `${command} -- should instantiate a ${clientName} object with a logger`,
-        (ctx) => {
+        () => {
           expect(constructorStub).to.have.been.calledWith(
-            sinon.default.match.any,
-            sinon.default.match.instanceOf(consoleLoggerModule.ConsoleLogger),
+            sinon.match.any,
+            sinon.match.instanceOf(consoleLoggerModule.ConsoleLogger),
           )
         },
       )
@@ -264,11 +252,11 @@ describe('SIMCheck Create Scenarios', () => {
       .command([command, phoneNumberToTest, '--debug'])
       .it(
         `${command} -- calls the ${clientName} with the supplied phone number`,
-        (ctx) => {
+        () => {
           expect(apiClientStub).to.have.been.calledWith(
             '/sim_check/v0.1/checks',
             { phone_number: phoneNumberToTest },
-            sinon.default.match.any,
+            sinon.match.any,
           )
         },
       )
@@ -285,11 +273,7 @@ describe('SIMCheck Create Scenarios', () => {
   test
     .do(() => {
       httpClientPostStub
-        .withArgs(
-          '/sim_check/v0.1/checks',
-          sinon.default.match.any,
-          sinon.default.match.any,
-        )
+        .withArgs('/sim_check/v0.1/checks', sinon.match.any, sinon.match.any)
         .resolves({
           ...createSimCheckResponse,
           status: CheckStatus.ERROR,

@@ -1,22 +1,17 @@
-import * as sinon from 'ts-sinon'
-import * as chai from 'chai'
-import * as sinonChai from 'sinon-chai'
-
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
-
+import chai from 'chai'
+import sinonChai from 'sinon-chai'
+import sinon from 'ts-sinon'
 import { APIConfiguration } from '../../src/api/APIConfiguration'
 import { HttpClient, ICreateTokenResponse } from '../../src/api/HttpClient'
-import * as qs from 'querystring'
-import { request } from 'http'
-import { debug } from 'console'
 
 const expect = chai.expect
 chai.use(sinonChai)
 
 describe('APIConfiguration', () => {
-  const defaultClientId: string = 'my_client_id'
-  const defaultClientSecret: string = 'my_client_secret'
-  const defaultBaseUrl: string = 'https://example.com/api'
+  const defaultClientId = 'my_client_id'
+  const defaultClientSecret = 'my_client_secret'
+  const defaultBaseUrl = 'https://example.com/api'
 
   function createDefaultAPIConfiguration(): APIConfiguration {
     return new APIConfiguration({
@@ -38,17 +33,17 @@ describe('APIConfiguration', () => {
     const headers = { b: 'header_value' }
 
     beforeEach(() => {
-      sinon.default.stub(axios, 'create').returns(axios)
-      axiosPostStub = sinon.default.stub(axios, 'post')
+      sinon.stub(axios, 'create').returns(axios)
+      axiosPostStub = sinon.stub(axios, 'post')
       axiosPostStub.resolves({ data: {} }) // default handling of /token
 
-      debugStub = sinon.default.stub(console, 'debug')
+      debugStub = sinon.stub(console, 'debug')
       apiConfig = createDefaultAPIConfiguration()
       client = new HttpClient(apiConfig, console)
     })
 
     afterEach(() => {
-      sinon.default.restore()
+      sinon.restore()
     })
 
     it('logRequest should debug log the request', async () => {
@@ -110,8 +105,8 @@ describe('APIConfiguration', () => {
     const accessToken = 'i am an access token'
 
     beforeEach(() => {
-      sinon.default.stub(axios, 'create').returns(axios)
-      axiosPostStub = sinon.default.stub(axios, 'post')
+      sinon.stub(axios, 'create').returns(axios)
+      axiosPostStub = sinon.stub(axios, 'post')
       axiosPostStub.resolves({ data: {} }) // default handling of /token
 
       apiConfig = createDefaultAPIConfiguration()
@@ -119,48 +114,35 @@ describe('APIConfiguration', () => {
     })
 
     afterEach(() => {
-      sinon.default.restore()
+      sinon.restore()
     })
 
     it('get/proxy should proxy path, params and headers on to axios.get', async () => {
-      const axiosGetStub = sinon.default
-        .stub(axios, 'get')
-        .resolves({ data: {} })
+      const axiosGetStub = sinon.stub(axios, 'get').resolves({ data: {} })
 
       await client.get(path, params, headers)
 
       expect(axiosGetStub).to.have.been.calledWith(
         path,
-        sinon.default.match
-          .has('headers', sinon.default.match.has('b', headers.b))
-          .and(
-            sinon.default.match.has(
-              'params',
-              sinon.default.match.has('a', params.a),
-            ),
-          ),
+        sinon.match
+          .has('headers', sinon.match.has('b', headers.b))
+          .and(sinon.match.has('params', sinon.match.has('a', params.a))),
       )
     })
 
     it('get/auth: should add Bearer Authorization to the headers', async () => {
       axiosPostStub
-        .withArgs(
-          '/oauth2/v1/token',
-          sinon.default.match.any,
-          sinon.default.match.any,
-        )
+        .withArgs('/oauth2/v1/token', sinon.match.any, sinon.match.any)
         .resolves({ data: { access_token: accessToken } })
-      const axiosGetStub = sinon.default
-        .stub(axios, 'get')
-        .resolves({ data: {} })
+      const axiosGetStub = sinon.stub(axios, 'get').resolves({ data: {} })
 
       await client.get(path, params, headers)
 
       expect(axiosGetStub).to.have.been.calledWith(
         path,
-        sinon.default.match.has(
+        sinon.match.has(
           'headers',
-          sinon.default.match.has('Authorization', `Bearer ${accessToken}`),
+          sinon.match.has('Authorization', `Bearer ${accessToken}`),
         ),
       )
     })
@@ -168,17 +150,15 @@ describe('APIConfiguration', () => {
 
   describe('post', () => {
     beforeEach(() => {
-      sinon.default.stub(axios, 'create').returns(axios)
+      sinon.stub(axios, 'create').returns(axios)
     })
 
     afterEach(() => {
-      sinon.default.restore()
+      sinon.restore()
     })
 
     it('should proxy path, params and headers on to axios.post', async () => {
-      const axiosPostStub = sinon.default
-        .stub(axios, 'post')
-        .resolves({ data: {} })
+      const axiosPostStub = sinon.stub(axios, 'post').resolves({ data: {} })
 
       const apiConfig: APIConfiguration = createDefaultAPIConfiguration()
       const client: HttpClient = new HttpClient(apiConfig, console)
@@ -191,22 +171,15 @@ describe('APIConfiguration', () => {
       expect(axiosPostStub).to.have.been.calledWith(
         path,
         params,
-        sinon.default.match.has(
-          'headers',
-          sinon.default.match.has('b', headers.b),
-        ),
+        sinon.match.has('headers', sinon.match.has('b', headers.b)),
       )
     })
 
     it('should add Bearer Authorization to the headers', async () => {
       const accessToken = 'i am an access token'
-      const axiosPostStub = sinon.default.stub(axios, 'post')
+      const axiosPostStub = sinon.stub(axios, 'post')
       axiosPostStub
-        .withArgs(
-          '/oauth2/v1/token',
-          sinon.default.match.any,
-          sinon.default.match.any,
-        )
+        .withArgs('/oauth2/v1/token', sinon.match.any, sinon.match.any)
         .resolves({ data: { access_token: accessToken } })
       axiosPostStub.resolves({ data: {} })
 
@@ -219,11 +192,11 @@ describe('APIConfiguration', () => {
       await client.post(path, params, headers)
 
       expect(axiosPostStub).to.have.been.calledWith(
-        sinon.default.match.any,
-        sinon.default.match.any,
-        sinon.default.match.has(
+        sinon.match.any,
+        sinon.match.any,
+        sinon.match.has(
           'headers',
-          sinon.default.match.has('Authorization', `Bearer ${accessToken}`),
+          sinon.match.has('Authorization', `Bearer ${accessToken}`),
         ),
       )
     })
@@ -233,20 +206,18 @@ describe('APIConfiguration', () => {
     let axiosPostStub: any
 
     beforeEach(() => {
-      sinon.default.stub(axios, 'create').returns(axios)
+      sinon.stub(axios, 'create').returns(axios)
 
-      axiosPostStub = sinon.default.stub(axios, 'post')
+      axiosPostStub = sinon.stub(axios, 'post')
       axiosPostStub.resolves({ data: {} }) // default handling of /token
     })
 
     afterEach(() => {
-      sinon.default.restore()
+      sinon.restore()
     })
 
     it('should proxy path, operations and headers on to axios.patch', async () => {
-      const axiosPatchStub = sinon.default
-        .stub(axios, 'patch')
-        .resolves({ data: {} })
+      const axiosPatchStub = sinon.stub(axios, 'patch').resolves({ data: {} })
 
       const apiConfig: APIConfiguration = createDefaultAPIConfiguration()
       const client: HttpClient = new HttpClient(apiConfig, console)
@@ -264,26 +235,17 @@ describe('APIConfiguration', () => {
       expect(axiosPatchStub).to.have.been.calledWith(
         path,
         operations,
-        sinon.default.match.has(
-          'headers',
-          sinon.default.match.has('b', headers.b),
-        ),
+        sinon.match.has('headers', sinon.match.has('b', headers.b)),
       )
     })
 
     it('should add Bearer Authorization to the headers', async () => {
       const accessToken = 'i am an access token'
       axiosPostStub
-        .withArgs(
-          '/oauth2/v1/token',
-          sinon.default.match.any,
-          sinon.default.match.any,
-        )
+        .withArgs('/oauth2/v1/token', sinon.match.any, sinon.match.any)
         .resolves({ data: { access_token: accessToken } })
 
-      const axiosPatchStub = sinon.default
-        .stub(axios, 'patch')
-        .resolves({ data: {} })
+      const axiosPatchStub = sinon.stub(axios, 'patch').resolves({ data: {} })
 
       const apiConfig: APIConfiguration = createDefaultAPIConfiguration()
       const client: HttpClient = new HttpClient(apiConfig, console)
@@ -299,11 +261,11 @@ describe('APIConfiguration', () => {
       await client.patch(path, operations, headers)
 
       expect(axiosPatchStub).to.have.been.calledWith(
-        sinon.default.match.any,
-        sinon.default.match.any,
-        sinon.default.match.has(
+        sinon.match.any,
+        sinon.match.any,
+        sinon.match.has(
           'headers',
-          sinon.default.match.has('Authorization', `Bearer ${accessToken}`),
+          sinon.match.has('Authorization', `Bearer ${accessToken}`),
         ),
       )
     })
@@ -311,27 +273,25 @@ describe('APIConfiguration', () => {
 
   describe('createAccessToken', () => {
     beforeEach(() => {
-      sinon.default.stub(axios, 'create').returns(axios)
+      sinon.stub(axios, 'create').returns(axios)
     })
 
     afterEach(() => {
-      sinon.default.restore()
+      sinon.restore()
     })
 
     it('should get an Access Token from the /oauth2/v1/token endpoint', async () => {
       const apiConfig: APIConfiguration = createDefaultAPIConfiguration()
       const client: HttpClient = new HttpClient(apiConfig, console)
 
-      const axiosPostStub = sinon.default
-        .stub(axios, 'post')
-        .resolves({ data: {} })
+      const axiosPostStub = sinon.stub(axios, 'post').resolves({ data: {} })
 
       await client.createAccessToken()
 
       expect(axiosPostStub).has.been.calledWith(
         '/oauth2/v1/token',
-        sinon.default.match.any,
-        sinon.default.match.any,
+        sinon.match.any,
+        sinon.match.any,
       )
     })
 
@@ -339,16 +299,14 @@ describe('APIConfiguration', () => {
       const apiConfig: APIConfiguration = createDefaultAPIConfiguration()
       const client: HttpClient = new HttpClient(apiConfig, console)
 
-      const axiosPostStub = sinon.default
-        .stub(axios, 'post')
-        .resolves({ data: {} })
+      const axiosPostStub = sinon.stub(axios, 'post').resolves({ data: {} })
 
       await client.createAccessToken()
 
       expect(axiosPostStub).has.been.calledWith(
         '/oauth2/v1/token',
-        sinon.default.match(new RegExp(`scope=${apiConfig.scopes}`)),
-        sinon.default.match.any,
+        sinon.match(new RegExp(`scope=${apiConfig.scopes}`)),
+        sinon.match.any,
       )
     })
 
@@ -358,18 +316,16 @@ describe('APIConfiguration', () => {
 
       const authString = client.generateBasicAuth()
 
-      const axiosPostStub = sinon.default
-        .stub(axios, 'post')
-        .resolves({ data: {} })
+      const axiosPostStub = sinon.stub(axios, 'post').resolves({ data: {} })
 
       await client.createAccessToken()
 
       expect(axiosPostStub).has.been.calledWith(
-        sinon.default.match.any,
-        sinon.default.match.any,
-        sinon.default.match.has(
+        sinon.match.any,
+        sinon.match.any,
+        sinon.match.has(
           'headers',
-          sinon.default.match.has('Authorization', `Basic ${authString}`),
+          sinon.match.has('Authorization', `Basic ${authString}`),
         ),
       )
     })
@@ -387,9 +343,7 @@ describe('APIConfiguration', () => {
         scope: 'projects',
       }
 
-      const axiosPostStub = sinon.default
-        .stub(axios, 'post')
-        .resolves({ data: accessTokenDataResponse })
+      sinon.stub(axios, 'post').resolves({ data: accessTokenDataResponse })
 
       const response: ICreateTokenResponse = await client.createAccessToken()
 
@@ -427,7 +381,7 @@ describe('APIConfiguration', () => {
         scope: 'projects',
       }
 
-      let axiosstub = sinon.default
+      const axiosstub = sinon
         .stub(axios, 'post')
         .resolves({ data: accessTokenDataResponse })
 
@@ -445,9 +399,7 @@ describe('APIConfiguration', () => {
       expect(response.scope).to.equal(accessTokenDataResponse.scope)
 
       axiosstub.restore()
-      sinon.default
-        .stub(axios, 'post')
-        .resolves({ data: accessTokenDataResponse2 })
+      sinon.stub(axios, 'post').resolves({ data: accessTokenDataResponse2 })
 
       response = await client.createAccessToken()
 

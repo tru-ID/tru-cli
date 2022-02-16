@@ -1,4 +1,4 @@
-import { cli } from 'cli-ux'
+import { CliUx } from '@oclif/core'
 import { APIConfiguration } from '../../api/APIConfiguration'
 import {
   IWorkspaceResource,
@@ -12,13 +12,14 @@ export default class WorkspaceDefault extends CommandWithGlobalConfig {
 
   static flags = {
     ...CommandWithGlobalConfig.flags,
-    output: cli.table.flags().output,
-    'no-header': cli.table.flags()['no-header'],
-    'no-truncate': cli.table.flags()['no-truncate'],
+    output: CliUx.ux.table.flags().output,
+    'no-header': CliUx.ux.table.flags()['no-header'],
+    'no-truncate': CliUx.ux.table.flags()['no-truncate'],
   }
 
   async run() {
-    this.flags = this.parse(WorkspaceDefault).flags
+    const result = await this.parse(WorkspaceDefault)
+    this.flags = result.flags
 
     await super.run()
 
@@ -40,29 +41,30 @@ export default class WorkspaceDefault extends CommandWithGlobalConfig {
 
       this.displayResults([singleResource])
     } catch (error) {
-      logApiError(this.log, error)
+      logApiError(this, error)
       this.exit(1)
     }
   }
 
   displayResults(resources: IWorkspaceResource[]) {
-    cli.table(
+    CliUx.ux.table(
       resources,
       {
         credentials_client_id: {
           header: 'credentials.client_id',
-          get: (row) => row.credentials.client_id,
+          get: (row: IWorkspaceResource) => row.credentials.client_id,
         },
         data_residency: {
           header: 'data_residency',
         },
         'balance.amount_available': {
           header: 'balance.amount_available',
-          get: (row) => row._embedded.balance.amount_available,
+          get: (row: IWorkspaceResource) =>
+            row._embedded.balance.amount_available,
         },
         'balance.currency': {
           header: 'balance.currency',
-          get: (row) => row._embedded.balance.currency,
+          get: (row: IWorkspaceResource) => row._embedded.balance.currency,
         },
         created_at: {
           header: 'created_at',

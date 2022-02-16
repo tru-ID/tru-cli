@@ -1,14 +1,11 @@
-import { flags } from '@oclif/command'
-import * as Config from '@oclif/config'
+import { Config } from '@oclif/core'
 import { APIConfiguration } from '../../api/APIConfiguration'
-import CommandWithProjectConfig from '../../helpers/CommandWithProjectConfig'
-import ILogger from '../../helpers/ILogger'
 import {
   SubscriberCheckAPIClient,
   SubscriberCheckResource,
 } from '../../api/SubscriberCheckAPIClient'
 import ChecksCreateCommand from '../../helpers/ChecksCreateCommand'
-import { CheckResource } from '../../api/ChecksAPIClient'
+import ILogger from '../../helpers/ILogger'
 
 export default class SubscriberChecksCreate extends ChecksCreateCommand {
   static typeOfCheck = 'SubscriberCheck'
@@ -21,7 +18,7 @@ export default class SubscriberChecksCreate extends ChecksCreateCommand {
 
   static args = [...ChecksCreateCommand.args]
 
-  constructor(argv: string[], config: Config.IConfig) {
+  constructor(argv: string[], config: Config) {
     super('SubscriberCheck', 'subscriber_check', argv, config)
   }
 

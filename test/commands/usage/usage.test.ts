@@ -1,24 +1,20 @@
 import { test } from '@oclif/test'
-import * as sinon from 'ts-sinon'
-import * as chai from 'chai'
-import * as sinonChai from 'sinon-chai'
+import chai from 'chai'
+import fs from 'fs-extra'
+import MockDate from 'mockdate'
+import sinonChai from 'sinon-chai'
+import sinon from 'ts-sinon'
+import * as httpClientModule from '../../../src/api/HttpClient'
+import {
+  IListUsageResource,
+  UsageResource,
+} from '../../../src/api/UsageAPIClient'
+import { ConsoleLogger } from '../../../src/helpers/ConsoleLogger'
+import IGlobalConfiguration from '../../../src/IGlobalConfiguration'
+import { buildConsoleString } from '../../test_helpers'
 
 const expect = chai.expect
 chai.use(sinonChai)
-
-import * as fs from 'fs-extra'
-
-import * as usageApiClientModules from '../../../src/api/UsageAPIClient'
-import {
-  UsageResource,
-  IListUsageResource,
-} from '../../../src/api/UsageAPIClient'
-import IGlobalConfiguration from '../../../src/IGlobalConfiguration'
-import { APIConfiguration } from '../../../src/api/APIConfiguration'
-import { ConsoleLogger } from '../../../src/helpers/ConsoleLogger'
-import * as httpClientModule from '../../../src/api/HttpClient'
-import { buildConsoleString } from '../../test_helpers'
-import MockDate from 'mockdate'
 
 describe('usage', () => {
   let readJsonStub: any
@@ -26,13 +22,13 @@ describe('usage', () => {
 
   let httpClientGetStub: any
 
-  let expectedUserConfig: IGlobalConfiguration = {
+  const expectedUserConfig: IGlobalConfiguration = {
     defaultWorkspaceClientId: 'my client id',
     defaultWorkspaceClientSecret: 'my client secret',
     defaultWorkspaceDataResidency: 'eu',
   }
 
-  let usageResources: UsageResource[] = [
+  const usageResources: UsageResource[] = [
     {
       amount: 10,
       date: '2020-10-03',
@@ -48,7 +44,7 @@ describe('usage', () => {
     },
   ]
 
-  let listUsageResource: IListUsageResource = {
+  const listUsageResource: IListUsageResource = {
     _embedded: {
       usage: usageResources,
     },
@@ -74,51 +70,46 @@ describe('usage', () => {
   ]
 
   beforeEach(() => {
-    sinon.default
+    sinon
       .stub(fs, 'existsSync')
-      .withArgs(sinon.default.match(new RegExp(/config.json/)))
+      .withArgs(sinon.match(new RegExp(/config.json/)))
       .returns(true)
 
-    readJsonStub = sinon.default.stub(fs, 'readJson')
+    readJsonStub = sinon.stub(fs, 'readJson')
 
     readJsonStub
-      .withArgs(
-        sinon.default.match(sinon.default.match(new RegExp(/config.json/))),
-      )
+      .withArgs(sinon.match(sinon.match(new RegExp(/config.json/))))
       .resolves(expectedUserConfig)
 
-    httpClientGetStub = sinon.default.stub(
-      httpClientModule.HttpClient.prototype,
-      'get',
-    )
+    httpClientGetStub = sinon.stub(httpClientModule.HttpClient.prototype, 'get')
     httpClientGetStub
       .withArgs(
         '/console/v0.1/workspaces/default/usage/daily',
-        sinon.default.match.any,
-        sinon.default.match.any,
+        sinon.match.any,
+        sinon.match.any,
       )
       .resolves(listUsageResource)
     httpClientGetStub
       .withArgs(
         `/console/v0.1/workspaces/default/usage/monthly`,
-        sinon.default.match.any,
-        sinon.default.match.any,
+        sinon.match.any,
+        sinon.match.any,
       )
       .resolves(listUsageResource)
     httpClientGetStub
       .withArgs(
         `/console/v0.1/workspaces/default/usage/hourly`,
-        sinon.default.match.any,
-        sinon.default.match.any,
+        sinon.match.any,
+        sinon.match.any,
       )
       .resolves(listUsageResource)
 
-    consoleLoggerInfoStub = sinon.default.stub(ConsoleLogger.prototype, 'info')
+    consoleLoggerInfoStub = sinon.stub(ConsoleLogger.prototype, 'info')
     MockDate.set('2020-01-01')
   })
 
   afterEach(() => {
-    sinon.default.restore()
+    sinon.restore()
     MockDate.reset()
   })
 
@@ -127,7 +118,7 @@ describe('usage', () => {
       .command([command, '--search=date=2020-10-01', '--group-by=product_id'])
       .it(
         `${command} should call /console/v0.1/workspaces/default/usage/${subpath}`,
-        (ctx) => {
+        () => {
           expect(httpClientGetStub).to.be.calledWith(
             `/console/v0.1/workspaces/default/usage/${subpath}`,
             {
@@ -136,7 +127,7 @@ describe('usage', () => {
               page: 1,
               size: 10,
             },
-            sinon.default.match.any,
+            sinon.match.any,
           )
         },
       )
@@ -145,7 +136,7 @@ describe('usage', () => {
   testParams.forEach(({ command }) => {
     test
       .command([command, '--search=date=2020-10-01'])
-      .it(`${command} should contain header table output`, (ctx) => {
+      .it(`${command} should contain header table output`, () => {
         const consoleOutputString = buildConsoleString(consoleLoggerInfoStub)
 
         expect(consoleOutputString).to.contain('amount')
@@ -156,7 +147,7 @@ describe('usage', () => {
   })
 
   {
-    let params = [
+    const params = [
       {
         command: 'usage:daily',
         subpath: 'daily',
@@ -179,7 +170,7 @@ describe('usage', () => {
         .command([command, '--group-by=product_id'])
         .it(
           `${command} should call /console/v0.1/workspaces/default/usage/${subpath} with correct default search`,
-          (ctx) => {
+          () => {
             expect(httpClientGetStub).to.be.calledWith(
               `/console/v0.1/workspaces/default/usage/${subpath}`,
               {
@@ -188,7 +179,7 @@ describe('usage', () => {
                 page: 1,
                 size: 10,
               },
-              sinon.default.match.any,
+              sinon.match.any,
             )
           },
         )
@@ -198,7 +189,7 @@ describe('usage', () => {
   testParams.forEach(({ command }) => {
     test
       .command([command, '--search=date=2020-10-01', '--output=csv'])
-      .it('should contain correct values', (ctx) => {
+      .it('should contain correct values', () => {
         const consoleOutputString = buildConsoleString(consoleLoggerInfoStub)
 
         expect(consoleOutputString).to.contain('amount,date,currency,counter')

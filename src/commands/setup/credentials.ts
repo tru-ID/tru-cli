@@ -1,6 +1,6 @@
-import { Command } from '@oclif/command'
-import * as fs from 'fs-extra'
-import * as path from 'path'
+import { Command } from '@oclif/core'
+import fs from 'fs-extra'
+import path from 'path'
 import { APIConfiguration } from '../../api/APIConfiguration'
 import { OAuth2APIClient } from '../../api/OAuth2APIClient'
 import { ConsoleLogger, LogLevel } from '../../helpers/ConsoleLogger'
@@ -29,7 +29,7 @@ export default class SetupCredentials extends Command {
   ]
 
   async run() {
-    const { args } = this.parse(SetupCredentials)
+    const { args } = await this.parse(SetupCredentials)
 
     const configLocation = path.join(this.config.configDir, 'config.json')
     const cfg = await this.getOrCreateConfig(configLocation)
@@ -61,7 +61,9 @@ export default class SetupCredentials extends Command {
       try {
         config = await fs.readJson(configLocation)
       } catch (err) {
-        throw new Error(`failed to read config file: ${err.message}`)
+        if (err instanceof Error) {
+          throw new Error(`failed to read config file: ${err.message}`)
+        }
       }
     }
     return config
@@ -74,12 +76,14 @@ export default class SetupCredentials extends Command {
     try {
       await fs.outputJson(configLocation, config, { spaces: 2 })
     } catch (err) {
-      if (err.code === 'EPERM') {
-        throw new Error(
-          `failed to save config file, you might need elevated permissions: ${err.message}`,
-        )
-      } else {
-        throw new Error(`failed to save config file: ${err.message}`)
+      if (err instanceof Error) {
+        if ((err as NodeJS.ErrnoException).code === 'EPERM') {
+          throw new Error(
+            `failed to save config file, you might need elevated permissions: ${err.message}`,
+          )
+        } else {
+          throw new Error(`failed to save config file: ${err.message}`)
+        }
       }
     }
   }
@@ -87,7 +91,7 @@ export default class SetupCredentials extends Command {
   async validateConfig(configuration: IGlobalConfiguration): Promise<void> {
     const consoleLogger = new ConsoleLogger(LogLevel.info)
 
-    let apiClient = new OAuth2APIClient(
+    const apiClient = new OAuth2APIClient(
       new APIConfiguration({
         clientId: configuration.defaultWorkspaceClientId,
         clientSecret: configuration.defaultWorkspaceClientSecret,
@@ -100,7 +104,7 @@ export default class SetupCredentials extends Command {
     )
 
     try {
-      let tokenCreationResult = await apiClient.create()
+      await apiClient.create()
 
       this.log(
         'Validation Test: Create token with workspace credentials SUCCESSFUL',
@@ -110,7 +114,7 @@ export default class SetupCredentials extends Command {
         'Validation Test: Create token with workspace credentials FAILED',
       )
 
-      logApiError(this.log, error)
+      logApiError(this, error)
       this.exit(1)
     }
   }

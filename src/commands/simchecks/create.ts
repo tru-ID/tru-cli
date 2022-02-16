@@ -1,4 +1,4 @@
-import * as Config from '@oclif/config'
+import { Config } from '@oclif/core'
 import { APIConfiguration } from '../../api/APIConfiguration'
 import { CheckStatus } from '../../api/CheckStatus'
 import {
@@ -9,8 +9,6 @@ import CommandWithProjectConfig from '../../helpers/CommandWithProjectConfig'
 import ILogger from '../../helpers/ILogger'
 import { promptForNumber } from '../../helpers/phone'
 import { logApiError } from '../../utilities'
-
-const QR_CODE_LINK_HANDLER_URL = `https://r.tru.id?u={CHECK_URL}&c={CHECK_ID}&t={ACCESS_TOKEN}`
 
 export default class SimChecksCreate extends CommandWithProjectConfig {
   static description = 'Create SIMChecks within a Project'
@@ -31,7 +29,7 @@ export default class SimChecksCreate extends CommandWithProjectConfig {
 
   tokenScope = 'sim_check'
 
-  constructor(argv: string[], config: Config.IConfig) {
+  constructor(argv: string[], config: Config) {
     super(argv, config)
   }
 
@@ -40,7 +38,7 @@ export default class SimChecksCreate extends CommandWithProjectConfig {
   }
 
   async run() {
-    const result = this.parseCommand()
+    const result = await this.parseCommand()
     this.args = result.args
     this.flags = result.flags
     await this.loadProjectConfig()
@@ -55,7 +53,7 @@ export default class SimChecksCreate extends CommandWithProjectConfig {
 
     this.log(`Creating ${this.typeOfCheck} for ${this.args.phone_number}\n`)
 
-    let apiConfiguration = new APIConfiguration({
+    const apiConfiguration = new APIConfiguration({
       clientId: this.projectConfig?.credentials[0].client_id,
       clientSecret: this.projectConfig?.credentials[0].client_secret,
       scopes: [this.tokenScope],
@@ -64,7 +62,7 @@ export default class SimChecksCreate extends CommandWithProjectConfig {
         `https://${this.globalConfig?.defaultWorkspaceDataResidency}.api.tru.id`,
     })
 
-    let simCheckApiClient = this.getApiClient(apiConfiguration, this.logger)
+    const simCheckApiClient = this.getApiClient(apiConfiguration, this.logger)
 
     let response: ISimCheckResource
 
@@ -73,8 +71,9 @@ export default class SimChecksCreate extends CommandWithProjectConfig {
         phone_number: this.args.phone_number,
       })
     } catch (error) {
-      logApiError(this.log, error)
+      logApiError(this, error)
       this.exit(1)
+      return
     }
 
     if (response.status === CheckStatus.COMPLETED) {
@@ -86,6 +85,7 @@ export default class SimChecksCreate extends CommandWithProjectConfig {
         `The ${this.typeOfCheck} could not be created. The ${this.typeOfCheck} status is ${response.status}`,
       )
       this.exit(1)
+      return
     }
   }
 

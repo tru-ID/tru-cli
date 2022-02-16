@@ -1,11 +1,11 @@
 import { test } from '@oclif/test'
-import * as chai from 'chai'
-import * as fs from 'fs-extra'
-import * as path from 'path'
-import * as sinonChai from 'sinon-chai'
-import * as sinon from 'ts-sinon'
+import chai from 'chai'
+import fs from 'fs-extra'
+import path from 'path'
+import sinonChai from 'sinon-chai'
+import sinon from 'ts-sinon'
 import * as projectsModule from '../../../src/api/ProjectsAPIClient'
-import { ICreateProjectResponse } from '../../../src/api/ProjectsAPIClient'
+import { IProjectResource } from '../../../src/api/ProjectsAPIClient'
 import * as consoleLoggerModule from '../../../src/helpers/ConsoleLogger'
 import IGlobalConfiguration from '../../../src/IGlobalConfiguration'
 
@@ -29,7 +29,7 @@ let consoleLoggerErrorStub: any
 
 const workingDirectoryProjectConfigPath = path.join(process.cwd(), 'tru.json')
 
-const createProjectAPIResponse: ICreateProjectResponse = {
+const createProjectAPIResponse: IProjectResource = {
   project_id: 'c69bc0e6-a429-11ea-bb37-0242ac130003',
   name: 'my project',
   mode: 'live',
@@ -56,30 +56,30 @@ delete expectedProjectConfigJson._links
 
 describe('Command: projects:update', () => {
   beforeEach(() => {
-    existsSyncStub = sinon.default.stub(fs, 'existsSync')
+    existsSyncStub = sinon.stub(fs, 'existsSync')
     existsSyncStub
-      .withArgs(sinon.default.match(new RegExp(/config.json/)))
+      .withArgs(sinon.match(new RegExp(/config.json/)))
       .returns(true)
 
-    readJsonStub = sinon.default.stub(fs, 'readJson')
+    readJsonStub = sinon.stub(fs, 'readJson')
     readJsonStub
-      .withArgs(sinon.default.match(new RegExp(/config.json/)))
+      .withArgs(sinon.match(new RegExp(/config.json/)))
       .resolves(expectedUserConfig)
 
-    projectsApiUpdateStub = sinon.default.stub(
+    projectsApiUpdateStub = sinon.stub(
       projectsModule.ProjectsAPIClient.prototype,
       'update',
     )
   })
 
   afterEach(() => {
-    sinon.default.restore()
+    sinon.restore()
   })
 
   test
     .do(() => {
       existsSyncStub.withArgs(workingDirectoryProjectConfigPath).returns(false)
-      consoleLoggerErrorStub = sinon.default.stub(
+      consoleLoggerErrorStub = sinon.stub(
         consoleLoggerModule.ConsoleLogger.prototype,
         'error',
       )
@@ -96,7 +96,7 @@ describe('Command: projects:update', () => {
       readJsonStub
         .withArgs(workingDirectoryProjectConfigPath)
         .resolves(expectedProjectConfigJson)
-      consoleLoggerErrorStub = sinon.default.stub(
+      consoleLoggerErrorStub = sinon.stub(
         consoleLoggerModule.ConsoleLogger.prototype,
         'error',
       )
@@ -121,7 +121,7 @@ describe('Command: projects:update', () => {
       readJsonStub
         .withArgs(workingDirectoryProjectConfigPath)
         .resolves(expectedProjectConfigJson)
-      consoleLoggerErrorStub = sinon.default.stub(
+      consoleLoggerErrorStub = sinon.stub(
         consoleLoggerModule.ConsoleLogger.prototype,
         'error',
       )
@@ -136,7 +136,7 @@ describe('Command: projects:update', () => {
       () => {
         expect(projectsApiUpdateStub).to.have.been.calledWith(
           createProjectAPIResponse.project_id,
-          sinon.default.match.any,
+          sinon.match.any,
         )
       },
     )
@@ -147,7 +147,7 @@ describe('Command: projects:update', () => {
       readJsonStub
         .withArgs(workingDirectoryProjectConfigPath)
         .resolves(expectedProjectConfigJson)
-      consoleLoggerErrorStub = sinon.default.stub(
+      consoleLoggerErrorStub = sinon.stub(
         consoleLoggerModule.ConsoleLogger.prototype,
         'error',
       )
@@ -165,7 +165,7 @@ describe('Command: projects:update', () => {
 
   test
     .do(() => {
-      consoleLoggerErrorStub = sinon.default.stub(
+      consoleLoggerErrorStub = sinon.stub(
         consoleLoggerModule.ConsoleLogger.prototype,
         'error',
       )
@@ -180,19 +180,19 @@ describe('Command: projects:update', () => {
 
   test
     .do(() => {
-      consoleLoggerErrorStub = sinon.default.stub(console, 'log')
+      consoleLoggerErrorStub = sinon.stub(console, 'log')
     })
     .command(['projects:update', 'f0f5fb8e-db1c-4e75-bae8-cvxcvxcv'])
     .exit(1)
     .it('shows help message if no update flags are provided', () => {
       expect(consoleLoggerErrorStub).to.have.been.calledWith(
-        sinon.default.match('show CLI help'),
+        sinon.match('USAGE'),
       )
     })
 
   test
     .do(() => {
-      consoleLoggerErrorStub = sinon.default.stub(
+      consoleLoggerErrorStub = sinon.stub(
         consoleLoggerModule.ConsoleLogger.prototype,
         'error',
       )
@@ -215,7 +215,7 @@ describe('Command: projects:update', () => {
 
   test
     .do(() => {
-      consoleLoggerErrorStub = sinon.default.stub(
+      consoleLoggerErrorStub = sinon.stub(
         consoleLoggerModule.ConsoleLogger.prototype,
         'error',
       )
@@ -238,7 +238,7 @@ describe('Command: projects:update', () => {
 
   test
     .do(() => {
-      consoleLoggerWarnStub = sinon.default.stub(
+      consoleLoggerWarnStub = sinon.stub(
         consoleLoggerModule.ConsoleLogger.prototype,
         'warn',
       )
@@ -290,7 +290,7 @@ describe('Command: projects:update', () => {
     .do(() => {
       projectsApiUpdateStub.resolves(createProjectAPIResponse)
 
-      consoleLoggerInfoStub = sinon.default.stub(
+      consoleLoggerInfoStub = sinon.stub(
         consoleLoggerModule.ConsoleLogger.prototype,
         'info',
       )
@@ -344,7 +344,6 @@ describe('Command: projects:update', () => {
     })
 
   test
-    .do(() => {})
     .command([
       'projects:update',
       createProjectAPIResponse.project_id,

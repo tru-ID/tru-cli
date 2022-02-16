@@ -1,18 +1,16 @@
-import Command, { flags } from '@oclif/command'
-import * as fs from 'fs-extra'
-import * as path from 'path'
-
+import { Command, Config, Flags } from '@oclif/core'
+import fs from 'fs-extra'
+import path from 'path'
+import { ConsoleLogger, LogLevel } from '../helpers/ConsoleLogger'
 import IGlobalConfiguration from '../IGlobalConfiguration'
 import ILogger from './ILogger'
-import { ConsoleLogger, LogLevel } from '../helpers/ConsoleLogger'
-import * as Config from '@oclif/config'
 
 export default abstract class CommandWithGlobalConfig extends Command {
   static flags = {
-    debug: flags.boolean({
+    debug: Flags.boolean({
       description: 'Enables debug logging for the CLI',
     }),
-    help: flags.help({ char: 'h' }),
+    help: Flags.help({ char: 'h' }),
   }
 
   flags: {
@@ -26,7 +24,7 @@ export default abstract class CommandWithGlobalConfig extends Command {
 
   protected logger: ILogger
 
-  constructor(argv: string[], config: Config.IConfig) {
+  constructor(argv: string[], config: Config) {
     super(argv, config)
     this.logger = new ConsoleLogger(
       !this.flags.debug ? LogLevel.info : LogLevel.debug,

@@ -1,10 +1,9 @@
 import * as jsonpatch from 'fast-json-patch'
-
-import { APIConfiguration } from './APIConfiguration'
 import ILogger from '../helpers/ILogger'
 import AbstractAPIClient from './AbstractAPIClient'
+import { APIConfiguration } from './APIConfiguration'
 import IAPICredentials from './IAPICredentails'
-import { IListResource, ILink, IListResourceParameters } from './IListResource'
+import { ILink, IListResource, IListResourceParameters } from './IListResource'
 
 export interface IProjectResourceBase {
   configuration?: {
@@ -24,19 +23,22 @@ export interface ICreateProjectPayload {
   }
 }
 
-export interface IProjectResource extends IProjectResourceBase {
+export type IProjectResource = {
   name: string
   project_id: string
   mode: 'live' | 'sandbox'
   created_at: string
   updated_at: string
   credentials: IAPICredentials[]
+  configuration?: {
+    phone_check?: {
+      callback_url?: string
+    }
+  }
   _links: {
     self: ILink
   }
 }
-
-export interface ICreateProjectResponse extends IProjectResource {}
 
 export interface IUpdateProjectPayload extends IProjectResourceBase {
   /**
@@ -66,16 +68,16 @@ export interface IListProjectsResponse extends IListResource {
   }
 }
 
-export interface IListProjectsParameters extends IListResourceParameters {}
+export type IListProjectsParameters = IListResourceParameters
 
 export class ProjectsAPIClient extends AbstractAPIClient {
   constructor(apiConfig: APIConfiguration, logger: ILogger) {
     super(apiConfig, logger)
   }
 
-  async create(params: any): Promise<ICreateProjectResponse> {
-    const response: ICreateProjectResponse =
-      await this.httpClient.post<ICreateProjectResponse>(
+  async create(params: any): Promise<IProjectResource> {
+    const response: IProjectResource =
+      await this.httpClient.post<IProjectResource>(
         '/console/v0.1/projects',
         params,
         {},
@@ -109,7 +111,7 @@ export class ProjectsAPIClient extends AbstractAPIClient {
   ): Promise<IProjectResource> {
     let existingProject: IProjectResource = await this.get(projectId)
 
-    let observer: any = jsonpatch.observe(existingProject)
+    const observer: any = jsonpatch.observe(existingProject)
 
     this.logger.debug('Existing project', existingProject)
     this.logger.debug('Project update', params)

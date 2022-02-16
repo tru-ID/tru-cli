@@ -1,4 +1,4 @@
-import { cli } from 'cli-ux'
+import { CliUx } from '@oclif/core'
 import { APIConfiguration } from '../../api/APIConfiguration'
 import { ICreateTokenResponse } from '../../api/HttpClient'
 import { OAuth2APIClient } from '../../api/OAuth2APIClient'
@@ -11,10 +11,10 @@ export default class CreateToken extends CommandWithProjectConfig {
 
   static flags = {
     ...CommandWithProjectConfig.flags,
-    output: cli.table.flags().output,
-    extended: cli.table.flags().extended,
-    'no-header': cli.table.flags()['no-header'],
-    'no-truncate': cli.table.flags()['no-truncate'],
+    output: CliUx.ux.table.flags().output,
+    extended: CliUx.ux.table.flags().extended,
+    'no-header': CliUx.ux.table.flags()['no-header'],
+    'no-truncate': CliUx.ux.table.flags()['no-truncate'],
   }
 
   static examples = [
@@ -31,7 +31,7 @@ Emesua0F7gj3qOaav7UaKaBwefaaefaAxlrdGom_mb3U.78Od2d9XpvTQbd44eM1Uf7nzz9e9nezs5TR
   ]
 
   async run() {
-    const result = this.parse(CreateToken)
+    const result = await this.parse(CreateToken)
 
     this.args = result.args
     this.flags = result.flags
@@ -75,17 +75,17 @@ Emesua0F7gj3qOaav7UaKaBwefaaefaAxlrdGom_mb3U.78Od2d9XpvTQbd44eM1Uf7nzz9e9nezs5TR
     )
 
     try {
-      let tokenCreationResult = await apiClient.create()
+      const tokenCreationResult = await apiClient.create()
 
       this.displayResults([tokenCreationResult])
     } catch (error) {
-      logApiError(this.log, error)
+      logApiError(this, error)
       this.exit(1)
     }
   }
 
   displayResults(resources: ICreateTokenResponse[]) {
-    cli.table(
+    CliUx.ux.table(
       resources,
       {
         access_token: {
