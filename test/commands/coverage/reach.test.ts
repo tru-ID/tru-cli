@@ -5,9 +5,9 @@ import path from 'path'
 import sinonChai from 'sinon-chai'
 import sinon from 'ts-sinon'
 import { ICoverageReachResponse } from '../../../src/api/CoverageAPIClient'
-import { ICreateTokenResponse } from '../../../src/api/HttpClient'
-import IGlobalConfiguration from '../../../src/IGlobalConfiguration'
+import { IGlobalAuthConfiguration } from '../../../src/IGlobalAuthConfiguration'
 import { IProjectConfiguration } from '../../../src/IProjectConfiguration'
+import { accessToken } from '../../test_helpers'
 
 const expect = chai.expect
 chai.use(sinonChai)
@@ -15,10 +15,13 @@ chai.use(sinonChai)
 const reachableIp = 'mobileIpAddress'
 const unreachableIp = 'unreachableIp'
 
-const globalConfig: IGlobalConfiguration = {
-  defaultWorkspaceClientId: 'clientID',
-  defaultWorkspaceClientSecret: 'clientSecret',
-  defaultWorkspaceDataResidency: 'eu',
+const globalConfig: IGlobalAuthConfiguration = {
+  selectedWorkspace: 'workspace_id',
+  selectWorkspaceDataResidency: 'eu',
+  tokenInfo: {
+    refresh_token: 'refresh_token',
+    scope: 'console openid',
+  },
 }
 
 const projectConfigFileLocation = path.join(process.cwd(), 'tru.json')
@@ -26,13 +29,11 @@ const projectConfig: IProjectConfiguration = {
   project_id: 'c69bc0e6-a429-11ea-bb37-0242ac130003',
   name: 'My test project',
   created_at: '2020-06-01T16:43:30+00:00',
-  updated_at: '2020-06-01T16:43:30+00:00',
   credentials: [
     {
       client_id: 'project client id',
       client_secret: 'project client secret',
       scopes: ['coverage'],
-      created_at: '2020-06-01T16:43:30+00:00',
     },
   ],
 }
@@ -42,13 +43,6 @@ const reachResponse: ICoverageReachResponse = {
   network_name: 'ACME',
   country_code: 'US',
   products: [{ product_id: 'PCK', product_name: 'Phone Check' }],
-}
-
-const tokenResponse: ICreateTokenResponse = {
-  access_token: '123456',
-  expires_in: 3599,
-  scope: 'coverage',
-  token_type: 'bearer',
 }
 
 let existsSyncStub: any
@@ -80,8 +74,8 @@ describe('coverage:reach', () => {
     .nock('https://eu.api.tru.id', (api) =>
       api
         .persist()
-        .post(new RegExp('/oauth2/v1/tokens*'))
-        .reply(200, tokenResponse)
+        .post(new RegExp('/oauth2/v1/token*'))
+        .reply(200, accessToken)
         .get(new RegExp('/coverage/v0.1/device_ips/.*'))
         .reply(200, reachResponse),
     )
@@ -99,7 +93,7 @@ describe('coverage:reach', () => {
       api
         .persist()
         .post(new RegExp('/oauth2/v1/tokens*'))
-        .reply(200, tokenResponse)
+        .reply(200, accessToken)
         .get('/coverage/v0.1/device_ips/unreachableIp')
         .reply(200),
     )

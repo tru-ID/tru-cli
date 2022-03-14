@@ -1,9 +1,11 @@
 import { Config } from '@oclif/core'
-import { APIConfiguration } from '../../api/APIConfiguration'
+import { APIClientCredentialsConfiguration } from '../../api/APIConfiguration'
 import {
   SubscriberCheckAPIClient,
   SubscriberCheckResource,
 } from '../../api/SubscriberCheckAPIClient'
+import { ClientCredentialsManager } from '../../api/TokenManager'
+import { apiBaseUrlDR } from '../../DefaultUrls'
 import ChecksCreateCommand from '../../helpers/ChecksCreateCommand'
 import ILogger from '../../helpers/ILogger'
 
@@ -26,18 +28,28 @@ export default class SubscriberChecksCreate extends ChecksCreateCommand {
     return this.parse(SubscriberChecksCreate)
   }
 
-  getApiClient(apiConfiguration: APIConfiguration, logger: ILogger) {
-    return new SubscriberCheckAPIClient(apiConfiguration, logger)
+  getApiClient(
+    apiConfiguration: APIClientCredentialsConfiguration,
+
+    logger: ILogger,
+  ): SubscriberCheckAPIClient {
+    const tokenManager = new ClientCredentialsManager(apiConfiguration, logger)
+
+    return new SubscriberCheckAPIClient(
+      tokenManager,
+      apiBaseUrlDR(this.globalConfig!),
+      logger,
+    )
   }
 
-  getPolling() {
+  getPolling(): number {
     return (
       this.globalConfig?.subscriberCheckWorkflowRetryMillisecondsOverride ??
       5000
     )
   }
 
-  logResult(checkResponse: SubscriberCheckResource) {
+  logResult(checkResponse: SubscriberCheckResource): void {
     this.log('')
     this.log(
       `${this.typeOfCheck} Workflow result:\n` +

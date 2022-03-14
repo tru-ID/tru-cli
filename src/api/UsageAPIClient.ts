@@ -1,7 +1,7 @@
 import ILogger from '../helpers/ILogger'
-import AbstractAPIClient from './AbstractAPIClient'
-import { APIConfiguration } from './APIConfiguration'
+import { HttpClient } from './HttpClient'
 import { IListResource } from './IListResource'
+import { RefreshTokenManager } from './TokenManager'
 
 export type UsageResource = {
   product_id?: string
@@ -25,12 +25,21 @@ export interface IListUsageResource extends IListResource {
   }
 }
 
-export class UsageApiClient extends AbstractAPIClient {
-  constructor(apiConfig: APIConfiguration, logger: ILogger) {
-    super(apiConfig, logger)
+export class UsageApiClient {
+  httpClient: HttpClient
+  logger: ILogger
+
+  constructor(
+    tokenManager: RefreshTokenManager,
+    apiBaseUrl: string,
+    logger: ILogger,
+  ) {
+    this.httpClient = new HttpClient(tokenManager, apiBaseUrl, logger)
+    this.logger = logger
   }
 
   async getUsage(
+    workspaceId: string,
     usageParameter: UsageParameter,
     typeOfUsage: string,
   ): Promise<IListUsageResource> {
@@ -38,7 +47,7 @@ export class UsageApiClient extends AbstractAPIClient {
 
     const response: IListUsageResource =
       await this.httpClient.get<IListUsageResource>(
-        `/console/v0.1/workspaces/default/usage/${typeOfUsage}`,
+        `/console/v0.2/workspaces/${workspaceId}/usage/${typeOfUsage}`,
         usageParameter,
         {},
       )

@@ -1,12 +1,20 @@
 import { CliUx } from '@oclif/core'
-import { APIConfiguration } from '../../api/APIConfiguration'
+import { APIClientCredentialsConfiguration } from '../../api/APIConfiguration'
 import {
   CoverageAPIClient,
   ICoverageCountryResponse,
 } from '../../api/CoverageAPIClient'
-import IAPICredentials from '../../api/IAPICredentails'
+import { ClientCredentialsManager } from '../../api/TokenManager'
+import { apiBaseUrlDR, tokenUrlDR } from '../../DefaultUrls'
 import CommandWithProjectConfig from '../../helpers/CommandWithProjectConfig'
 import { ConsoleLogger, LogLevel } from '../../helpers/ConsoleLogger'
+import {
+  doesProjectConfigExist,
+  isProjectCredentialsValid,
+  isWorkspaceSelected,
+  isWorkspaceTokenInfoValid,
+} from '../../helpers/ValidationUtils'
+import Credential from '../../IProjectConfiguration'
 import { logApiError } from '../../utilities'
 
 export default class CoverageCountry extends CommandWithProjectConfig {
@@ -32,10 +40,12 @@ export default class CoverageCountry extends CommandWithProjectConfig {
     this.flags = flags
     await this.loadProjectConfig()
 
-    const credentials = this.projectConfig?.credentials[0]
-    if (!credentials) {
-      throw new Error('missing project credentials')
-    }
+    doesProjectConfigExist(this.projectConfig)
+    isProjectCredentialsValid(this.projectConfig!)
+    isWorkspaceTokenInfoValid(this.globalConfig!)
+    isWorkspaceSelected(this.globalConfig!)
+
+    const credentials = this.projectConfig!.credentials[0]!
 
     const apiClient = this.newApiClient(credentials, flags.debug)
 
@@ -103,27 +113,28 @@ export default class CoverageCountry extends CommandWithProjectConfig {
     return result
   }
 
-  newApiClient(
-    credentials: IAPICredentials,
-    debug: boolean,
-  ): CoverageAPIClient {
+  newApiClient(credentials: Credential, debug: boolean): CoverageAPIClient {
     const requiredScope = credentials?.scopes?.find((s) => s === 'coverage')
 
     if (!requiredScope) {
       throw new Error(`this project does not have the required scope: coverage`)
     }
 
-    const config = new APIConfiguration({
+    const logger = new ConsoleLogger(debug ? LogLevel.debug : LogLevel.info)
+
+    const config: APIClientCredentialsConfiguration = {
       clientId: credentials?.client_id,
       clientSecret: credentials?.client_secret,
       scopes: [requiredScope],
-      baseUrl:
-        this.globalConfig?.apiBaseUrlOverride ??
-        `https://${this.globalConfig?.defaultWorkspaceDataResidency}.api.tru.id`,
-    })
+      tokenUrl: tokenUrlDR(this.globalConfig!),
+    }
 
-    const logger = new ConsoleLogger(debug ? LogLevel.debug : LogLevel.info)
+    const tokenManager = new ClientCredentialsManager(config, logger)
 
-    return new CoverageAPIClient(config, logger)
+    return new CoverageAPIClient(
+      tokenManager,
+      apiBaseUrlDR(this.globalConfig!),
+      logger,
+    )
   }
 }

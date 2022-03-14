@@ -1,13 +1,20 @@
 import { Config } from '@oclif/core'
-import { APIConfiguration } from '../../api/APIConfiguration'
+import { APIClientCredentialsConfiguration } from '../../api/APIConfiguration'
 import { CheckStatus } from '../../api/CheckStatus'
 import {
   ISimCheckResource,
   SimCheckAPIClient,
 } from '../../api/SimCheckAPIClient'
+import { ClientCredentialsManager } from '../../api/TokenManager'
+import { apiBaseUrlDR, tokenUrlDR } from '../../DefaultUrls'
 import CommandWithProjectConfig from '../../helpers/CommandWithProjectConfig'
 import ILogger from '../../helpers/ILogger'
 import { promptForNumber } from '../../helpers/phone'
+import {
+  doesProjectConfigExist,
+  isProjectCredentialsValid,
+  isWorkspaceSelected,
+} from '../../helpers/ValidationUtils'
 import { logApiError } from '../../utilities'
 
 export default class SimChecksCreate extends CommandWithProjectConfig {
@@ -45,6 +52,10 @@ export default class SimChecksCreate extends CommandWithProjectConfig {
 
     await super.run()
 
+    doesProjectConfigExist(this.projectConfig)
+    isProjectCredentialsValid(this.projectConfig!)
+    isWorkspaceSelected(this.globalConfig!)
+
     if (this.args.phone_number === undefined) {
       const response = await promptForNumber(this.typeOfCheck)
 
@@ -53,14 +64,12 @@ export default class SimChecksCreate extends CommandWithProjectConfig {
 
     this.log(`Creating ${this.typeOfCheck} for ${this.args.phone_number}\n`)
 
-    const apiConfiguration = new APIConfiguration({
-      clientId: this.projectConfig?.credentials[0].client_id,
-      clientSecret: this.projectConfig?.credentials[0].client_secret,
+    const apiConfiguration: APIClientCredentialsConfiguration = {
+      clientId: this.projectConfig!.credentials[0].client_id!,
+      clientSecret: this.projectConfig!.credentials[0].client_secret!,
       scopes: [this.tokenScope],
-      baseUrl:
-        this.globalConfig?.apiBaseUrlOverride ??
-        `https://${this.globalConfig?.defaultWorkspaceDataResidency}.api.tru.id`,
-    })
+      tokenUrl: tokenUrlDR(this.globalConfig!),
+    }
 
     const simCheckApiClient = this.getApiClient(apiConfiguration, this.logger)
 
@@ -90,9 +99,15 @@ export default class SimChecksCreate extends CommandWithProjectConfig {
   }
 
   getApiClient(
-    apiConfiguration: APIConfiguration,
+    apiConfiguration: APIClientCredentialsConfiguration,
     logger: ILogger,
   ): SimCheckAPIClient {
-    return new SimCheckAPIClient(apiConfiguration, logger)
+    const tokenManager = new ClientCredentialsManager(apiConfiguration, logger)
+
+    return new SimCheckAPIClient(
+      tokenManager,
+      apiBaseUrlDR(this.globalConfig!),
+      logger,
+    )
   }
 }

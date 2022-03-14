@@ -1,6 +1,8 @@
 import { Config } from '@oclif/core'
-import { APIConfiguration } from '../../api/APIConfiguration'
+import { APIClientCredentialsConfiguration } from '../../api/APIConfiguration'
 import { PhoneChecksAPIClient } from '../../api/PhoneChecksAPIClient'
+import { ClientCredentialsManager } from '../../api/TokenManager'
+import { apiBaseUrlDR } from '../../DefaultUrls'
 import ChecksTraceCommand from '../../helpers/ChecksTraceCommand'
 import ILogger from '../../helpers/ILogger'
 
@@ -23,7 +25,17 @@ export default class PhoneCheckTraces extends ChecksTraceCommand {
     return this.parse(PhoneCheckTraces)
   }
 
-  getApiClient(apiConfiguration: APIConfiguration, logger: ILogger) {
-    return new PhoneChecksAPIClient(apiConfiguration, logger)
+  getApiClient(
+    apiConfiguration: APIClientCredentialsConfiguration,
+
+    logger: ILogger,
+  ) {
+    const tokenManager = new ClientCredentialsManager(apiConfiguration, logger)
+
+    return new PhoneChecksAPIClient(
+      tokenManager,
+      apiBaseUrlDR(this.globalConfig!),
+      logger,
+    )
   }
 }

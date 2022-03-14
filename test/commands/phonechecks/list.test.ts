@@ -3,49 +3,23 @@ import chai from 'chai'
 import fs from 'fs-extra'
 import sinonChai from 'sinon-chai'
 import sinon from 'ts-sinon'
-import { APIConfiguration } from '../../../src/api/APIConfiguration'
 import {
   CheckResource,
   IListCheckResource,
 } from '../../../src/api/ChecksAPIClient'
 import { CheckStatus } from '../../../src/api/CheckStatus'
-import * as httpClientModule from '../../../src/api/HttpClient'
-import * as phoneCheckAPIClientModules from '../../../src/api/PhoneChecksAPIClient'
-import { ConsoleLogger } from '../../../src/helpers/ConsoleLogger'
-import IGlobalConfiguration from '../../../src/IGlobalConfiguration'
-import { IProjectConfiguration } from '../../../src/IProjectConfiguration'
-import { buildConsoleString } from '../../test_helpers'
+import {
+  accessToken,
+  globalConfig,
+  projectConfig,
+  projectConfigFileLocation,
+} from '../../test_helpers'
 
 const expect = chai.expect
 chai.use(sinonChai)
 
 describe('phonechecks:list', () => {
-  let phoneChecksApiClientConstructorStub: any
   let readJsonStub: any
-  let consoleLoggerInfoStub: any
-  let httpClientGetStub: any
-
-  const expectedUserConfig: IGlobalConfiguration = {
-    defaultWorkspaceClientId: 'my client id',
-    defaultWorkspaceClientSecret: 'my client secret',
-    defaultWorkspaceDataResidency: 'eu',
-  }
-
-  const projectConfigFileLocation = `${process.cwd()}/tru.json`
-
-  const projectConfig: IProjectConfiguration = {
-    project_id: 'c69bc0e6-a429-11ea-bb37-0242ac130003',
-    name: 'My test project',
-    created_at: '2020-06-01T16:43:30+00:00',
-    updated_at: '2020-06-01T16:43:30+00:00',
-    credentials: [
-      {
-        client_id: 'project client id',
-        client_secret: 'project client secret',
-        created_at: '2020-06-01T16:43:30+00:00',
-      },
-    ],
-  }
 
   const phoneCheckResource: CheckResource = {
     _links: {
@@ -91,32 +65,11 @@ describe('phonechecks:list', () => {
 
     readJsonStub
       .withArgs(sinon.match(sinon.match(new RegExp(/config.json/))))
-      .resolves(expectedUserConfig)
+      .resolves(globalConfig)
 
     readJsonStub
       .withArgs(sinon.match(projectConfigFileLocation))
       .resolves(projectConfig)
-
-    httpClientGetStub = sinon.stub(httpClientModule.HttpClient.prototype, 'get')
-    httpClientGetStub
-      .withArgs('/phone_check/v0.1/checks', sinon.match.any, sinon.match.any)
-      .resolves(checksListResource)
-    httpClientGetStub
-      .withArgs(
-        `/phone_check/v0.1/checks/${phoneCheckResource.check_id}`,
-        sinon.match.any,
-        sinon.match.any,
-      )
-      .resolves(phoneCheckResource)
-    httpClientGetStub
-      .withArgs(
-        `/phone_check/v0.1/checks/check_id_value`,
-        sinon.match.any,
-        sinon.match.any,
-      )
-      .resolves(phoneCheckResource)
-
-    consoleLoggerInfoStub = sinon.stub(ConsoleLogger.prototype, 'info')
   })
 
   afterEach(() => {
@@ -124,93 +77,52 @@ describe('phonechecks:list', () => {
   })
 
   test
-    .do(() => {
-      phoneChecksApiClientConstructorStub = sinon.spy(
-        phoneCheckAPIClientModules,
-        'PhoneChecksAPIClient',
-      )
+    .nock('https://eu.api.tru.id', (api) =>
+      api
+        .persist()
+        .post(new RegExp('/oauth2/v1/token*'))
+        .reply(200, accessToken)
+        .get(new RegExp(`/phone_check/v0.1/checks*`))
+        .reply(200, checksListResource),
+    )
+    .stdout()
+    .command(['phonechecks:list'])
+    .it('should contain header table output', (ctx) => {
+      expect(ctx.stdout).to.contain('check_id')
+      expect(ctx.stdout).to.contain('created_at')
+      expect(ctx.stdout).to.contain('status')
+      expect(ctx.stdout).to.contain('match')
+      expect(ctx.stdout).to.contain('charge_currency')
+      expect(ctx.stdout).to.contain('charge_amount')
+
+      expect(ctx.stdout).to.contain('Page 1 of 1')
+      expect(ctx.stdout).to.contain('PhoneChecks: 1 to 1 of 1')
+
+      expect(ctx.stdout).to.contain(phoneCheckResource.check_id)
+      expect(ctx.stdout).to.contain(phoneCheckResource.created_at)
+      expect(ctx.stdout).to.contain(phoneCheckResource.charge_amount)
+      expect(ctx.stdout).to.contain(phoneCheckResource.charge_currency)
+      expect(ctx.stdout).to.contain(phoneCheckResource.match)
+      expect(ctx.stdout).to.contain(phoneCheckResource.status)
     })
-    .command(['phonechecks:list'])
-    .it(
-      'phonechecks/list/PhoneChecksAPIClient: it should instantiate PhoneChecksAPIClient with expected arguments',
-      () => {
-        expect(phoneChecksApiClientConstructorStub).to.be.calledWith(
-          sinon.match.instanceOf(APIConfiguration),
-        )
-      },
-    )
 
   test
-    .command(['phonechecks:list'])
-    .it(
-      'phonechecks/list/PhoneChecksAPIClient.list: should call PhoneChecksAPIClient.list() if optional check_id argment is not supplied',
-      () => {
-        expect(httpClientGetStub).to.be.calledWith(
-          '/phone_check/v0.1/checks',
-          sinon.match.any,
-          sinon.match.any,
-        )
-      },
+    .nock('https://eu.api.tru.id', (api) =>
+      api
+        .persist()
+        .post(new RegExp('/oauth2/v1/token*'))
+        .reply(200, accessToken)
+        .get(new RegExp(`/phone_check/v0.1/checks*`))
+        .reply(200, phoneCheckResource),
     )
-
-  test
+    .stdout()
     .command(['phonechecks:list', 'check_id_value'])
-    .it(
-      'should call PhoneChecksAPIClient.get(checkId) if optional check_id argment is supplied',
-      () => {
-        expect(httpClientGetStub).to.be.calledWith(
-          '/phone_check/v0.1/checks/check_id_value',
-          sinon.match.any,
-          sinon.match.any,
-        )
-      },
-    )
-
-  test
-    .command(['phonechecks:list'])
-    .it('should contain header table output', () => {
-      const consoleOutputString = buildConsoleString(consoleLoggerInfoStub)
-
-      expect(consoleOutputString).to.contain('check_id')
-      expect(consoleOutputString).to.contain('created_at')
-      expect(consoleOutputString).to.contain('status')
-      expect(consoleOutputString).to.contain('match')
-      expect(consoleOutputString).to.contain('charge_currency')
-      expect(consoleOutputString).to.contain('charge_amount')
-    })
-
-  test
-    .command(['phonechecks:list'])
-    .it('should contain pagination output', () => {
-      const consoleOutputString = buildConsoleString(consoleLoggerInfoStub)
-
-      expect(consoleOutputString).to.contain('Page 1 of 1')
-      expect(consoleOutputString).to.contain('PhoneChecks: 1 to 1 of 1')
-    })
-
-  test
-    .command(['phonechecks:list'])
-    .it('outputs resource list to cli.table', () => {
-      const consoleOutputString = buildConsoleString(consoleLoggerInfoStub)
-
-      expect(consoleOutputString).to.contain(phoneCheckResource.check_id)
-      expect(consoleOutputString).to.contain(phoneCheckResource.created_at)
-      expect(consoleOutputString).to.contain(phoneCheckResource.charge_amount)
-      expect(consoleOutputString).to.contain(phoneCheckResource.charge_currency)
-      expect(consoleOutputString).to.contain(phoneCheckResource.match)
-      expect(consoleOutputString).to.contain(phoneCheckResource.status)
-    })
-
-  test
-    .command(['phonechecks:list', 'check_id_value'])
-    .it('outputs result of a single resource to cli.table', () => {
-      const consoleOutputString = buildConsoleString(consoleLoggerInfoStub)
-
-      expect(consoleOutputString).to.contain(phoneCheckResource.check_id)
-      expect(consoleOutputString).to.contain(phoneCheckResource.created_at)
-      expect(consoleOutputString).to.contain(phoneCheckResource.charge_amount)
-      expect(consoleOutputString).to.contain(phoneCheckResource.charge_currency)
-      expect(consoleOutputString).to.contain(phoneCheckResource.match)
-      expect(consoleOutputString).to.contain(phoneCheckResource.status)
+    .it('outputs result of a single resource to cli.table', (ctx) => {
+      expect(ctx.stdout).to.contain(phoneCheckResource.check_id)
+      expect(ctx.stdout).to.contain(phoneCheckResource.created_at)
+      expect(ctx.stdout).to.contain(phoneCheckResource.charge_amount)
+      expect(ctx.stdout).to.contain(phoneCheckResource.charge_currency)
+      expect(ctx.stdout).to.contain(phoneCheckResource.match)
+      expect(ctx.stdout).to.contain(phoneCheckResource.status)
     })
 })

@@ -9,6 +9,13 @@
       "args": ["--timeout", "999999", "--colors", "${file}"],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch Program Debug",
+      "program": "${workspaceFolder}/bin/run",
+      "args": ["projects:list"]
     }
   ]
 }

@@ -6,10 +6,9 @@ The [**tru.ID**](https://tru.id) CLI
 [![License](https://img.shields.io/npm/l/4auth-cli.svg)](https://github.com/4auth/4auth-cli/blob/master/package.json) -->
 
 <!-- toc -->
-
-- [Usage](#usage)
-- [Commands](#commands)
-- [Development](#development)
+* [Usage](#usage)
+* [Commands](#commands)
+* [Development](#development)
 <!-- tocstop -->
 
 # Usage
@@ -17,46 +16,45 @@ The [**tru.ID**](https://tru.id) CLI
 Every run of the CLI will check to see if all required configuration is in place.
 
 <!-- usage -->
-
 ```sh-session
 $ npm install -g @tru_id/cli
 $ tru COMMAND
 running command...
 $ tru (--version)
-@tru_id/cli/0.9.7 linux-x64 node-v16.11.1
+@tru_id/cli/0.9.7 linux-x64 node-v16.14.0
 $ tru --help [COMMAND]
 USAGE
   $ tru COMMAND
 ...
 ```
-
 <!-- usagestop -->
 
 # Commands
 
 <!-- commands -->
-
-- [`tru coverage:country CODE`](#tru-coveragecountry-code)
-- [`tru coverage:reach DEVICE-IP`](#tru-coveragereach-device-ip)
-- [`tru help [COMMAND]`](#tru-help-command)
-- [`tru oauth2:token`](#tru-oauth2token)
-- [`tru phonechecks:create [PHONE_NUMBER]`](#tru-phonecheckscreate-phone_number)
-- [`tru phonechecks:list [CHECK_ID]`](#tru-phonecheckslist-check_id)
-- [`tru phonechecks:traces CHECK_ID`](#tru-phonecheckstraces-check_id)
-- [`tru projects:create [NAME]`](#tru-projectscreate-name)
-- [`tru projects:list [PROJECT_ID]`](#tru-projectslist-project_id)
-- [`tru projects:update [PROJECT-ID]`](#tru-projectsupdate-project-id)
-- [`tru setup:credentials CLIENT-ID CLIENT-SECRET DATA-RESIDENCY`](#tru-setupcredentials-client-id-client-secret-data-residency)
-- [`tru simchecks:create [PHONE_NUMBER]`](#tru-simcheckscreate-phone_number)
-- [`tru simchecks:list [CHECK_ID]`](#tru-simcheckslist-check_id)
-- [`tru simchecks:traces CHECK_ID`](#tru-simcheckstraces-check_id)
-- [`tru subscriberchecks:create [PHONE_NUMBER]`](#tru-subscribercheckscreate-phone_number)
-- [`tru subscriberchecks:list [CHECK_ID]`](#tru-subscribercheckslist-check_id)
-- [`tru subscriberchecks:traces CHECK_ID`](#tru-subscribercheckstraces-check_id)
-- [`tru usage:daily`](#tru-usagedaily)
-- [`tru usage:hourly`](#tru-usagehourly)
-- [`tru usage:monthly`](#tru-usagemonthly)
-- [`tru workspaces`](#tru-workspaces)
+* [`tru coverage:country CODE`](#tru-coveragecountry-code)
+* [`tru coverage:reach DEVICE-IP`](#tru-coveragereach-device-ip)
+* [`tru help [COMMAND]`](#tru-help-command)
+* [`tru oauth2:token`](#tru-oauth2token)
+* [`tru phonechecks:create [PHONE_NUMBER]`](#tru-phonecheckscreate-phone_number)
+* [`tru phonechecks:list [CHECK_ID]`](#tru-phonecheckslist-check_id)
+* [`tru phonechecks:traces CHECK_ID`](#tru-phonecheckstraces-check_id)
+* [`tru projects:create [NAME]`](#tru-projectscreate-name)
+* [`tru projects:list [PROJECT_ID]`](#tru-projectslist-project_id)
+* [`tru projects:update [PROJECT-ID]`](#tru-projectsupdate-project-id)
+* [`tru setup:oauth2 IDP`](#tru-setupoauth2-idp)
+* [`tru simchecks:create [PHONE_NUMBER]`](#tru-simcheckscreate-phone_number)
+* [`tru simchecks:list [CHECK_ID]`](#tru-simcheckslist-check_id)
+* [`tru simchecks:traces CHECK_ID`](#tru-simcheckstraces-check_id)
+* [`tru subscriberchecks:create [PHONE_NUMBER]`](#tru-subscribercheckscreate-phone_number)
+* [`tru subscriberchecks:list [CHECK_ID]`](#tru-subscribercheckslist-check_id)
+* [`tru subscriberchecks:traces CHECK_ID`](#tru-subscribercheckstraces-check_id)
+* [`tru usage:daily`](#tru-usagedaily)
+* [`tru usage:hourly`](#tru-usagehourly)
+* [`tru usage:monthly`](#tru-usagemonthly)
+* [`tru workspaces:list`](#tru-workspaceslist)
+* [`tru workspaces:selected`](#tru-workspacesselected)
+* [`tru workspaces:switch DATA_RESIDENCY WORKSPACE_ID`](#tru-workspacesswitch-data_residency-workspace_id)
 
 ## `tru coverage:country CODE`
 
@@ -388,24 +386,22 @@ EXAMPLES
 
 _See code: [dist/commands/projects/update.ts](https://github.com/tru-ID/tru-cli/blob/v0.9.7/dist/commands/projects/update.ts)_
 
-## `tru setup:credentials CLIENT-ID CLIENT-SECRET DATA-RESIDENCY`
+## `tru setup:oauth2 IDP`
 
-Setup the CLI with workspace credentials
+Setup the CLI with oauth2 flow
 
 ```
 USAGE
-  $ tru setup:credentials [CLIENT-ID] [CLIENT-SECRET] [DATA-RESIDENCY]
+  $ tru setup:oauth2 [IDP]
 
 ARGUMENTS
-  CLIENT-ID       the workspace credentials id
-  CLIENT-SECRET   the workspace credentials secret
-  DATA-RESIDENCY  the data residency of this workspace e.g. EU
+  IDP  (google|github|microsoft) The oauth2 IDP
 
 DESCRIPTION
-  Setup the CLI with workspace credentials
+  Setup the CLI with oauth2 flow
 ```
 
-_See code: [dist/commands/setup/credentials.ts](https://github.com/tru-ID/tru-cli/blob/v0.9.7/dist/commands/setup/credentials.ts)_
+_See code: [dist/commands/setup/oauth2.ts](https://github.com/tru-ID/tru-cli/blob/v0.9.7/dist/commands/setup/oauth2.ts)_
 
 ## `tru simchecks:create [PHONE_NUMBER]`
 
@@ -696,13 +692,13 @@ DESCRIPTION
 
 _See code: [dist/commands/usage/monthly.ts](https://github.com/tru-ID/tru-cli/blob/v0.9.7/dist/commands/usage/monthly.ts)_
 
-## `tru workspaces`
+## `tru workspaces:list`
 
-Displays default workspace information
+List of available workspaces
 
 ```
 USAGE
-  $ tru workspaces [--debug] [-h] [--output csv|json|yaml | --no-truncate | ] [--no-header | ]
+  $ tru workspaces:list [--debug] [-h] [--output csv|json|yaml | --no-truncate | ] [--no-header | ]
 
 FLAGS
   -h, --help         Show CLI help.
@@ -713,11 +709,59 @@ FLAGS
                      <options: csv|json|yaml>
 
 DESCRIPTION
-  Displays default workspace information
+  List of available workspaces
 ```
 
-_See code: [dist/commands/workspaces/index.ts](https://github.com/tru-ID/tru-cli/blob/v0.9.7/dist/commands/workspaces/index.ts)_
+_See code: [dist/commands/workspaces/list.ts](https://github.com/tru-ID/tru-cli/blob/v0.9.7/dist/commands/workspaces/list.ts)_
 
+## `tru workspaces:selected`
+
+Displays selected workspace information
+
+```
+USAGE
+  $ tru workspaces:selected [--debug] [-h] [--output csv|json|yaml | --no-truncate | ] [--no-header | ]
+
+FLAGS
+  -h, --help         Show CLI help.
+  --debug            Enables debug logging for the CLI
+  --no-header        hide table header from output
+  --no-truncate      do not truncate output to fit screen
+  --output=<option>  output in a more machine friendly format
+                     <options: csv|json|yaml>
+
+DESCRIPTION
+  Displays selected workspace information
+```
+
+_See code: [dist/commands/workspaces/selected.ts](https://github.com/tru-ID/tru-cli/blob/v0.9.7/dist/commands/workspaces/selected.ts)_
+
+## `tru workspaces:switch DATA_RESIDENCY WORKSPACE_ID`
+
+Switch workspaces
+
+```
+USAGE
+  $ tru workspaces:switch [DATA_RESIDENCY] [WORKSPACE_ID] [--debug] [-h] [--output csv|json|yaml | --no-truncate | ]
+    [--no-header | ]
+
+ARGUMENTS
+  DATA_RESIDENCY  Data residency where the workspace is located
+  WORKSPACE_ID    Selected Workspace
+
+FLAGS
+  -h, --help         Show CLI help.
+  --debug            Enables debug logging for the CLI
+  --no-header        hide table header from output
+  --no-truncate      do not truncate output to fit screen
+  --output=<option>  output in a more machine friendly format
+                     <options: csv|json|yaml>
+
+DESCRIPTION
+  Switch workspaces
+```
+
+_See code: [dist/commands/workspaces/switch.ts](https://github.com/tru-ID/tru-cli/blob/v0.9.7/dist/commands/workspaces/switch.ts)_
 <!-- commandsstop -->
 
 # Development

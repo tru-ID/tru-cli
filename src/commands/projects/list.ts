@@ -1,12 +1,22 @@
 import { CliUx, Flags } from '@oclif/core'
-import { APIConfiguration } from '../../api/APIConfiguration'
 import {
   IListProjectsResponse,
   IProjectResource,
   ProjectsAPIClient,
 } from '../../api/ProjectsAPIClient'
+import { RefreshTokenManager } from '../../api/TokenManager'
+import {
+  apiBaseUrlDR,
+  issuerUrl,
+  loginBaseUrl,
+  tokenUrl,
+} from '../../DefaultUrls'
 import CommandWithGlobalConfig from '../../helpers/CommandWithGlobalConfig'
 import { displayPagination } from '../../helpers/ux'
+import {
+  isWorkspaceSelected,
+  isWorkspaceTokenInfoValid,
+} from '../../helpers/ValidationUtils'
 import { logApiError } from '../../utilities'
 
 export default class ProjectsList extends CommandWithGlobalConfig {
@@ -56,22 +66,32 @@ export default class ProjectsList extends CommandWithGlobalConfig {
 
     await super.run()
 
+    isWorkspaceTokenInfoValid(this.globalConfig!)
+    isWorkspaceSelected(this.globalConfig!)
+
+    const tokenManager = new RefreshTokenManager(
+      {
+        refreshToken: this.globalConfig!.tokenInfo!.refresh_token,
+        configLocation: this.getConfigPath(),
+        tokenUrl: tokenUrl(loginBaseUrl(this.globalConfig!)),
+        issuerUrl: issuerUrl(this.globalConfig!),
+      },
+      this.logger,
+    )
+
     const projectsAPIClient = new ProjectsAPIClient(
-      new APIConfiguration({
-        clientId: this.globalConfig?.defaultWorkspaceClientId,
-        clientSecret: this.globalConfig?.defaultWorkspaceClientSecret,
-        scopes: ['projects'],
-        baseUrl:
-          this.globalConfig?.apiBaseUrlOverride ??
-          `https://${this.globalConfig?.defaultWorkspaceDataResidency}.api.tru.id`,
-      }),
+      tokenManager,
+      apiBaseUrlDR(this.globalConfig!),
       this.logger,
     )
 
     if (this.args.project_id) {
       let singleResource: IProjectResource
       try {
-        singleResource = await projectsAPIClient.get(this.args.project_id)
+        singleResource = await projectsAPIClient.get(
+          this.globalConfig!.selectedWorkspace!,
+          this.args.project_id,
+        )
 
         this.displayResults([singleResource])
       } catch (error) {
@@ -81,12 +101,15 @@ export default class ProjectsList extends CommandWithGlobalConfig {
     } else {
       let listResource: IListProjectsResponse
       try {
-        listResource = await projectsAPIClient.list({
-          size: this.flags.page_size,
-          page: this.flags.page_number,
-          search: this.flags.search,
-          sort: this.flags.sort,
-        })
+        listResource = await projectsAPIClient.list(
+          this.globalConfig!.selectedWorkspace!,
+          {
+            size: this.flags.page_size,
+            page: this.flags.page_number,
+            search: this.flags.search,
+            sort: this.flags.sort,
+          },
+        )
 
         this.displayResults(listResource._embedded.projects)
         displayPagination(this.logger, listResource.page, 'Projects')
@@ -97,7 +120,7 @@ export default class ProjectsList extends CommandWithGlobalConfig {
     }
   }
 
-  displayResults(resources: IProjectResource[]) {
+  displayResults(resources: IProjectResource[]): void {
     CliUx.ux.table(
       resources,
       {
@@ -110,12 +133,6 @@ export default class ProjectsList extends CommandWithGlobalConfig {
         },
         created_at: {
           header: 'created_at',
-        },
-        credentials_client_id: {
-          header: 'credentials[0].client_id',
-          extended: true,
-          get: (row: IProjectResource) =>
-            row.credentials ? row.credentials[0].client_id : null,
         },
         url: {
           header: '_links.self.href',

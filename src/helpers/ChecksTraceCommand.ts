@@ -1,13 +1,19 @@
 import { CliUx, Config, Flags } from '@oclif/core'
-import { APIConfiguration } from '../api/APIConfiguration'
+import { APIClientCredentialsConfiguration } from '../api/APIConfiguration'
 import {
   CheckLogResource,
   CheckTraceResource,
   TraceApiClient,
 } from '../api/TraceAPIClient'
+import { tokenUrlDR } from '../DefaultUrls'
 import { logApiError } from '../utilities'
 import CommandWithProjectConfig from './CommandWithProjectConfig'
 import ILogger from './ILogger'
+import {
+  doesProjectConfigExist,
+  isProjectCredentialsValid,
+  isWorkspaceSelected,
+} from './ValidationUtils'
 
 export type LogEntry = {
   trace_id: string
@@ -52,7 +58,7 @@ export default abstract class ChecksTraceCommand extends CommandWithProjectConfi
   abstract parseCommand(): any
 
   abstract getApiClient(
-    apiConfiguration: APIConfiguration,
+    apiConfiguration: APIClientCredentialsConfiguration,
     logger: ILogger,
   ): TraceApiClient
 
@@ -64,20 +70,22 @@ export default abstract class ChecksTraceCommand extends CommandWithProjectConfi
 
     await super.run()
 
-    const apiConfiguration = new APIConfiguration({
-      clientId: this.projectConfig?.credentials[0].client_id,
-      clientSecret: this.projectConfig?.credentials[0].client_secret,
-      scopes: [this.tokenScope],
-      baseUrl:
-        this.globalConfig?.apiBaseUrlOverride ??
-        `https://${this.globalConfig?.defaultWorkspaceDataResidency}.api.tru.id`,
-    })
+    doesProjectConfigExist(this.projectConfig)
+    isProjectCredentialsValid(this.projectConfig!)
+    isWorkspaceSelected(this.globalConfig!)
 
-    const apiCheckClient = this.getApiClient(apiConfiguration, this.logger)
+    const apiConfiguration: APIClientCredentialsConfiguration = {
+      clientId: this.projectConfig!.credentials[0].client_id!,
+      clientSecret: this.projectConfig!.credentials[0].client_secret!,
+      scopes: [this.tokenScope],
+      tokenUrl: tokenUrlDR(this.globalConfig!),
+    }
+
+    const checkApiClient = this.getApiClient(apiConfiguration, this.logger)
 
     if (this.flags.trace_id) {
       try {
-        const singleResource = await apiCheckClient.getTrace(
+        const singleResource = await checkApiClient.getTrace(
           this.args.check_id,
           this.flags.trace_id,
         )
@@ -89,7 +97,7 @@ export default abstract class ChecksTraceCommand extends CommandWithProjectConfi
       }
     } else {
       try {
-        const listResource = await apiCheckClient.getTraces(this.args.check_id)
+        const listResource = await checkApiClient.getTraces(this.args.check_id)
 
         this.displayResults(
           this.transform(listResource._embedded.traces, this.logger),
@@ -122,7 +130,7 @@ export default abstract class ChecksTraceCommand extends CommandWithProjectConfi
     return result
   }
 
-  displayResults(resources: LogEntry[]) {
+  displayResults(resources: LogEntry[]): void {
     CliUx.ux.table(
       resources,
       {

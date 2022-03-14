@@ -1,9 +1,13 @@
-import { APIConfiguration } from './APIConfiguration'
 import ILogger from '../helpers/ILogger'
 import { AbstractChecksApiClient, CheckResource } from './ChecksAPIClient'
+import { ClientCredentialsManager } from './TokenManager'
 
 export class PhoneChecksAPIClient extends AbstractChecksApiClient<CheckResource> {
-  constructor(apiConfig: APIConfiguration, logger: ILogger) {
-    super(apiConfig, logger, 'phone_check')
+  constructor(
+    tokenManager: ClientCredentialsManager,
+    apiBaseUrlDR: string,
+    logger: ILogger,
+  ) {
+    super(tokenManager, apiBaseUrlDR, 'phone_check', logger)
   }
 }

@@ -1,10 +1,15 @@
 import { CliUx, Config, Flags } from '@oclif/core'
-import { APIConfiguration } from '../api/APIConfiguration'
+import { RefreshTokenManager } from '../api/TokenManager'
 import { UsageApiClient, UsageResource } from '../api/UsageAPIClient'
+import { apiBaseUrlDR, issuerUrl, loginBaseUrl, tokenUrl } from '../DefaultUrls'
 import CommandWithGlobalConfig from '../helpers/CommandWithGlobalConfig'
 import ILogger from '../helpers/ILogger'
 import { displayPagination } from '../helpers/ux'
 import { logApiError } from '../utilities'
+import {
+  isWorkspaceSelected,
+  isWorkspaceTokenInfoValid,
+} from './ValidationUtils'
 
 export default abstract class UsageCommand extends CommandWithGlobalConfig {
   static pageNumberFlag = Flags.integer({
@@ -42,11 +47,22 @@ export default abstract class UsageCommand extends CommandWithGlobalConfig {
     this.typeOfUsage = typeOfUsage
   }
 
-  getApiClient(
-    apiConfiguration: APIConfiguration,
-    logger: ILogger,
-  ): UsageApiClient {
-    return new UsageApiClient(apiConfiguration, logger)
+  getApiClient(logger: ILogger): UsageApiClient {
+    const tokenManager = new RefreshTokenManager(
+      {
+        refreshToken: this.globalConfig!.tokenInfo!.refresh_token!,
+        configLocation: this.getConfigPath(),
+        tokenUrl: tokenUrl(loginBaseUrl(this.globalConfig!)),
+        issuerUrl: issuerUrl(this.globalConfig!),
+      },
+      this.logger,
+    )
+
+    return new UsageApiClient(
+      tokenManager,
+      apiBaseUrlDR(this.globalConfig!),
+      logger,
+    )
   }
 
   displayResults(resources: UsageResource[]) {
@@ -78,16 +94,10 @@ export default abstract class UsageCommand extends CommandWithGlobalConfig {
 
     await super.run()
 
-    const apiConfiguration = new APIConfiguration({
-      clientId: this.globalConfig?.defaultWorkspaceClientId,
-      clientSecret: this.globalConfig?.defaultWorkspaceClientSecret,
-      scopes: [this.tokenScope],
-      baseUrl:
-        this.globalConfig?.apiBaseUrlOverride ??
-        `https://${this.globalConfig?.defaultWorkspaceDataResidency}.api.tru.id`,
-    })
+    isWorkspaceTokenInfoValid(this.globalConfig!)
+    isWorkspaceSelected(this.globalConfig!)
 
-    const apiCheckClient = this.getApiClient(apiConfiguration, this.logger)
+    const apiCheckClient = this.getApiClient(this.logger)
 
     const usageParams = {
       search: this.flags.search ?? this.defaultSearch(),
@@ -98,6 +108,7 @@ export default abstract class UsageCommand extends CommandWithGlobalConfig {
 
     try {
       const listResource = await apiCheckClient.getUsage(
+        this.globalConfig!.selectedWorkspace!,
         usageParams,
         this.typeOfUsage,
       )

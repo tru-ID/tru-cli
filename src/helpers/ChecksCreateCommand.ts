@@ -1,15 +1,21 @@
 import { CliUx, Config } from '@oclif/core'
-import { APIConfiguration } from '../api/APIConfiguration'
+import { APIClientCredentialsConfiguration } from '../api/APIConfiguration'
 import {
   AbstractChecksApiClient,
   CheckResource,
   ICreateCheckResponse,
 } from '../api/ChecksAPIClient'
 import { CheckStatus } from '../api/CheckStatus'
+import { tokenUrlDR } from '../DefaultUrls'
 import CommandWithProjectConfig from '../helpers/CommandWithProjectConfig'
 import ILogger from '../helpers/ILogger'
 import { promptForNumber } from '../helpers/phone'
 import { logApiError } from '../utilities'
+import {
+  doesProjectConfigExist,
+  isProjectCredentialsValid,
+  isWorkspaceSelected,
+} from './ValidationUtils'
 
 // TODO this command has to be rebuilt from scratch
 
@@ -44,7 +50,7 @@ export default abstract class ChecksCreateCommand extends CommandWithProjectConf
   abstract parseCommand(): any
 
   abstract getApiClient(
-    apiConfiguration: APIConfiguration,
+    apiConfiguration: APIClientCredentialsConfiguration,
     logger: ILogger,
   ): AbstractChecksApiClient<CheckResource>
 
@@ -64,16 +70,18 @@ export default abstract class ChecksCreateCommand extends CommandWithProjectConf
       this.args.phone_number = response.phone_number
     }
 
+    doesProjectConfigExist(this.projectConfig)
+    isProjectCredentialsValid(this.projectConfig!)
+    isWorkspaceSelected(this.globalConfig!)
+
     this.log(`Creating ${this.typeOfCheck} for ${this.args.phone_number}`)
 
-    const apiConfiguration = new APIConfiguration({
-      clientId: this.projectConfig?.credentials[0].client_id,
-      clientSecret: this.projectConfig?.credentials[0].client_secret,
+    const apiConfiguration: APIClientCredentialsConfiguration = {
+      clientId: this.projectConfig!.credentials[0].client_id!,
+      clientSecret: this.projectConfig!.credentials[0].client_secret!,
       scopes: [this.tokenScope],
-      baseUrl:
-        this.globalConfig?.apiBaseUrlOverride ??
-        `https://${this.globalConfig?.defaultWorkspaceDataResidency}.api.tru.id`,
-    })
+      tokenUrl: tokenUrlDR(this.globalConfig!),
+    }
 
     const checkApiClient = this.getApiClient(apiConfiguration, this.logger)
 

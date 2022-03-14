@@ -1,6 +1,8 @@
 import { Config } from '@oclif/core'
-import { APIConfiguration } from '../../api/APIConfiguration'
+import { APIClientCredentialsConfiguration } from '../../api/APIConfiguration'
 import { SubscriberCheckAPIClient } from '../../api/SubscriberCheckAPIClient'
+import { ClientCredentialsManager } from '../../api/TokenManager'
+import { apiBaseUrlDR } from '../../DefaultUrls'
 import ChecksTraceCommand from '../../helpers/ChecksTraceCommand'
 import ILogger from '../../helpers/ILogger'
 
@@ -23,7 +25,17 @@ export default class SubscriberCheckTraces extends ChecksTraceCommand {
     return this.parse(SubscriberCheckTraces)
   }
 
-  getApiClient(apiConfiguration: APIConfiguration, logger: ILogger) {
-    return new SubscriberCheckAPIClient(apiConfiguration, logger)
+  getApiClient(
+    apiConfiguration: APIClientCredentialsConfiguration,
+
+    logger: ILogger,
+  ): SubscriberCheckAPIClient {
+    const tokenManager = new ClientCredentialsManager(apiConfiguration, logger)
+
+    return new SubscriberCheckAPIClient(
+      tokenManager,
+      apiBaseUrlDR(this.globalConfig!),
+      logger,
+    )
   }
 }

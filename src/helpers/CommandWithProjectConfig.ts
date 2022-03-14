@@ -1,4 +1,4 @@
-import { Flags, Help } from '@oclif/core'
+import { Flags } from '@oclif/core'
 import fs from 'fs-extra'
 import path from 'path'
 import { IProjectConfiguration } from '../IProjectConfiguration'
@@ -23,7 +23,7 @@ export default abstract class CommandWithProjectConfig extends CommandWithGlobal
     await super.init()
   }
 
-  async loadProjectConfig() {
+  async loadProjectConfig(): Promise<void> {
     const projectDirectory =
       this.flags[CommandWithProjectConfig.projectDirFlagName] ?? process.cwd()
     const projectConfigFullPath = path.join(projectDirectory, 'tru.json')
@@ -46,14 +46,5 @@ export default abstract class CommandWithProjectConfig extends CommandWithGlobal
       }
       this.exit(1)
     }
-  }
-
-  showCommandHelp({ exitCode = 0 }: { exitCode: number }) {
-    const help = new Help(this.config)
-    const cmd = this.config.findCommand(this.id as string)
-    if (cmd) {
-      help.showCommandHelp(cmd)
-    }
-    return this.exit(exitCode)
   }
 }

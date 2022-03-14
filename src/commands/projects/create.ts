@@ -1,20 +1,32 @@
+import { CliUx } from '@oclif/core'
 import fs from 'fs-extra'
-import inquirer from 'inquirer'
-import { APIConfiguration } from '../../api/APIConfiguration'
 import {
   ICreateProjectPayload,
-  IProjectResource,
+  IProjectCreateResource,
   ProjectsAPIClient,
 } from '../../api/ProjectsAPIClient'
+import { RefreshTokenManager } from '../../api/TokenManager'
+import {
+  apiBaseUrlDR,
+  issuerUrl,
+  loginBaseUrl,
+  tokenUrl,
+} from '../../DefaultUrls'
+import CommandWithGlobalConfig from '../../helpers/CommandWithGlobalConfig'
 import CommandWithProjectConfig from '../../helpers/CommandWithProjectConfig'
 import {
   phoneCheckCallbackUrlFlag,
   phoneCheckCallbackUrlFlagValidation,
   projectModeFlag,
 } from '../../helpers/ProjectFlags'
+import {
+  isWorkspaceSelected,
+  isWorkspaceTokenInfoValid,
+} from '../../helpers/ValidationUtils'
+import { IProjectConfiguration } from '../../IProjectConfiguration'
 import { logApiError, stringToSnakeCase } from '../../utilities'
 
-export default class ProjectsCreate extends CommandWithProjectConfig {
+export default class ProjectsCreate extends CommandWithGlobalConfig {
   static description = 'Creates a new Project'
 
   static examples = [
@@ -48,6 +60,9 @@ Creating Project "My first project"
 
     await super.run()
 
+    isWorkspaceTokenInfoValid(this.globalConfig!)
+    isWorkspaceSelected(this.globalConfig!)
+
     if (
       this.flags[phoneCheckCallbackUrlFlag.flagName] &&
       phoneCheckCallbackUrlFlagValidation(
@@ -59,30 +74,30 @@ Creating Project "My first project"
     }
 
     if (!this.args.name) {
-      const response: any = await inquirer.prompt([
-        {
-          name: 'projectName',
-          message: 'What is the name of the project?',
-          type: 'input',
-        },
-      ])
-      this.args.name = response['projectName']
+      const projectName = await CliUx.ux.prompt(
+        'What is the name of the project?',
+      )
+      this.args.name = projectName
     }
     this.log(`Creating Project "${this.args.name}"`)
 
-    const projectsAPI = new ProjectsAPIClient(
-      new APIConfiguration({
-        clientId: this.globalConfig?.defaultWorkspaceClientId,
-        clientSecret: this.globalConfig?.defaultWorkspaceClientSecret,
-        scopes: ['projects'],
-        baseUrl:
-          this.globalConfig?.apiBaseUrlOverride ??
-          `https://${this.globalConfig?.defaultWorkspaceDataResidency}.api.tru.id`,
-      }),
+    const tokenManager = new RefreshTokenManager(
+      {
+        refreshToken: this.globalConfig!.tokenInfo!.refresh_token,
+        configLocation: this.getConfigPath(),
+        tokenUrl: tokenUrl(loginBaseUrl(this.globalConfig!)),
+        issuerUrl: issuerUrl(this.globalConfig!),
+      },
       this.logger,
     )
 
-    let projectCreationResult: IProjectResource
+    const projectsAPI = new ProjectsAPIClient(
+      tokenManager,
+      apiBaseUrlDR(this.globalConfig!),
+      this.logger,
+    )
+
+    let projectCreationResult: IProjectCreateResource
     try {
       const createPayload: ICreateProjectPayload = {
         name: this.args.name,
@@ -98,8 +113,11 @@ Creating Project "My first project"
       if (this.flags[projectModeFlag.flagName]) {
         createPayload.mode = this.flags[projectModeFlag.flagName]
       }
-
-      projectCreationResult = await projectsAPI.create(createPayload)
+      1
+      projectCreationResult = await projectsAPI.create(
+        this.globalConfig!.selectedWorkspace!,
+        createPayload,
+      )
     } catch (error) {
       logApiError(this, error)
       this.exit(1)
@@ -119,11 +137,23 @@ Creating Project "My first project"
     } else {
       try {
         // Save the project configuration to match the Project resource excluding the _links property
-        const projectConfig = { ...projectCreationResult }
+        const projectConfig: IProjectConfiguration = {
+          project_id: projectCreationResult.project_id,
+          name: projectCreationResult.name,
+          created_at: projectCreationResult.created_at,
+          credentials: [
+            {
+              client_id:
+                projectCreationResult._embedded.credentials[0].client_id,
+              client_secret:
+                projectCreationResult._embedded.credentials[0].client_secret!,
+              scopes: projectCreationResult._embedded.credentials[0].scopes,
+            },
+          ],
+        }
         // TODO find a better way to do this
         // eslint-disable-next-line
         // @ts-ignore
-        delete projectConfig._links
         await fs.outputJson(configFileFullPathToCreate, projectConfig, {
           spaces: '\t',
         })

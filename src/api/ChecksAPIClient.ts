@@ -1,8 +1,8 @@
 import ILogger from '../helpers/ILogger'
-import AbstractAPIClient from './AbstractAPIClient'
-import { APIConfiguration } from './APIConfiguration'
 import { CheckStatus } from './CheckStatus'
+import { HttpClient } from './HttpClient'
 import { ILink, IListResource, IListResourceParameters } from './IListResource'
+import { ClientCredentialsManager } from './TokenManager'
 import {
   CheckTraceResource,
   IListCheckTracesResource,
@@ -47,15 +47,22 @@ export interface IListCheckResource<T> extends IListResource {
   }
 }
 
-export abstract class AbstractChecksApiClient<R>
-  extends AbstractAPIClient
-  implements TraceApiClient
-{
-  basePath: string
+export abstract class AbstractChecksApiClient<R> implements TraceApiClient {
+  baseApiUrl: string
+  httpClient: HttpClient
+  productName: string
+  tokenManager: ClientCredentialsManager
 
-  constructor(apiConfig: APIConfiguration, logger: ILogger, basePath: string) {
-    super(apiConfig, logger)
-    this.basePath = basePath
+  constructor(
+    tokenManager: ClientCredentialsManager,
+    baseApiUrlDR: string,
+    productName: string,
+    logger: ILogger,
+  ) {
+    this.tokenManager = tokenManager
+    this.httpClient = new HttpClient(tokenManager, baseApiUrlDR, logger)
+    this.baseApiUrl = baseApiUrlDR
+    this.productName = productName
   }
 
   async create(
@@ -63,7 +70,7 @@ export abstract class AbstractChecksApiClient<R>
   ): Promise<ICreateCheckResponse> {
     const response: ICreateCheckResponse =
       await this.httpClient.post<ICreateCheckResponse>(
-        `/${this.basePath}/v0.1/checks`,
+        `/${this.productName}/v0.1/checks`,
         parameters,
         {},
       )
@@ -73,7 +80,7 @@ export abstract class AbstractChecksApiClient<R>
   async patch(checkId: string, code: string): Promise<ICreateCheckResponse> {
     const response: ICreateCheckResponse =
       await this.httpClient.patch<ICreateCheckResponse>(
-        `/${this.basePath}/v0.1/checks/${checkId}`,
+        `/${this.productName}/v0.1/checks/${checkId}`,
         [{ op: 'add', path: '/code', value: code }],
         {
           'Content-Type': 'application/json-patch+json',
@@ -84,7 +91,7 @@ export abstract class AbstractChecksApiClient<R>
 
   async get(checkId: string): Promise<R> {
     const response: R = await this.httpClient.get<R>(
-      `/${this.basePath}/v0.1/checks/${checkId}`,
+      `/${this.productName}/v0.1/checks/${checkId}`,
       {},
       {},
     )
@@ -94,7 +101,7 @@ export abstract class AbstractChecksApiClient<R>
   async getTraces(checkId: string): Promise<IListCheckTracesResource> {
     const response: IListCheckTracesResource =
       await this.httpClient.get<IListCheckTracesResource>(
-        `/${this.basePath}/v0.1/checks/${checkId}/traces`,
+        `/${this.productName}/v0.1/checks/${checkId}/traces`,
         {},
         {},
       )
@@ -107,7 +114,7 @@ export abstract class AbstractChecksApiClient<R>
   ): Promise<CheckTraceResource> {
     const response: CheckTraceResource =
       await this.httpClient.get<CheckTraceResource>(
-        `/${this.basePath}/v0.1/checks/${checkId}/traces/${traceId}`,
+        `/${this.productName}/v0.1/checks/${checkId}/traces/${traceId}`,
         {},
         {},
       )
@@ -119,7 +126,7 @@ export abstract class AbstractChecksApiClient<R>
   ): Promise<IListCheckResource<R>> {
     const response: IListCheckResource<R> = await this.httpClient.get<
       IListCheckResource<R>
-    >(`/${this.basePath}/v0.1/checks`, parameters, {})
+    >(`/${this.productName}/v0.1/checks`, parameters, {})
     return response
   }
 }

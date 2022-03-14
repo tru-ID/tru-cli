@@ -1,13 +1,20 @@
 import { CliUx, Flags } from '@oclif/core'
-import { APIConfiguration } from '../../api/APIConfiguration'
+import { APIClientCredentialsConfiguration } from '../../api/APIConfiguration'
 import {
   IListSimCheckResource,
   ISimCheckResource,
   SimCheckAPIClient,
 } from '../../api/SimCheckAPIClient'
+import { ClientCredentialsManager } from '../../api/TokenManager'
+import { apiBaseUrlDR, tokenUrlDR } from '../../DefaultUrls'
 import CommandWithProjectConfig from '../../helpers/CommandWithProjectConfig'
 import ILogger from '../../helpers/ILogger'
 import { displayPagination } from '../../helpers/ux'
+import {
+  doesProjectConfigExist,
+  isProjectCredentialsValid,
+  isWorkspaceSelected,
+} from '../../helpers/ValidationUtils'
 import { logApiError } from '../../utilities'
 
 export default class SimCheckList extends CommandWithProjectConfig {
@@ -57,8 +64,17 @@ export default class SimCheckList extends CommandWithProjectConfig {
     return this.parse(SimCheckList)
   }
 
-  getApiClient(apiConfiguration: APIConfiguration, logger: ILogger) {
-    return new SimCheckAPIClient(apiConfiguration, logger)
+  getApiClient(
+    apiConfiguration: APIClientCredentialsConfiguration,
+    logger: ILogger,
+  ): SimCheckAPIClient {
+    const tokenManager = new ClientCredentialsManager(apiConfiguration, logger)
+
+    return new SimCheckAPIClient(
+      tokenManager,
+      apiBaseUrlDR(this.globalConfig!),
+      logger,
+    )
   }
 
   async run() {
@@ -69,14 +85,16 @@ export default class SimCheckList extends CommandWithProjectConfig {
 
     await super.run()
 
-    const apiConfiguration = new APIConfiguration({
-      clientId: this.projectConfig?.credentials[0].client_id,
-      clientSecret: this.projectConfig?.credentials[0].client_secret,
+    doesProjectConfigExist(this.projectConfig)
+    isProjectCredentialsValid(this.projectConfig!)
+    isWorkspaceSelected(this.globalConfig!)
+
+    const apiConfiguration: APIClientCredentialsConfiguration = {
+      clientId: this.projectConfig!.credentials[0].client_id!,
+      clientSecret: this.projectConfig!.credentials[0].client_secret,
       scopes: [this.tokenScope],
-      baseUrl:
-        this.globalConfig?.apiBaseUrlOverride ??
-        `https://${this.globalConfig?.defaultWorkspaceDataResidency}.api.tru.id`,
-    })
+      tokenUrl: tokenUrlDR(this.globalConfig!),
+    }
 
     const apiCheckClient = this.getApiClient(apiConfiguration, this.logger)
 
@@ -113,7 +131,7 @@ export default class SimCheckList extends CommandWithProjectConfig {
     }
   }
 
-  displayResults(resources: ISimCheckResource[]) {
+  displayResults(resources: ISimCheckResource[]): void {
     CliUx.ux.table(
       resources,
       {

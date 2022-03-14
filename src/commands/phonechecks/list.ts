@@ -1,7 +1,9 @@
 import { CliUx, Config, Flags } from '@oclif/core'
-import { APIConfiguration } from '../../api/APIConfiguration'
+import { APIClientCredentialsConfiguration } from '../../api/APIConfiguration'
 import { CheckResource } from '../../api/ChecksAPIClient'
 import { PhoneChecksAPIClient } from '../../api/PhoneChecksAPIClient'
+import { ClientCredentialsManager } from '../../api/TokenManager'
+import { apiBaseUrlDR } from '../../DefaultUrls'
 import ChecksListCommand from '../../helpers/ChecksListCommand'
 import ILogger from '../../helpers/ILogger'
 
@@ -49,11 +51,21 @@ export default class PhoneChecksList extends ChecksListCommand {
     return command
   }
 
-  getApiClient(apiConfiguration: APIConfiguration, logger: ILogger) {
-    return new PhoneChecksAPIClient(apiConfiguration, logger)
+  getApiClient(
+    apiConfiguration: APIClientCredentialsConfiguration,
+
+    logger: ILogger,
+  ): PhoneChecksAPIClient {
+    const tokenManager = new ClientCredentialsManager(apiConfiguration, logger)
+
+    return new PhoneChecksAPIClient(
+      tokenManager,
+      apiBaseUrlDR(this.globalConfig!),
+      logger,
+    )
   }
 
-  displayResults(resources: CheckResource[]) {
+  displayResults(resources: CheckResource[]): void {
     CliUx.ux.table(
       resources,
       {

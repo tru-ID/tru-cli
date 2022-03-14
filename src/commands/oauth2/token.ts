@@ -1,10 +1,27 @@
 import { CliUx } from '@oclif/core'
-import { APIConfiguration } from '../../api/APIConfiguration'
-import { ICreateTokenResponse } from '../../api/HttpClient'
-import { OAuth2APIClient } from '../../api/OAuth2APIClient'
+import {
+  APIClientCredentialsConfiguration,
+  APIRefreshTokenConfiguration,
+} from '../../api/APIConfiguration'
+import {
+  AccessToken,
+  ClientCredentialsManager,
+  RefreshTokenManager,
+} from '../../api/TokenManager'
+import {
+  issuerUrl,
+  loginBaseUrl,
+  tokenUrl,
+  tokenUrlDR,
+} from '../../DefaultUrls'
 import CommandWithProjectConfig from '../../helpers/CommandWithProjectConfig'
+import {
+  doesProjectConfigExist,
+  isProjectCredentialsValid,
+  isWorkspaceSelected,
+  isWorkspaceTokenInfoValid,
+} from '../../helpers/ValidationUtils'
 import { IProjectConfiguration } from '../../IProjectConfiguration'
-import { logApiError } from '../../utilities'
 
 export default class CreateToken extends CommandWithProjectConfig {
   static description = 'Creates an OAuth2 token'
@@ -30,6 +47,9 @@ $ echo $TOKEN
 Emesua0F7gj3qOaav7UaKaBwefaaefaAxlrdGom_mb3U.78Od2d9XpvTQbd44eM1Uf7nzz9e9nezs5TRjPmpDnMc`,
   ]
 
+  refreshTokenManager: RefreshTokenManager | undefined
+  clientCredentialsManager: ClientCredentialsManager | undefined
+
   async run() {
     const result = await this.parse(CreateToken)
 
@@ -41,50 +61,57 @@ Emesua0F7gj3qOaav7UaKaBwefaaefaAxlrdGom_mb3U.78Od2d9XpvTQbd44eM1Uf7nzz9e9nezs5TR
     const runningInProjectContext =
       !!this.flags[CommandWithProjectConfig.projectDirFlagName]
 
-    if (runningInProjectContext) {
-      await this.loadProjectConfig()
-    }
-
-    const clientId = runningInProjectContext
-      ? this.projectConfig?.credentials[0].client_id
-      : this.globalConfig?.defaultWorkspaceClientId
-    const clientSecret = runningInProjectContext
-      ? this.projectConfig?.credentials[0].client_secret
-      : this.globalConfig?.defaultWorkspaceClientSecret
-    const scopes: string[] = this.getScopes(
-      runningInProjectContext,
-      this.projectConfig,
-    )
+    let accessToken: AccessToken
 
     this.logger.debug(
       `Creating a token for a ${
         runningInProjectContext ? 'Project' : 'Workspace'
-      } with the scope "${scopes.join(' ')}"`,
+      } "`,
     )
 
-    const apiClient = new OAuth2APIClient(
-      new APIConfiguration({
-        clientId: clientId,
-        clientSecret: clientSecret,
-        scopes: scopes,
-        baseUrl:
-          this.globalConfig?.apiBaseUrlOverride ??
-          `https://${this.globalConfig?.defaultWorkspaceDataResidency}.api.tru.id`,
-      }),
-      this.logger,
-    )
+    if (runningInProjectContext) {
+      await this.loadProjectConfig()
 
-    try {
-      const tokenCreationResult = await apiClient.create()
+      isWorkspaceSelected(this.globalConfig!)
+      doesProjectConfigExist(this.projectConfig)
+      isProjectCredentialsValid(this.projectConfig!)
 
-      this.displayResults([tokenCreationResult])
-    } catch (error) {
-      logApiError(this, error)
-      this.exit(1)
+      const configClientCredentials: APIClientCredentialsConfiguration = {
+        clientId: this.projectConfig!.credentials[0].client_id!,
+        clientSecret: this.projectConfig!.credentials[0].client_secret!,
+        scopes: this.projectConfig!.credentials[0].scopes!,
+        tokenUrl: tokenUrlDR(this.globalConfig!),
+      }
+
+      const clientCredentialsManager = new ClientCredentialsManager(
+        configClientCredentials,
+        this.logger,
+      )
+
+      accessToken = await clientCredentialsManager.getAccessToken()
+    } else {
+      isWorkspaceTokenInfoValid(this.globalConfig!)
+      isWorkspaceSelected(this.globalConfig!)
+
+      const configRefreshToken: APIRefreshTokenConfiguration = {
+        refreshToken: this.globalConfig!.tokenInfo!.refresh_token,
+        configLocation: this.getConfigPath(),
+        tokenUrl: tokenUrl(loginBaseUrl(this.globalConfig!)),
+        issuerUrl: issuerUrl(this.globalConfig!),
+      }
+
+      const refreshTokenManager = new RefreshTokenManager(
+        configRefreshToken,
+        this.logger,
+      )
+
+      accessToken = await refreshTokenManager.getAccessToken()
     }
+
+    this.displayResults([accessToken])
   }
 
-  displayResults(resources: ICreateTokenResponse[]) {
+  displayResults(resources: AccessToken[]) {
     CliUx.ux.table(
       resources,
       {

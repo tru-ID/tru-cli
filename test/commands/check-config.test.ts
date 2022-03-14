@@ -3,17 +3,19 @@ import chai from 'chai'
 import fs from 'fs-extra'
 import sinonChai from 'sinon-chai'
 import sinon from 'ts-sinon'
-import { OAuth2APIClient } from '../../src/api/OAuth2APIClient'
+import { IGlobalAuthConfiguration } from '../../src/IGlobalAuthConfiguration'
 
 const expect = chai.expect
 chai.use(sinonChai)
 
 let existsSyncStub: any = null
-let outputJsonStub: any = null
-const expectedUserConfig = {
-  defaultWorkspaceClientId: 'my client id',
-  defaultWorkspaceClientSecret: 'my client secret',
-  defaultWorkspaceDataResidency: 'eu',
+const expectedUserConfig: IGlobalAuthConfiguration = {
+  selectedWorkspace: 'workspace_id',
+  selectWorkspaceDataResidency: 'eu',
+  tokenInfo: {
+    refresh_token: 'refresh_token',
+    scope: 'console',
+  },
 }
 
 describe('hooks', () => {
@@ -65,32 +67,6 @@ describe('hooks', () => {
       (ctx) => {
         expect(ctx.stdout).to.contain('Welcome to the tru.ID CLI!')
         expect(ctx.stdout).to.contain('developer.tru.id/console')
-      },
-    )
-
-  test
-    .do(() => {
-      existsSyncStub = sinon
-        .stub(fs, 'existsSync')
-        .withArgs(sinon.match(new RegExp(/config.json/)))
-        .returns(false)
-      outputJsonStub = sinon.stub(fs, 'outputJson').resolves()
-      sinon.stub(OAuth2APIClient.prototype, 'create').resolves()
-    })
-    .command([
-      'setup:credentials',
-      expectedUserConfig.defaultWorkspaceClientId,
-      expectedUserConfig.defaultWorkspaceClientSecret,
-      expectedUserConfig.defaultWorkspaceDataResidency,
-    ])
-    .it(
-      'should NOT instruct the user to setup the CLI if the user is running the `setup:credentials` command',
-      () => {
-        expect(outputJsonStub).to.have.been.calledWith(
-          sinon.match.any,
-          expectedUserConfig,
-          sinon.match.any,
-        )
       },
     )
 })

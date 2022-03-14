@@ -1,17 +1,9 @@
 import * as jsonpatch from 'fast-json-patch'
 import ILogger from '../helpers/ILogger'
-import AbstractAPIClient from './AbstractAPIClient'
-import { APIConfiguration } from './APIConfiguration'
+import { HttpClient } from './HttpClient'
 import IAPICredentials from './IAPICredentails'
 import { ILink, IListResource, IListResourceParameters } from './IListResource'
-
-export interface IProjectResourceBase {
-  configuration?: {
-    phone_check?: {
-      callback_url?: string
-    }
-  }
-}
+import { TokenManager } from './TokenManager'
 
 export interface ICreateProjectPayload {
   name: string
@@ -19,33 +11,51 @@ export interface ICreateProjectPayload {
   configuration?: {
     phone_check: {
       callback_url: string
+      redirect_url?: string
+    }
+    subscriber_check?: {
+      callback_url?: string
+      redirect_url?: string
     }
   }
 }
 
-export type IProjectResource = {
+export interface IProjectResource {
   name: string
   project_id: string
   mode: 'live' | 'sandbox'
+  disabled: boolean
   created_at: string
   updated_at: string
-  credentials: IAPICredentials[]
+
   configuration?: {
     phone_check?: {
       callback_url?: string
+      redirect_url?: string
+    }
+    subscriber_check?: {
+      callback_url?: string
+      redirect_url?: string
     }
   }
   _links: {
     self: ILink
+    my_credentials: ILink
+  }
+  [index: string]: any
+}
+
+export interface IProjectCreateResource extends IProjectResource {
+  _embedded: {
+    credentials: IAPICredentials[]
   }
 }
 
-export interface IUpdateProjectPayload extends IProjectResourceBase {
+export interface IUpdateProjectPayload {
   /**
    * Update the mode of the Project.
    */
   mode?: 'live' | 'sandbox'
-
   /**
    * `configuration` can only be added.
    */
@@ -53,11 +63,13 @@ export interface IUpdateProjectPayload extends IProjectResourceBase {
     /**
      * `phone_check` alone cannot be manipulated. If `configuration` is present it `phone_check` must also be present.
      */
-    phone_check: {
-      /**
-       * The `callback_url` for PhoneCheck.
-       */
+    phone_check?: {
       callback_url?: string
+      redirect_url?: string
+    }
+    subscriber_check?: {
+      callback_url?: string
+      redirect_url?: string
     }
   }
 }
@@ -70,35 +82,45 @@ export interface IListProjectsResponse extends IListResource {
 
 export type IListProjectsParameters = IListResourceParameters
 
-export class ProjectsAPIClient extends AbstractAPIClient {
-  constructor(apiConfig: APIConfiguration, logger: ILogger) {
-    super(apiConfig, logger)
+export class ProjectsAPIClient {
+  httpClient: HttpClient
+  logger: ILogger
+
+  constructor(tokenManager: TokenManager, apiBaseUrl: string, logger: ILogger) {
+    this.httpClient = new HttpClient(tokenManager, apiBaseUrl, logger)
+    this.logger = logger
   }
 
-  async create(params: any): Promise<IProjectResource> {
-    const response: IProjectResource =
-      await this.httpClient.post<IProjectResource>(
-        '/console/v0.1/projects',
+  async create(
+    workspaceId: string,
+    params: any,
+  ): Promise<IProjectCreateResource> {
+    const response: IProjectCreateResource =
+      await this.httpClient.post<IProjectCreateResource>(
+        `/console/v0.2/workspaces/${workspaceId}/projects`,
         params,
         {},
       )
     return response
   }
 
-  async get(projectId: string): Promise<IProjectResource> {
+  async get(workspaceId: string, projectId: string): Promise<IProjectResource> {
     const response: IProjectResource =
       await this.httpClient.get<IProjectResource>(
-        `/console/v0.1/projects/${projectId}`,
+        `/console/v0.2/workspaces/${workspaceId}/projects/${projectId}`,
         {},
         {},
       )
     return response
   }
 
-  async list(params?: IListProjectsParameters) {
+  async list(
+    workspaceId: string,
+    params?: IListProjectsParameters,
+  ): Promise<IListProjectsResponse> {
     const response: IListProjectsResponse =
       await this.httpClient.get<IListProjectsResponse>(
-        '/console/v0.1/projects',
+        `/console/v0.2/workspaces/${workspaceId}/projects`,
         params,
         {},
       )
@@ -106,10 +128,14 @@ export class ProjectsAPIClient extends AbstractAPIClient {
   }
 
   async update(
+    workspaceId: string,
     projectId: string,
     params: IUpdateProjectPayload,
   ): Promise<IProjectResource> {
-    let existingProject: IProjectResource = await this.get(projectId)
+    let existingProject: IProjectResource = await this.get(
+      workspaceId,
+      projectId,
+    )
 
     const observer: any = jsonpatch.observe(existingProject)
 
@@ -123,7 +149,7 @@ export class ProjectsAPIClient extends AbstractAPIClient {
 
     const response: IProjectResource =
       await this.httpClient.patch<IProjectResource>(
-        `/console/v0.1/projects/${projectId}`,
+        `/console/v0.2/workspaces/${workspaceId}/projects/${projectId}`,
         operations,
         {
           'Content-Type': 'application/json-patch+json',
@@ -132,7 +158,7 @@ export class ProjectsAPIClient extends AbstractAPIClient {
     return response
   }
 
-  delete() {
+  delete(): void {
     throw new Error('Not supported by the API')
   }
 }

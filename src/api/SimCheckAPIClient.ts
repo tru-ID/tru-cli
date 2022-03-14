@@ -1,8 +1,8 @@
 import ILogger from '../helpers/ILogger'
-import AbstractAPIClient from './AbstractAPIClient'
-import { APIConfiguration } from './APIConfiguration'
 import { CheckStatus } from './CheckStatus'
+import { HttpClient } from './HttpClient'
 import { ILink, IListResource, IListResourceParameters } from './IListResource'
+import { ClientCredentialsManager } from './TokenManager'
 import {
   CheckTraceResource,
   IListCheckTracesResource,
@@ -41,20 +41,21 @@ export interface IListCheckResource<T> extends IListResource {
   }
 }
 
-export class SimCheckAPIClient
-  extends AbstractAPIClient
-  implements TraceApiClient
-{
-  basePath = 'sim_check'
+export class SimCheckAPIClient implements TraceApiClient {
+  httpClient: HttpClient
 
-  constructor(apiConfig: APIConfiguration, logger: ILogger) {
-    super(apiConfig, logger)
+  constructor(
+    tokenManager: ClientCredentialsManager,
+    baseApiUrlDR: string,
+    logger: ILogger,
+  ) {
+    this.httpClient = new HttpClient(tokenManager, baseApiUrlDR, logger)
   }
 
   async create(parameters: ICreateSimCheck): Promise<ICreateSimCheckResponse> {
     const response: ICreateSimCheckResponse =
       await this.httpClient.post<ICreateSimCheckResponse>(
-        `/${this.basePath}/v0.1/checks`,
+        `/sim_check/v0.1/checks`,
         parameters,
         {},
       )
@@ -64,7 +65,7 @@ export class SimCheckAPIClient
   async get(checkId: string): Promise<ICreateSimCheckResponse> {
     const response: ICreateSimCheckResponse =
       await this.httpClient.get<ICreateSimCheckResponse>(
-        `/${this.basePath}/v0.1/checks/${checkId}`,
+        `/sim_check/v0.1/checks/${checkId}`,
         {},
         {},
       )
@@ -74,7 +75,7 @@ export class SimCheckAPIClient
   async getTraces(checkId: string): Promise<IListCheckTracesResource> {
     const response: IListCheckTracesResource =
       await this.httpClient.get<IListCheckTracesResource>(
-        `/${this.basePath}/v0.1/checks/${checkId}/traces`,
+        `/sim_check/v0.1/checks/${checkId}/traces`,
         {},
         {},
       )
@@ -87,7 +88,7 @@ export class SimCheckAPIClient
   ): Promise<CheckTraceResource> {
     const response: CheckTraceResource =
       await this.httpClient.get<CheckTraceResource>(
-        `/${this.basePath}/v0.1/checks/${checkId}/traces/${traceId}`,
+        `/sim_check/v0.1/checks/${checkId}/traces/${traceId}`,
         {},
         {},
       )
@@ -99,7 +100,7 @@ export class SimCheckAPIClient
   ): Promise<IListSimCheckResource> {
     const response: IListSimCheckResource =
       await this.httpClient.get<IListSimCheckResource>(
-        `/${this.basePath}/v0.1/checks`,
+        `/sim_check/v0.1/checks`,
         parameters,
         {},
       )

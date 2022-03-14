@@ -3,28 +3,25 @@ import chai from 'chai'
 import fs from 'fs-extra'
 import sinonChai from 'sinon-chai'
 import sinon from 'ts-sinon'
-import { APIConfiguration } from '../../../src/api/APIConfiguration'
 import { CheckStatus } from '../../../src/api/CheckStatus'
-import * as httpClientModule from '../../../src/api/HttpClient'
 import * as simchecks from '../../../src/api/SimCheckAPIClient'
-import { ConsoleLogger } from '../../../src/helpers/ConsoleLogger'
-import IGlobalConfiguration from '../../../src/IGlobalConfiguration'
+import { IGlobalAuthConfiguration } from '../../../src/IGlobalAuthConfiguration'
 import { IProjectConfiguration } from '../../../src/IProjectConfiguration'
-import { buildConsoleString } from '../../test_helpers'
+import { accessToken } from '../../test_helpers'
 
 const expect = chai.expect
 chai.use(sinonChai)
 
 describe('simchecks:list', () => {
-  let simChecksApiClientConstructorStub: any
   let readJsonStub: any
-  let consoleLoggerInfoStub: any
-  let httpClientGetStub: any
 
-  const expectedUserConfig: IGlobalConfiguration = {
-    defaultWorkspaceClientId: 'my client id',
-    defaultWorkspaceClientSecret: 'my client secret',
-    defaultWorkspaceDataResidency: 'eu',
+  const globalConfig: IGlobalAuthConfiguration = {
+    selectedWorkspace: 'workspace_id',
+    selectWorkspaceDataResidency: 'eu',
+    tokenInfo: {
+      refresh_token: 'refresh_token',
+      scope: 'console openid',
+    },
   }
 
   const projectConfigFileLocation = `${process.cwd()}/tru.json`
@@ -33,12 +30,11 @@ describe('simchecks:list', () => {
     project_id: 'c69bc0e6-a429-11ea-bb37-0242ac130003',
     name: 'My test project',
     created_at: '2020-06-01T16:43:30+00:00',
-    updated_at: '2020-06-01T16:43:30+00:00',
     credentials: [
       {
         client_id: 'project client id',
         client_secret: 'project client secret',
-        created_at: '2020-06-01T16:43:30+00:00',
+        scopes: ['sim_check'],
       },
     ],
   }
@@ -86,32 +82,11 @@ describe('simchecks:list', () => {
 
     readJsonStub
       .withArgs(sinon.match(sinon.match(new RegExp(/config.json/))))
-      .resolves(expectedUserConfig)
+      .resolves(globalConfig)
 
     readJsonStub
       .withArgs(sinon.match(projectConfigFileLocation))
       .resolves(projectConfig)
-
-    httpClientGetStub = sinon.stub(httpClientModule.HttpClient.prototype, 'get')
-    httpClientGetStub
-      .withArgs('/sim_check/v0.1/checks', sinon.match.any, sinon.match.any)
-      .resolves(listResource)
-    httpClientGetStub
-      .withArgs(
-        `/sim_check/v0.1/checks/${simCheckResource.check_id}`,
-        sinon.match.any,
-        sinon.match.any,
-      )
-      .resolves(simCheckResource)
-    httpClientGetStub
-      .withArgs(
-        `/sim_check/v0.1/checks/check_id_value`,
-        sinon.match.any,
-        sinon.match.any,
-      )
-      .resolves(simCheckResource)
-
-    consoleLoggerInfoStub = sinon.stub(ConsoleLogger.prototype, 'info')
   })
 
   afterEach(() => {
@@ -119,93 +94,62 @@ describe('simchecks:list', () => {
   })
 
   test
-    .do(() => {
-      simChecksApiClientConstructorStub = sinon.spy(
-        simchecks,
-        'SimCheckAPIClient',
-      )
-    })
-    .command(['simchecks:list'])
-    .it(
-      'SimCheckAPIClient: it should instantiate SimCheckAPIClient with expected arguments',
-      () => {
-        expect(simChecksApiClientConstructorStub).to.be.calledWith(
-          sinon.match.instanceOf(APIConfiguration),
-        )
-      },
+    .nock('https://eu.api.tru.id', (api) =>
+      api
+        .persist()
+        .post(new RegExp('/oauth2/v1/token*'))
+        .reply(200, accessToken)
+        .get(new RegExp('/sim_check/v0.1/checks*'))
+        .reply(200, listResource),
     )
-
-  test
+    .stdout()
     .command(['simchecks:list'])
     .it(
       'SimCheckAPIClient: should call SimCheckAPIClient.list() if optional check_id argment is not supplied',
-      () => {
-        expect(httpClientGetStub).to.be.calledWith(
-          '/sim_check/v0.1/checks',
-          sinon.match.any,
-          sinon.match.any,
-        )
+      (ctx) => {
+        expect(ctx.stdout).to.contain('check_id')
+        expect(ctx.stdout).to.contain('created_at')
+        expect(ctx.stdout).to.contain('status')
+        expect(ctx.stdout).to.contain('charge_currency')
+        expect(ctx.stdout).to.contain('charge_amount')
+        expect(ctx.stdout).to.contain('no_sim_change')
+        expect(ctx.stdout).to.contain('Page 1 of 1')
+        expect(ctx.stdout).to.contain('SIMChecks: 1 to 1 of 1')
+        expect(ctx.stdout).to.contain(simCheckResource.check_id)
+        expect(ctx.stdout).to.contain(simCheckResource.created_at)
+        expect(ctx.stdout).to.contain(simCheckResource.charge_amount)
+        expect(ctx.stdout).to.contain(simCheckResource.charge_currency)
+        expect(ctx.stdout).to.contain(simCheckResource.status)
+        expect(ctx.stdout).to.contain(simCheckResource.no_sim_change)
       },
     )
 
   test
-    .command(['simchecks:list', 'check_id_value'])
+    .nock('https://eu.api.tru.id', (api) =>
+      api
+        .persist()
+        .post(new RegExp('/oauth2/v1/token*'))
+        .reply(200, accessToken)
+        .get(new RegExp(`/sim_check/v0.1/checks/${simCheckResource.check_id}*`))
+        .reply(200, simCheckResource),
+    )
+    .stdout()
+    .command(['simchecks:list', `${simCheckResource.check_id}`])
     .it(
       'should call SimCheckAPIClient.get(checkId) if optional check_id argment is supplied',
-      () => {
-        expect(httpClientGetStub).to.be.calledWith(
-          '/sim_check/v0.1/checks/check_id_value',
-          sinon.match.any,
-          sinon.match.any,
-        )
+      (ctx) => {
+        expect(ctx.stdout).to.contain('check_id')
+        expect(ctx.stdout).to.contain('created_at')
+        expect(ctx.stdout).to.contain('status')
+        expect(ctx.stdout).to.contain('charge_currency')
+        expect(ctx.stdout).to.contain('charge_amount')
+        expect(ctx.stdout).to.contain('no_sim_change')
+        expect(ctx.stdout).to.contain(simCheckResource.check_id)
+        expect(ctx.stdout).to.contain(simCheckResource.created_at)
+        expect(ctx.stdout).to.contain(simCheckResource.charge_amount)
+        expect(ctx.stdout).to.contain(simCheckResource.charge_currency)
+        expect(ctx.stdout).to.contain(simCheckResource.status)
+        expect(ctx.stdout).to.contain(simCheckResource.no_sim_change)
       },
     )
-
-  test
-    .command(['simchecks:list'])
-    .it('should contain header table output', () => {
-      const consoleOutputString = buildConsoleString(consoleLoggerInfoStub)
-
-      expect(consoleOutputString).to.contain('check_id')
-      expect(consoleOutputString).to.contain('created_at')
-      expect(consoleOutputString).to.contain('status')
-      expect(consoleOutputString).to.contain('charge_currency')
-      expect(consoleOutputString).to.contain('charge_amount')
-      expect(consoleOutputString).to.contain('no_sim_change')
-    })
-
-  test
-    .command(['simchecks:list'])
-    .it('should contain pagination output', () => {
-      const consoleOutputString = buildConsoleString(consoleLoggerInfoStub)
-
-      expect(consoleOutputString).to.contain('Page 1 of 1')
-      expect(consoleOutputString).to.contain('SIMChecks: 1 to 1 of 1')
-    })
-
-  test
-    .command(['simchecks:list'])
-    .it('outputs resource list to cli.table', () => {
-      const consoleOutputString = buildConsoleString(consoleLoggerInfoStub)
-
-      expect(consoleOutputString).to.contain(simCheckResource.check_id)
-      expect(consoleOutputString).to.contain(simCheckResource.created_at)
-      expect(consoleOutputString).to.contain(simCheckResource.charge_amount)
-      expect(consoleOutputString).to.contain(simCheckResource.charge_currency)
-      expect(consoleOutputString).to.contain(simCheckResource.status)
-      expect(consoleOutputString).to.contain(simCheckResource.no_sim_change)
-    })
-
-  test
-    .command(['simchecks:list', `${simCheckResource.check_id}`])
-    .it('outputs result of a single resource to cli.table', () => {
-      const consoleOutputString = buildConsoleString(consoleLoggerInfoStub)
-
-      expect(consoleOutputString).to.contain(simCheckResource.check_id)
-      expect(consoleOutputString).to.contain(simCheckResource.created_at)
-      expect(consoleOutputString).to.contain(simCheckResource.charge_amount)
-      expect(consoleOutputString).to.contain(simCheckResource.charge_currency)
-      expect(consoleOutputString).to.contain(simCheckResource.status)
-      expect(consoleOutputString).to.contain(simCheckResource.no_sim_change)
-    })
 })

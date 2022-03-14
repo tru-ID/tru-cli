@@ -1,8 +1,14 @@
-import { APIConfiguration } from '../../api/APIConfiguration'
 import {
   IUpdateProjectPayload,
   ProjectsAPIClient,
 } from '../../api/ProjectsAPIClient'
+import { RefreshTokenManager } from '../../api/TokenManager'
+import {
+  apiBaseUrlDR,
+  issuerUrl,
+  loginBaseUrl,
+  tokenUrl,
+} from '../../DefaultUrls'
 import CommandWithProjectConfig from '../../helpers/CommandWithProjectConfig'
 import {
   phoneCheckCallbackUrlFlag,
@@ -10,6 +16,10 @@ import {
   projectModeFlag,
   removePhoneCheckCallbackFlag,
 } from '../../helpers/ProjectFlags'
+import {
+  isWorkspaceSelected,
+  isWorkspaceTokenInfoValid,
+} from '../../helpers/ValidationUtils'
 import { logApiError } from '../../utilities'
 
 export default class ProjectsUpdate extends CommandWithProjectConfig {
@@ -44,6 +54,9 @@ export default class ProjectsUpdate extends CommandWithProjectConfig {
 
     await super.run()
 
+    isWorkspaceTokenInfoValid(this.globalConfig!)
+    isWorkspaceSelected(this.globalConfig!)
+
     this.logger.debug('args', this.args)
     this.logger.debug('flags', this.flags)
 
@@ -75,15 +88,19 @@ export default class ProjectsUpdate extends CommandWithProjectConfig {
 
     this.log(`Updated Project with project_id "${this.args['project-id']}"`)
 
-    const projectsAPI = new ProjectsAPIClient(
-      new APIConfiguration({
-        clientId: this.globalConfig?.defaultWorkspaceClientId,
-        clientSecret: this.globalConfig?.defaultWorkspaceClientSecret,
-        scopes: ['projects'],
-        baseUrl:
-          this.globalConfig?.apiBaseUrlOverride ??
-          `https://${this.globalConfig?.defaultWorkspaceDataResidency}.api.tru.id`,
-      }),
+    const tokenManager = new RefreshTokenManager(
+      {
+        refreshToken: this.globalConfig!.tokenInfo!.refresh_token,
+        configLocation: this.getConfigPath(),
+        tokenUrl: tokenUrl(loginBaseUrl(this.globalConfig!)),
+        issuerUrl: issuerUrl(this.globalConfig!),
+      },
+      this.logger,
+    )
+
+    const projectsAPIClient = new ProjectsAPIClient(
+      tokenManager,
+      apiBaseUrlDR(this.globalConfig!),
       this.logger,
     )
 
@@ -106,7 +123,11 @@ export default class ProjectsUpdate extends CommandWithProjectConfig {
         updatePayload.mode = this.flags[projectModeFlag.flagName]
       }
 
-      await projectsAPI.update(this.args['project-id'], updatePayload)
+      await projectsAPIClient.update(
+        this.globalConfig!.selectedWorkspace!,
+        this.args['project-id'],
+        updatePayload,
+      )
 
       this.logger.info('✅ Project updated')
     } catch (error) {

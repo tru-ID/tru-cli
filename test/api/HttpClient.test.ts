@@ -2,28 +2,16 @@ import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import chai from 'chai'
 import sinonChai from 'sinon-chai'
 import sinon from 'ts-sinon'
-import { APIConfiguration } from '../../src/api/APIConfiguration'
-import { HttpClient, ICreateTokenResponse } from '../../src/api/HttpClient'
+import { HttpClient } from '../../src/api/HttpClient'
+import { accessToken as token, DummyTokenManager } from '../test_helpers'
 
 const expect = chai.expect
 chai.use(sinonChai)
 
 describe('APIConfiguration', () => {
-  const defaultClientId = 'my_client_id'
-  const defaultClientSecret = 'my_client_secret'
-  const defaultBaseUrl = 'https://example.com/api'
-
-  function createDefaultAPIConfiguration(): APIConfiguration {
-    return new APIConfiguration({
-      clientId: defaultClientId,
-      clientSecret: defaultClientSecret,
-      scopes: ['a_scope'],
-      baseUrl: defaultBaseUrl,
-    })
-  }
+  const tokenManager = new DummyTokenManager()
 
   describe('logging', () => {
-    let apiConfig: APIConfiguration
     let client: HttpClient
     let axiosPostStub: any
     let debugStub: any
@@ -38,8 +26,7 @@ describe('APIConfiguration', () => {
       axiosPostStub.resolves({ data: {} }) // default handling of /token
 
       debugStub = sinon.stub(console, 'debug')
-      apiConfig = createDefaultAPIConfiguration()
-      client = new HttpClient(apiConfig, console)
+      client = new HttpClient(tokenManager, 'https://eu.api.tru.id', console)
     })
 
     afterEach(() => {
@@ -48,7 +35,7 @@ describe('APIConfiguration', () => {
 
     it('logRequest should debug log the request', async () => {
       const requestConfig: AxiosRequestConfig = {
-        baseURL: apiConfig.baseUrl,
+        baseURL: "'https://eu.api.tru.id'",
         method: 'get',
         url: path,
         headers: headers,
@@ -78,7 +65,7 @@ describe('APIConfiguration', () => {
       const expectedLog = {
         statusCode: response.status,
         headers: response.headers,
-        data: response.data,
+        data: '{}',
       }
 
       client.logResponse(response)
@@ -95,22 +82,19 @@ describe('APIConfiguration', () => {
   })
 
   describe('get', () => {
-    let apiConfig: APIConfiguration
     let client: HttpClient
     let axiosPostStub: any
 
     const path = '/some/path'
     const params = { a: 'param_value' }
     const headers = { b: 'header_value' }
-    const accessToken = 'i am an access token'
 
     beforeEach(() => {
       sinon.stub(axios, 'create').returns(axios)
       axiosPostStub = sinon.stub(axios, 'post')
       axiosPostStub.resolves({ data: {} }) // default handling of /token
 
-      apiConfig = createDefaultAPIConfiguration()
-      client = new HttpClient(apiConfig, console)
+      client = new HttpClient(tokenManager, 'https://eu.api.tru.id', console)
     })
 
     afterEach(() => {
@@ -133,7 +117,7 @@ describe('APIConfiguration', () => {
     it('get/auth: should add Bearer Authorization to the headers', async () => {
       axiosPostStub
         .withArgs('/oauth2/v1/token', sinon.match.any, sinon.match.any)
-        .resolves({ data: { access_token: accessToken } })
+        .resolves({ data: { access_token: token.access_token } })
       const axiosGetStub = sinon.stub(axios, 'get').resolves({ data: {} })
 
       await client.get(path, params, headers)
@@ -142,7 +126,7 @@ describe('APIConfiguration', () => {
         path,
         sinon.match.has(
           'headers',
-          sinon.match.has('Authorization', `Bearer ${accessToken}`),
+          sinon.match.has('Authorization', `Bearer ${token.access_token}`),
         ),
       )
     })
@@ -160,8 +144,11 @@ describe('APIConfiguration', () => {
     it('should proxy path, params and headers on to axios.post', async () => {
       const axiosPostStub = sinon.stub(axios, 'post').resolves({ data: {} })
 
-      const apiConfig: APIConfiguration = createDefaultAPIConfiguration()
-      const client: HttpClient = new HttpClient(apiConfig, console)
+      const client: HttpClient = new HttpClient(
+        tokenManager,
+        'https://eu.api.tru.id',
+        console,
+      )
 
       const path = '/some/path'
       const params = { a: 'param' }
@@ -176,15 +163,17 @@ describe('APIConfiguration', () => {
     })
 
     it('should add Bearer Authorization to the headers', async () => {
-      const accessToken = 'i am an access token'
       const axiosPostStub = sinon.stub(axios, 'post')
       axiosPostStub
         .withArgs('/oauth2/v1/token', sinon.match.any, sinon.match.any)
-        .resolves({ data: { access_token: accessToken } })
+        .resolves({ data: { access_token: token.access_token } })
       axiosPostStub.resolves({ data: {} })
 
-      const apiConfig: APIConfiguration = createDefaultAPIConfiguration()
-      const client: HttpClient = new HttpClient(apiConfig, console)
+      const client: HttpClient = new HttpClient(
+        tokenManager,
+        'https://eu.api.tru.id',
+        console,
+      )
 
       const path = '/some/path'
       const params = { a: 'param' }
@@ -196,7 +185,7 @@ describe('APIConfiguration', () => {
         sinon.match.any,
         sinon.match.has(
           'headers',
-          sinon.match.has('Authorization', `Bearer ${accessToken}`),
+          sinon.match.has('Authorization', `Bearer ${token.access_token}`),
         ),
       )
     })
@@ -219,8 +208,11 @@ describe('APIConfiguration', () => {
     it('should proxy path, operations and headers on to axios.patch', async () => {
       const axiosPatchStub = sinon.stub(axios, 'patch').resolves({ data: {} })
 
-      const apiConfig: APIConfiguration = createDefaultAPIConfiguration()
-      const client: HttpClient = new HttpClient(apiConfig, console)
+      const client: HttpClient = new HttpClient(
+        tokenManager,
+        'https://eu.api.tru.id',
+        console,
+      )
 
       const path = '/some/path'
       const operations = [
@@ -240,15 +232,17 @@ describe('APIConfiguration', () => {
     })
 
     it('should add Bearer Authorization to the headers', async () => {
-      const accessToken = 'i am an access token'
       axiosPostStub
         .withArgs('/oauth2/v1/token', sinon.match.any, sinon.match.any)
-        .resolves({ data: { access_token: accessToken } })
+        .resolves({ data: { access_token: token.access_token } })
 
       const axiosPatchStub = sinon.stub(axios, 'patch').resolves({ data: {} })
 
-      const apiConfig: APIConfiguration = createDefaultAPIConfiguration()
-      const client: HttpClient = new HttpClient(apiConfig, console)
+      const client: HttpClient = new HttpClient(
+        tokenManager,
+        'https://eu.api.tru.id',
+        console,
+      )
 
       const path = '/some/path'
       const operations = [
@@ -265,169 +259,9 @@ describe('APIConfiguration', () => {
         sinon.match.any,
         sinon.match.has(
           'headers',
-          sinon.match.has('Authorization', `Bearer ${accessToken}`),
+          sinon.match.has('Authorization', `Bearer ${token.access_token}`),
         ),
       )
-    })
-  })
-
-  describe('createAccessToken', () => {
-    beforeEach(() => {
-      sinon.stub(axios, 'create').returns(axios)
-    })
-
-    afterEach(() => {
-      sinon.restore()
-    })
-
-    it('should get an Access Token from the /oauth2/v1/token endpoint', async () => {
-      const apiConfig: APIConfiguration = createDefaultAPIConfiguration()
-      const client: HttpClient = new HttpClient(apiConfig, console)
-
-      const axiosPostStub = sinon.stub(axios, 'post').resolves({ data: {} })
-
-      await client.createAccessToken()
-
-      expect(axiosPostStub).has.been.calledWith(
-        '/oauth2/v1/token',
-        sinon.match.any,
-        sinon.match.any,
-      )
-    })
-
-    it('should get an Access Token from the /oauth2/v1/token endpoint with expected scopes', async () => {
-      const apiConfig: APIConfiguration = createDefaultAPIConfiguration()
-      const client: HttpClient = new HttpClient(apiConfig, console)
-
-      const axiosPostStub = sinon.stub(axios, 'post').resolves({ data: {} })
-
-      await client.createAccessToken()
-
-      expect(axiosPostStub).has.been.calledWith(
-        '/oauth2/v1/token',
-        sinon.match(new RegExp(`scope=${apiConfig.scopes}`)),
-        sinon.match.any,
-      )
-    })
-
-    it('should use basic authentication when creating an Access Token', async () => {
-      const apiConfig: APIConfiguration = createDefaultAPIConfiguration()
-      const client: HttpClient = new HttpClient(apiConfig, console)
-
-      const authString = client.generateBasicAuth()
-
-      const axiosPostStub = sinon.stub(axios, 'post').resolves({ data: {} })
-
-      await client.createAccessToken()
-
-      expect(axiosPostStub).has.been.calledWith(
-        sinon.match.any,
-        sinon.match.any,
-        sinon.match.has(
-          'headers',
-          sinon.match.has('Authorization', `Basic ${authString}`),
-        ),
-      )
-    })
-
-    it('should return a ICreateTokenResponse with all populated properties', async () => {
-      const apiConfig: APIConfiguration = createDefaultAPIConfiguration()
-      const client: HttpClient = new HttpClient(apiConfig, console)
-
-      const accessTokenDataResponse = {
-        access_token: '2YotnFZFEjr1zCsicMWpAA',
-        id_token: 'eyJhbGciOiJSUzINiImtpZCI6InB1Ympx',
-        expires_in: 3600,
-        token_type: 'bearer',
-        refresh_token: 'tGzv3JOkF0XG5Qx2TlKWIA',
-        scope: 'projects',
-      }
-
-      sinon.stub(axios, 'post').resolves({ data: accessTokenDataResponse })
-
-      const response: ICreateTokenResponse = await client.createAccessToken()
-
-      expect(response.access_token).to.equal(
-        accessTokenDataResponse.access_token,
-      )
-      expect(response.id_token).to.equal(accessTokenDataResponse.id_token)
-      expect(response.expires_in).to.equal(accessTokenDataResponse.expires_in)
-      expect(response.token_type).to.equal(accessTokenDataResponse.token_type)
-      expect(response.refresh_token).to.equal(
-        accessTokenDataResponse.refresh_token,
-      )
-      expect(response.scope).to.equal(accessTokenDataResponse.scope)
-    })
-
-    it('should cache token', async () => {
-      const apiConfig: APIConfiguration = createDefaultAPIConfiguration()
-      const client: HttpClient = new HttpClient(apiConfig, console)
-
-      const accessTokenDataResponse = {
-        access_token: '2YotnFZFEjr1zCsicMWpAA',
-        id_token: 'eyJhbGciOiJSUzINiImtpZCI6InB1Ympx',
-        expires_in: 3600,
-        token_type: 'bearer',
-        refresh_token: 'tGzv3JOkF0XG5Qx2TlKWIA',
-        scope: 'projects',
-      }
-
-      const accessTokenDataResponse2 = {
-        access_token: 'accesstoken2',
-        id_token: 'idToken2',
-        expires_in: 3600,
-        token_type: 'bearer',
-        refresh_token: 'refreshtoken2',
-        scope: 'projects',
-      }
-
-      const axiosstub = sinon
-        .stub(axios, 'post')
-        .resolves({ data: accessTokenDataResponse })
-
-      let response: ICreateTokenResponse = await client.createAccessToken()
-
-      expect(response.access_token).to.equal(
-        accessTokenDataResponse.access_token,
-      )
-      expect(response.id_token).to.equal(accessTokenDataResponse.id_token)
-      expect(response.expires_in).to.equal(accessTokenDataResponse.expires_in)
-      expect(response.token_type).to.equal(accessTokenDataResponse.token_type)
-      expect(response.refresh_token).to.equal(
-        accessTokenDataResponse.refresh_token,
-      )
-      expect(response.scope).to.equal(accessTokenDataResponse.scope)
-
-      axiosstub.restore()
-      sinon.stub(axios, 'post').resolves({ data: accessTokenDataResponse2 })
-
-      response = await client.createAccessToken()
-
-      expect(response.access_token).to.equal(
-        accessTokenDataResponse.access_token,
-      )
-      expect(response.id_token).to.equal(accessTokenDataResponse.id_token)
-      expect(response.expires_in).to.equal(accessTokenDataResponse.expires_in)
-      expect(response.token_type).to.equal(accessTokenDataResponse.token_type)
-      expect(response.refresh_token).to.equal(
-        accessTokenDataResponse.refresh_token,
-      )
-      expect(response.scope).to.equal(accessTokenDataResponse.scope)
-    })
-  })
-
-  describe('generateBasicAuth', () => {
-    it('should create basic auth string in Base64(client_id:client_secret) format', () => {
-      const expectedToBeEncoded = `${defaultClientId}:${defaultClientSecret}`
-      const expectedBase64String =
-        Buffer.from(expectedToBeEncoded).toString('base64')
-
-      const apiConfig: APIConfiguration = createDefaultAPIConfiguration()
-      const client: HttpClient = new HttpClient(apiConfig, console)
-
-      const actualBase64String = client.generateBasicAuth()
-
-      expect(actualBase64String).to.equal(expectedBase64String)
     })
   })
 })

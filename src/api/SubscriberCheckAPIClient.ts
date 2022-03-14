@@ -1,8 +1,8 @@
 import ILogger from '../helpers/ILogger'
-import { APIConfiguration } from './APIConfiguration'
 import { AbstractChecksApiClient } from './ChecksAPIClient'
 import { CheckStatus } from './CheckStatus'
 import { ILink } from './IListResource'
+import { ClientCredentialsManager } from './TokenManager'
 
 export type SubscriberCheckResource = {
   check_id: string
@@ -19,7 +19,11 @@ export type SubscriberCheckResource = {
 }
 
 export class SubscriberCheckAPIClient extends AbstractChecksApiClient<SubscriberCheckResource> {
-  constructor(apiConfig: APIConfiguration, logger: ILogger) {
-    super(apiConfig, logger, 'subscriber_check')
+  constructor(
+    tokenManager: ClientCredentialsManager,
+    apiBaseUrlDR: string,
+    logger: ILogger,
+  ) {
+    super(tokenManager, apiBaseUrlDR, 'subscriber_check', logger)
   }
 }

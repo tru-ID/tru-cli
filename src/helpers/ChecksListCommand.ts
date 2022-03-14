@@ -1,14 +1,20 @@
 import { CliUx, Config, Flags } from '@oclif/core'
-import { APIConfiguration } from '../api/APIConfiguration'
+import { APIClientCredentialsConfiguration } from '../api/APIConfiguration'
 import {
   AbstractChecksApiClient,
   CheckResource,
   IListCheckResource,
 } from '../api/ChecksAPIClient'
+import { tokenUrlDR } from '../DefaultUrls'
 import { displayPagination } from '../helpers/ux'
 import { logApiError } from '../utilities'
 import CommandWithProjectConfig from './CommandWithProjectConfig'
 import ILogger from './ILogger'
+import {
+  doesProjectConfigExist,
+  isProjectCredentialsValid,
+  isWorkspaceSelected,
+} from './ValidationUtils'
 
 export default abstract class ChecksListCommand extends CommandWithProjectConfig {
   static pageNumberFlag = Flags.integer({
@@ -56,7 +62,7 @@ export default abstract class ChecksListCommand extends CommandWithProjectConfig
   abstract parseCommand(): any
 
   abstract getApiClient(
-    apiConfiguration: APIConfiguration,
+    apiConfiguration: APIClientCredentialsConfiguration,
     logger: ILogger,
   ): AbstractChecksApiClient<CheckResource>
 
@@ -68,21 +74,23 @@ export default abstract class ChecksListCommand extends CommandWithProjectConfig
 
     await super.run()
 
-    const apiConfiguration = new APIConfiguration({
-      clientId: this.projectConfig?.credentials[0].client_id,
-      clientSecret: this.projectConfig?.credentials[0].client_secret,
-      scopes: [this.tokenScope],
-      baseUrl:
-        this.globalConfig?.apiBaseUrlOverride ??
-        `https://${this.globalConfig?.defaultWorkspaceDataResidency}.api.tru.id`,
-    })
+    doesProjectConfigExist(this.projectConfig)
+    isProjectCredentialsValid(this.projectConfig!)
+    isWorkspaceSelected(this.globalConfig!)
 
-    const apiCheckClient = this.getApiClient(apiConfiguration, this.logger)
+    const apiConfiguration: APIClientCredentialsConfiguration = {
+      clientId: this.projectConfig!.credentials[0].client_id!,
+      clientSecret: this.projectConfig!.credentials[0].client_secret!,
+      scopes: [this.tokenScope],
+      tokenUrl: tokenUrlDR(this.globalConfig!),
+    }
+
+    const checkApiClient = this.getApiClient(apiConfiguration, this.logger)
 
     if (this.args.check_id) {
       let singleResource: CheckResource
       try {
-        singleResource = await apiCheckClient.get(this.args.check_id)
+        singleResource = await checkApiClient.get(this.args.check_id)
 
         this.displayResults([singleResource])
       } catch (error) {
@@ -92,7 +100,7 @@ export default abstract class ChecksListCommand extends CommandWithProjectConfig
     } else {
       let listResource: IListCheckResource<CheckResource>
       try {
-        listResource = await apiCheckClient.list({
+        listResource = await checkApiClient.list({
           page: this.flags.page_number,
           size: this.flags.page_size,
           search: this.flags.search,
