@@ -5,7 +5,7 @@ import path from 'path'
 import chalk = require('chalk')
 
 const hook: Hook<'init'> = async function (opts) {
-  const setupCommand = 'setup:credentials'
+  const setupCommand = 'setup:oauth2'
 
   // Oclif captures the output of commands in order to update the README during prepack
   if (

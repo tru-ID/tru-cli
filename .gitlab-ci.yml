@@ -1,4 +1,4 @@
-image: node:latest
+image: node:16
 
 stages:
   - test
@@ -42,6 +42,7 @@ publish_npm_dev:
     - unit_tests_node_16
     - unit_tests_node_latest
   script:
+    - npm config set //registry.npmjs.org/:_authToken ${NPM_TOKEN}
     - npm run build
     - npm run canary_version_suffix
     - npm run npm:publish:dev
@@ -55,5 +56,6 @@ publish_npm_prod:
     - unit_tests_node_16
     - unit_tests_node_latest
   script:
+    - npm config set //registry.npmjs.org/:_authToken ${NPM_TOKEN}
     - npm run build
     - npm run npm:publish:prod
