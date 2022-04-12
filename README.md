@@ -21,7 +21,7 @@ $ npm install -g @tru_id/cli
 $ tru COMMAND
 running command...
 $ tru (--version)
-@tru_id/cli/0.9.7 linux-x64 node-v16.14.0
+@tru_id/cli/1.0.0 linux-x64 node-v16.14.0
 $ tru --help [COMMAND]
 USAGE
   $ tru COMMAND
@@ -86,7 +86,7 @@ DESCRIPTION
   Retrieve country based coverage and prices
 ```
 
-_See code: [dist/commands/coverage/country.ts](https://github.com/tru-ID/tru-cli/blob/v0.9.7/dist/commands/coverage/country.ts)_
+_See code: [dist/commands/coverage/country.ts](https://github.com/tru-ID/tru-cli/blob/v1.0.0/dist/commands/coverage/country.ts)_
 
 ## `tru coverage:reach DEVICE-IP`
 
@@ -118,7 +118,7 @@ DESCRIPTION
   Find if a certain device ip is reachable
 ```
 
-_See code: [dist/commands/coverage/reach.ts](https://github.com/tru-ID/tru-cli/blob/v0.9.7/dist/commands/coverage/reach.ts)_
+_See code: [dist/commands/coverage/reach.ts](https://github.com/tru-ID/tru-cli/blob/v1.0.0/dist/commands/coverage/reach.ts)_
 
 ## `tru help [COMMAND]`
 
@@ -177,7 +177,7 @@ EXAMPLES
   Emesua0F7gj3qOaav7UaKaBwefaaefaAxlrdGom_mb3U.78Od2d9XpvTQbd44eM1Uf7nzz9e9nezs5TRjPmpDnMc
 ```
 
-_See code: [dist/commands/oauth2/token.ts](https://github.com/tru-ID/tru-cli/blob/v0.9.7/dist/commands/oauth2/token.ts)_
+_See code: [dist/commands/oauth2/token.ts](https://github.com/tru-ID/tru-cli/blob/v1.0.0/dist/commands/oauth2/token.ts)_
 
 ## `tru phonechecks:create [PHONE_NUMBER]`
 
@@ -199,7 +199,7 @@ DESCRIPTION
   Creates a PhoneCheck within a project
 ```
 
-_See code: [dist/commands/phonechecks/create.ts](https://github.com/tru-ID/tru-cli/blob/v0.9.7/dist/commands/phonechecks/create.ts)_
+_See code: [dist/commands/phonechecks/create.ts](https://github.com/tru-ID/tru-cli/blob/v1.0.0/dist/commands/phonechecks/create.ts)_
 
 ## `tru phonechecks:list [CHECK_ID]`
 
@@ -239,7 +239,7 @@ DESCRIPTION
   Lists details for all PhoneChecks or a specific PhoneCheck if the a check-id argument is passed
 ```
 
-_See code: [dist/commands/phonechecks/list.ts](https://github.com/tru-ID/tru-cli/blob/v0.9.7/dist/commands/phonechecks/list.ts)_
+_See code: [dist/commands/phonechecks/list.ts](https://github.com/tru-ID/tru-cli/blob/v1.0.0/dist/commands/phonechecks/list.ts)_
 
 ## `tru phonechecks:traces CHECK_ID`
 
@@ -272,7 +272,7 @@ DESCRIPTION
   Get the traces of a PhoneCheck
 ```
 
-_See code: [dist/commands/phonechecks/traces.ts](https://github.com/tru-ID/tru-cli/blob/v0.9.7/dist/commands/phonechecks/traces.ts)_
+_See code: [dist/commands/phonechecks/traces.ts](https://github.com/tru-ID/tru-cli/blob/v1.0.0/dist/commands/phonechecks/traces.ts)_
 
 ## `tru projects:create [NAME]`
 
@@ -309,7 +309,7 @@ EXAMPLES
   $ tru projects:create --mode live
 ```
 
-_See code: [dist/commands/projects/create.ts](https://github.com/tru-ID/tru-cli/blob/v0.9.7/dist/commands/projects/create.ts)_
+_See code: [dist/commands/projects/create.ts](https://github.com/tru-ID/tru-cli/blob/v1.0.0/dist/commands/projects/create.ts)_
 
 ## `tru projects:list [PROJECT_ID]`
 
@@ -348,7 +348,7 @@ DESCRIPTION
   Lists details for all Projects or a Projects that match a given criteria
 ```
 
-_See code: [dist/commands/projects/list.ts](https://github.com/tru-ID/tru-cli/blob/v0.9.7/dist/commands/projects/list.ts)_
+_See code: [dist/commands/projects/list.ts](https://github.com/tru-ID/tru-cli/blob/v1.0.0/dist/commands/projects/list.ts)_
 
 ## `tru projects:update [PROJECT-ID]`
 
@@ -384,7 +384,7 @@ EXAMPLES
   $ tru projects:update --mode live
 ```
 
-_See code: [dist/commands/projects/update.ts](https://github.com/tru-ID/tru-cli/blob/v0.9.7/dist/commands/projects/update.ts)_
+_See code: [dist/commands/projects/update.ts](https://github.com/tru-ID/tru-cli/blob/v1.0.0/dist/commands/projects/update.ts)_
 
 ## `tru setup:oauth2 IDP`
 
@@ -401,7 +401,7 @@ DESCRIPTION
   Setup the CLI with oauth2 flow
 ```
 
-_See code: [dist/commands/setup/oauth2.ts](https://github.com/tru-ID/tru-cli/blob/v0.9.7/dist/commands/setup/oauth2.ts)_
+_See code: [dist/commands/setup/oauth2.ts](https://github.com/tru-ID/tru-cli/blob/v1.0.0/dist/commands/setup/oauth2.ts)_
 
 ## `tru simchecks:create [PHONE_NUMBER]`
 
@@ -423,7 +423,7 @@ DESCRIPTION
   Create SIMChecks within a Project
 ```
 
-_See code: [dist/commands/simchecks/create.ts](https://github.com/tru-ID/tru-cli/blob/v0.9.7/dist/commands/simchecks/create.ts)_
+_See code: [dist/commands/simchecks/create.ts](https://github.com/tru-ID/tru-cli/blob/v1.0.0/dist/commands/simchecks/create.ts)_
 
 ## `tru simchecks:list [CHECK_ID]`
 
@@ -463,7 +463,7 @@ DESCRIPTION
   Lists details for all SIMChecks or a specific SIMCheck if the a check-id argument is passed
 ```
 
-_See code: [dist/commands/simchecks/list.ts](https://github.com/tru-ID/tru-cli/blob/v0.9.7/dist/commands/simchecks/list.ts)_
+_See code: [dist/commands/simchecks/list.ts](https://github.com/tru-ID/tru-cli/blob/v1.0.0/dist/commands/simchecks/list.ts)_
 
 ## `tru simchecks:traces CHECK_ID`
 
@@ -496,7 +496,7 @@ DESCRIPTION
   Get the traces of a SIMCheck
 ```
 
-_See code: [dist/commands/simchecks/traces.ts](https://github.com/tru-ID/tru-cli/blob/v0.9.7/dist/commands/simchecks/traces.ts)_
+_See code: [dist/commands/simchecks/traces.ts](https://github.com/tru-ID/tru-cli/blob/v1.0.0/dist/commands/simchecks/traces.ts)_
 
 ## `tru subscriberchecks:create [PHONE_NUMBER]`
 
@@ -518,7 +518,7 @@ DESCRIPTION
   Creates SubscriberChecks within a project
 ```
 
-_See code: [dist/commands/subscriberchecks/create.ts](https://github.com/tru-ID/tru-cli/blob/v0.9.7/dist/commands/subscriberchecks/create.ts)_
+_See code: [dist/commands/subscriberchecks/create.ts](https://github.com/tru-ID/tru-cli/blob/v1.0.0/dist/commands/subscriberchecks/create.ts)_
 
 ## `tru subscriberchecks:list [CHECK_ID]`
 
@@ -558,7 +558,7 @@ DESCRIPTION
   Lists details for all SubscriberChecks or a specific SubscriberCheck if the a check-id argument is passed
 ```
 
-_See code: [dist/commands/subscriberchecks/list.ts](https://github.com/tru-ID/tru-cli/blob/v0.9.7/dist/commands/subscriberchecks/list.ts)_
+_See code: [dist/commands/subscriberchecks/list.ts](https://github.com/tru-ID/tru-cli/blob/v1.0.0/dist/commands/subscriberchecks/list.ts)_
 
 ## `tru subscriberchecks:traces CHECK_ID`
 
@@ -591,7 +591,7 @@ DESCRIPTION
   Get the traces of a SubscriberCheck
 ```
 
-_See code: [dist/commands/subscriberchecks/traces.ts](https://github.com/tru-ID/tru-cli/blob/v0.9.7/dist/commands/subscriberchecks/traces.ts)_
+_See code: [dist/commands/subscriberchecks/traces.ts](https://github.com/tru-ID/tru-cli/blob/v1.0.0/dist/commands/subscriberchecks/traces.ts)_
 
 ## `tru usage:daily`
 
@@ -624,7 +624,7 @@ DESCRIPTION
   Get Daily Usage. The date range defaults to current date.
 ```
 
-_See code: [dist/commands/usage/daily.ts](https://github.com/tru-ID/tru-cli/blob/v0.9.7/dist/commands/usage/daily.ts)_
+_See code: [dist/commands/usage/daily.ts](https://github.com/tru-ID/tru-cli/blob/v1.0.0/dist/commands/usage/daily.ts)_
 
 ## `tru usage:hourly`
 
@@ -657,7 +657,7 @@ DESCRIPTION
   Get Hourly Usage. The date range defaults to current date.
 ```
 
-_See code: [dist/commands/usage/hourly.ts](https://github.com/tru-ID/tru-cli/blob/v0.9.7/dist/commands/usage/hourly.ts)_
+_See code: [dist/commands/usage/hourly.ts](https://github.com/tru-ID/tru-cli/blob/v1.0.0/dist/commands/usage/hourly.ts)_
 
 ## `tru usage:monthly`
 
@@ -690,7 +690,7 @@ DESCRIPTION
   Get Monthly Usage. The date range defaults to the current calendar month.
 ```
 
-_See code: [dist/commands/usage/monthly.ts](https://github.com/tru-ID/tru-cli/blob/v0.9.7/dist/commands/usage/monthly.ts)_
+_See code: [dist/commands/usage/monthly.ts](https://github.com/tru-ID/tru-cli/blob/v1.0.0/dist/commands/usage/monthly.ts)_
 
 ## `tru workspaces:list`
 
@@ -712,7 +712,7 @@ DESCRIPTION
   List of available workspaces
 ```
 
-_See code: [dist/commands/workspaces/list.ts](https://github.com/tru-ID/tru-cli/blob/v0.9.7/dist/commands/workspaces/list.ts)_
+_See code: [dist/commands/workspaces/list.ts](https://github.com/tru-ID/tru-cli/blob/v1.0.0/dist/commands/workspaces/list.ts)_
 
 ## `tru workspaces:selected`
 
@@ -734,7 +734,7 @@ DESCRIPTION
   Displays selected workspace information
 ```
 
-_See code: [dist/commands/workspaces/selected.ts](https://github.com/tru-ID/tru-cli/blob/v0.9.7/dist/commands/workspaces/selected.ts)_
+_See code: [dist/commands/workspaces/selected.ts](https://github.com/tru-ID/tru-cli/blob/v1.0.0/dist/commands/workspaces/selected.ts)_
 
 ## `tru workspaces:switch DATA_RESIDENCY WORKSPACE_ID`
 
@@ -761,7 +761,7 @@ DESCRIPTION
   Switch workspaces
 ```
 
-_See code: [dist/commands/workspaces/switch.ts](https://github.com/tru-ID/tru-cli/blob/v0.9.7/dist/commands/workspaces/switch.ts)_
+_See code: [dist/commands/workspaces/switch.ts](https://github.com/tru-ID/tru-cli/blob/v1.0.0/dist/commands/workspaces/switch.ts)_
 <!-- commandsstop -->
 
 # Development

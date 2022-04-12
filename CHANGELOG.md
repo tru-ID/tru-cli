@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.0](https://github.com/tru-ID/tru-cli/compare/v0.9.7...v1.0.0) (2022-04-12)
+
+### ⚠ BREAKING CHANGES
+
+- **setup:** Added oauth2 support for setting up cli. ([f829edd](https://github.com/tru-ID/tru-cli/commit/f829edda66bea7ae7b6f3dc790a22444ce1825da))
+
+The CLI previously supported only authentication with workspace credentials (client_credentials grant).
+This is now removed. Now we introduced authentication_code grant via browser. Please run `setup:oauth2`
+before using this version.
+
+### Features
+
+- Added new workspaces commands
+
+  - `workspaces:list` List of available workspaces
+  - `workspaces:selected` Displays selected workspace information
+  - `workspaces:switch` Switch workspaces
+
 ### [0.9.7](https://github.com/tru-ID/tru-cli/compare/v0.9.6...v0.9.7) (2021-11-26)
 
 ### Bug Fixes

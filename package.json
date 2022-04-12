@@ -1,7 +1,7 @@
 {
   "name": "@tru_id/cli",
   "description": "The tru.ID CLI",
-  "version": "0.9.7",
+  "version": "1.0.0",
   "author": {
     "name": "tru.ID",
     "email": "community@tru.id",
@@ -114,6 +114,8 @@
     "build": "rm -rf dist && tsc -b && oclif manifest && oclif readme",
     "lint": "eslint . --ext .ts",
     "test": "nyc mocha --forbid-only \"test/**/*.test.ts\"",
+    "version": "oclif readme && git add README.md",
+    "release": "npm run version && standard-version --",
     "canary_version_suffix": "node scripts/canary-version-suffix.js",
     "npm:publish:dev": "npm publish --tag canary",
     "npm:publish:prod": "npm publish",
