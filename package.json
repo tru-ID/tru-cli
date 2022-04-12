@@ -1,7 +1,7 @@
 {
   "name": "@tru_id/cli",
   "description": "The tru.ID CLI",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": {
     "name": "tru.ID",
     "email": "community@tru.id",
