@@ -50,7 +50,7 @@ export default abstract class UsageCommand extends CommandWithGlobalConfig {
   getApiClient(logger: ILogger): UsageApiClient {
     const tokenManager = new RefreshTokenManager(
       {
-        refreshToken: this.globalConfig!.tokenInfo!.refresh_token!,
+        refreshToken: this.globalConfig!.tokenInfo!.refreshToken!,
         configLocation: this.getConfigPath(),
         tokenUrl: tokenUrl(loginBaseUrl(this.globalConfig!)),
         issuerUrl: issuerUrl(this.globalConfig!),

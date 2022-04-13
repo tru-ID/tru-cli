@@ -90,7 +90,7 @@ export default class ProjectsUpdate extends CommandWithProjectConfig {
 
     const tokenManager = new RefreshTokenManager(
       {
-        refreshToken: this.globalConfig!.tokenInfo!.refresh_token,
+        refreshToken: this.globalConfig!.tokenInfo!.refreshToken,
         configLocation: this.getConfigPath(),
         tokenUrl: tokenUrl(loginBaseUrl(this.globalConfig!)),
         issuerUrl: issuerUrl(this.globalConfig!),

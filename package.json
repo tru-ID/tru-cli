@@ -84,11 +84,11 @@
       "usage": {
         "description": "Get daily, hourly, monthly usage"
       },
-      "setup": {
-        "description": "Setup oauth2 for cli"
+      "login": {
+        "description": "Login"
       },
       "workspaces": {
-        "description": "Switch workspaces and display info"
+        "description": "Display and select workspaces"
       }
     },
     "commands": "./dist/commands",

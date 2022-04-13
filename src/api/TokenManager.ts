@@ -25,7 +25,6 @@ export declare type AccessToken = {
   token_type: string
   scope: string
 }
-
 declare interface TokenStore {
   accessToken?: AccessToken
   refreshToken?: string
@@ -175,7 +174,7 @@ export class RefreshTokenManager implements TokenManager {
     const globalConfig = await this.loadConfig(this.configLocation)
 
     globalConfig.tokenInfo = {
-      refresh_token: this.tokenStore.refreshToken!,
+      refreshToken: this.tokenStore.refreshToken!,
       scope: this.tokenStore.accessToken!.scope!,
     }
 
@@ -214,7 +213,7 @@ export class RefreshTokenManager implements TokenManager {
     } catch (error) {
       if (error instanceof errors.OPError || error instanceof errors.RPError) {
         throw new Error(
-          `Error when creating token. Consider running setup:oauth2 to fix the issue. ${error.message}`,
+          `Error when creating token. Consider running "tru login" to fix the issue. ${error.message}`,
         )
       }
 

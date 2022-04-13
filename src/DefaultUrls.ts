@@ -1,6 +1,7 @@
 import { IGlobalAuthConfiguration } from './IGlobalAuthConfiguration'
 
-export const LOGIN_BASE_URL_DEFAULT = 'https://login.tru.id' // hq login endpoint- but now it points to customer-gw (not sure i understand why)
+export const LOGIN_BASE_URL_DEFAULT = 'https://login.tru.id'
+export const API_BASE_URL_PATTERN = 'https://DATA_RESIDENCY.api.tru.id' // DATA RESIDENCY should be always in this pattern to be replaced.
 
 export const loginBaseUrl = (config: IGlobalAuthConfiguration): string => {
   return config.apiLoginUrlOverride
@@ -20,14 +21,26 @@ export const issuerUrl = (config: IGlobalAuthConfiguration): string => {
   return loginBaseUrl(config)
 }
 
-export const apiBaseUrlDR = (config: IGlobalAuthConfiguration): string => {
-  return config.apiBaseUrlOverride
-    ? config.apiBaseUrlOverride
-    : apiBaseUrlDRString(config.selectWorkspaceDataResidency!)
+export const apiBaseUrlPattern = (config: IGlobalAuthConfiguration) => {
+  return config.apiBaseUrlPattern
+    ? config.apiBaseUrlPattern
+    : API_BASE_URL_PATTERN
 }
 
-export const apiBaseUrlDRString = (dataResidency: string): string => {
-  return `https://${dataResidency}.api.tru.id`
+export const apiBaseUrlDR = (config: IGlobalAuthConfiguration): string => {
+  return apiBaseUrlPattern(config).replace(
+    'DATA_RESIDENCY',
+    config.selectedWorkspaceDataResidency
+      ? config.selectedWorkspaceDataResidency
+      : '',
+  )
+}
+
+export const apiBaseUrlDRString = (
+  dataResidency: string,
+  config: IGlobalAuthConfiguration,
+): string => {
+  return apiBaseUrlPattern(config).replace('DATA_RESIDENCY', dataResidency)
 }
 
 export const tokenUrlDR = (config: IGlobalAuthConfiguration): string => {

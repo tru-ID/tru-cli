@@ -16,30 +16,30 @@ export function isProjectCredentialsValid(
 ): void {
   const credentials = projectConfig.credentials[0]
   if (!credentials) {
-    throw new Error('missing project credentials')
+    throw new Error('Missing project credentials')
   }
 
   if (!credentials.client_id) {
-    throw new Error('missing project credentials')
+    throw new Error('Missing project credentials')
   }
 
   if (!credentials.client_secret) {
-    throw new Error('missing project credentials')
+    throw new Error('Missing project credentials')
   }
 }
 
 export function isWorkspaceSelected(
   globalConfig: IGlobalAuthConfiguration,
 ): void {
-  if (!globalConfig.selectWorkspaceDataResidency) {
+  if (!globalConfig.selectedWorkspaceDataResidency) {
     throw new Error(
-      'Missing selectWorkspaceDataResidency please select workspace workspaces:switch',
+      'Workspace not selected. Please run "tru workspaces:switch" to select workspace',
     )
   }
 
   if (!globalConfig.selectedWorkspace) {
     throw new Error(
-      'Missing selectedWorkspace please select workspace workspaces:switch',
+      'Workspace not selected. Please run "tru workspaces:switch" to select workspace',
     )
   }
 }
@@ -48,14 +48,14 @@ export function isWorkspaceTokenInfoValid(
   globalConfig: IGlobalAuthConfiguration,
 ): void {
   if (!globalConfig.tokenInfo) {
-    throw new Error('Missing tokens please run setup:oauth2')
+    throw new Error('Missing configuration. Please run "tru login"')
   }
 
-  if (!globalConfig.tokenInfo.refresh_token) {
-    throw new Error('Missing tokens please run setup:oauth2')
+  if (!globalConfig.tokenInfo.refreshToken) {
+    throw new Error('Missing configuration. Please run "tru login"')
   }
 
   if (!globalConfig.tokenInfo.scope) {
-    throw new Error('Missing tokens please run setup:oauth2')
+    throw new Error('Missing configuration. Please run "tru login"')
   }
 }

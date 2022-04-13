@@ -17,9 +17,9 @@ describe('simchecks:list', () => {
 
   const globalConfig: IGlobalAuthConfiguration = {
     selectedWorkspace: 'workspace_id',
-    selectWorkspaceDataResidency: 'eu',
+    selectedWorkspaceDataResidency: 'eu',
     tokenInfo: {
-      refresh_token: 'refresh_token',
+      refreshToken: 'refresh_token',
       scope: 'console openid',
     },
   }

@@ -1,11 +1,16 @@
 import { Hook } from '@oclif/core'
 import figlet from 'figlet'
 import fs from 'fs-extra'
+import { custom } from 'openid-client'
 import path from 'path'
 import chalk = require('chalk')
 
+custom.setHttpOptionsDefaults({
+  timeout: 7000,
+})
+
 const hook: Hook<'init'> = async function (opts) {
-  const setupCommand = 'setup:oauth2'
+  const loginCommand = 'login'
 
   // Oclif captures the output of commands in order to update the README during prepack
   if (
@@ -15,11 +20,11 @@ const hook: Hook<'init'> = async function (opts) {
   )
     return
 
-  if (opts.id === setupCommand) {
+  if (opts.id === loginCommand) {
     return
   }
 
-  // User is running setup command. Allow this to proceed without check.
+  // User is running login command. Allow this to proceed without check.
   const configFileLocation: string = path.join(
     this.config.configDir,
     'config.json',
@@ -38,11 +43,7 @@ const hook: Hook<'init'> = async function (opts) {
 
     this.log("Welcome to the tru.ID CLI! Let's start by configuring the CLI")
     this.log('')
-    this.log(
-      `Please run ${chalk.green(
-        `tru ${setupCommand}`,
-      )} with the credentials found via https://developer.tru.id/console`,
-    )
+    this.log(`Please run ${chalk.green(`tru ${loginCommand}`)}`)
     this.log('')
     this.exit(1)
   }

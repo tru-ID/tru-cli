@@ -19,20 +19,20 @@ import {
 } from '../../DefaultUrls'
 import { IGlobalAuthConfiguration } from '../../IGlobalAuthConfiguration'
 
-export default class SetupOAuth extends Command {
-  static description = 'Setup the CLI with oauth2 flow'
+export default class Login extends Command {
+  static description = 'Login to CLI'
 
   static args = [
     {
       name: 'IDP',
       required: true,
-      description: 'The oauth2 IDP',
+      description: 'The Identity Provider',
       options: ['google', 'github', 'microsoft'],
     },
   ]
 
   async run() {
-    const { args } = await this.parse(SetupOAuth)
+    const { args } = await this.parse(Login)
 
     const configLocation = path.join(this.config.configDir, 'config.json')
     const configOAuth = await this.getOrCreateConfig(configLocation)
@@ -87,7 +87,7 @@ export default class SetupOAuth extends Command {
   }
 
   async catch(err: Error) {
-    this.error(`failed to setup oauth2: ${err.message}`, { exit: 1 })
+    this.error(`failed to login: ${err.message}`, { exit: 1 })
   }
 
   async getOrCreateConfig(
@@ -119,12 +119,12 @@ export default class SetupOAuth extends Command {
     tokenSet: TokenSet,
   ): Promise<void> {
     const newConfig: IGlobalAuthConfiguration = {
-      apiBaseUrlOverride: config.apiBaseUrlOverride,
+      apiBaseUrlPattern: config.apiBaseUrlPattern,
       apiLoginUrlOverride: config.apiLoginUrlOverride,
-      selectWorkspaceDataResidency: config.selectWorkspaceDataResidency,
+      selectedWorkspaceDataResidency: config.selectedWorkspaceDataResidency,
       selectedWorkspace: config.selectedWorkspace,
       tokenInfo: {
-        refresh_token: tokenSet.refresh_token!,
+        refreshToken: tokenSet.refresh_token!,
         scope: tokenSet.scope!,
       },
     }
@@ -158,7 +158,7 @@ export default class SetupOAuth extends Command {
     if (req.url?.startsWith('/?')) {
       callbackParams = client.callbackParams(req)
       if (!callbackParams) {
-        res.end('Authentication Failed')
+        res.end('Login Failed')
         server.close()
         throw new Error(`No callback received`)
       }
@@ -168,7 +168,7 @@ export default class SetupOAuth extends Command {
           error: callbackParams.error,
           error_description: callbackParams.error_description,
         }
-        res.end('Authentication Failed')
+        res.end('Login Failed')
         server.close()
         throw new Error(`Error during callback : ${error}`)
       }
@@ -185,7 +185,9 @@ export default class SetupOAuth extends Command {
       await this.updateConfig(configLocation, configOAuth, tokenSet)
 
       this.log(`tokens were written to ${configLocation}`)
-      res.end('Success')
+      res.end(
+        `Success. Tokens were written to ${configLocation}. You can now close the browser`,
+      )
       server.close()
     } else {
       res.end()

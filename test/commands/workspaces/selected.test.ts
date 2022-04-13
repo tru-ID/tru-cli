@@ -9,14 +9,14 @@ import { IGlobalAuthConfiguration } from '../../../src/IGlobalAuthConfiguration'
 const expect = chai.expect
 chai.use(sinonChai)
 
-describe('workspaces', () => {
+describe('workspaces selected', () => {
   let readJsonStub: any
 
   const globalConfig: IGlobalAuthConfiguration = {
     selectedWorkspace: 'workspace_id',
-    selectWorkspaceDataResidency: 'eu',
+    selectedWorkspaceDataResidency: 'eu',
     tokenInfo: {
-      refresh_token: 'refresh_token',
+      refreshToken: 'refresh_token',
       scope: 'console offline_access openid',
     },
   }
@@ -78,6 +78,8 @@ describe('workspaces', () => {
           new RegExp('/oauth2/token'),
           'grant_type=refresh_token&refresh_token=refresh_token&client_id=cli_hq',
         )
+        .delayConnection(6000)
+        .delayBody(6000)
         .reply(200, {
           refresh_token: 'refresh_token_new',
           access_token: 'access_token_new',
@@ -98,14 +100,17 @@ describe('workspaces', () => {
     })
     .stdout()
     .command(['workspaces:selected'])
-    .it('outputs result of a single resource to cli.table', (ctx) => {
-      expect(ctx.stdout).to.contain(workspaceResource.data_residency)
-      expect(ctx.stdout).to.contain(workspaceResource.created_at)
-      expect(ctx.stdout).to.contain(
-        workspaceResource._embedded.balance.currency,
-      )
-      expect(ctx.stdout).to.contain(
-        workspaceResource._embedded.balance.amount_available,
-      )
-    })
+    .it(
+      'outputs result of a single resource to cli.table when response time is 6s',
+      (ctx) => {
+        expect(ctx.stdout).to.contain(workspaceResource.data_residency)
+        expect(ctx.stdout).to.contain(workspaceResource.created_at)
+        expect(ctx.stdout).to.contain(
+          workspaceResource._embedded.balance.currency,
+        )
+        expect(ctx.stdout).to.contain(
+          workspaceResource._embedded.balance.amount_available,
+        )
+      },
+    )
 })

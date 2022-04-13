@@ -1,18 +1,18 @@
 export type IGlobalAuthConfiguration = {
   selectedWorkspace?: string
 
-  selectWorkspaceDataResidency?: string
+  selectedWorkspaceDataResidency?: string
 
   tokenInfo?: TokenInfo
 
   apiLoginUrlOverride?: string
 
-  apiBaseUrlOverride?: string
+  apiBaseUrlPattern?: string
 
   [index: string]: any
 }
 
 export type TokenInfo = {
-  refresh_token: string
+  refreshToken: string
   scope: string
 }

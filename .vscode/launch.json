@@ -15,7 +15,7 @@
       "request": "launch",
       "name": "Launch Program Debug",
       "program": "${workspaceFolder}/bin/run",
-      "args": ["projects:list"]
+      "args": ["login", "github"]
     }
   ]
 }

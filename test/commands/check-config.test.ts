@@ -11,9 +11,9 @@ chai.use(sinonChai)
 let existsSyncStub: any = null
 const expectedUserConfig: IGlobalAuthConfiguration = {
   selectedWorkspace: 'workspace_id',
-  selectWorkspaceDataResidency: 'eu',
+  selectedWorkspaceDataResidency: 'eu',
   tokenInfo: {
-    refresh_token: 'refresh_token',
+    refreshToken: 'refresh_token',
     scope: 'console',
   },
 }
@@ -45,9 +45,9 @@ describe('hooks', () => {
         .returns(false)
     })
     .hook('init')
-    .it('should instruct the user to go to developer.tru.id/console', (ctx) => {
+    .it('should instruct the user to login', (ctx) => {
       expect(ctx.stdout).to.contain('Welcome to the tru.ID CLI!')
-      expect(ctx.stdout).to.contain('developer.tru.id/console')
+      expect(ctx.stdout).to.contain('Please run tru login')
     })
 
   test

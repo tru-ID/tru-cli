@@ -35,6 +35,7 @@ USAGE
 * [`tru coverage:country CODE`](#tru-coveragecountry-code)
 * [`tru coverage:reach DEVICE-IP`](#tru-coveragereach-device-ip)
 * [`tru help [COMMAND]`](#tru-help-command)
+* [`tru login IDP`](#tru-login-idp)
 * [`tru oauth2:token`](#tru-oauth2token)
 * [`tru phonechecks:create [PHONE_NUMBER]`](#tru-phonecheckscreate-phone_number)
 * [`tru phonechecks:list [CHECK_ID]`](#tru-phonecheckslist-check_id)
@@ -42,7 +43,6 @@ USAGE
 * [`tru projects:create [NAME]`](#tru-projectscreate-name)
 * [`tru projects:list [PROJECT_ID]`](#tru-projectslist-project_id)
 * [`tru projects:update [PROJECT-ID]`](#tru-projectsupdate-project-id)
-* [`tru setup:oauth2 IDP`](#tru-setupoauth2-idp)
 * [`tru simchecks:create [PHONE_NUMBER]`](#tru-simcheckscreate-phone_number)
 * [`tru simchecks:list [CHECK_ID]`](#tru-simcheckslist-check_id)
 * [`tru simchecks:traces CHECK_ID`](#tru-simcheckstraces-check_id)
@@ -140,6 +140,23 @@ DESCRIPTION
 
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.1.12/src/commands/help.ts)_
 
+## `tru login IDP`
+
+Login to CLI
+
+```
+USAGE
+  $ tru login [IDP]
+
+ARGUMENTS
+  IDP  (google|github|microsoft) The Identity Provider
+
+DESCRIPTION
+  Login to CLI
+```
+
+_See code: [dist/commands/login/index.ts](https://github.com/tru-ID/tru-cli/blob/v1.0.2/dist/commands/login/index.ts)_
+
 ## `tru oauth2:token`
 
 Creates an OAuth2 token
@@ -163,10 +180,6 @@ DESCRIPTION
   Creates an OAuth2 token
 
 EXAMPLES
-  # use workspace credentials to create token
-
-    $ tru oauth2:token
-
   # use project credentials to create token
 
     $ tru oauth2:token --project-dir path/to/project
@@ -385,23 +398,6 @@ EXAMPLES
 ```
 
 _See code: [dist/commands/projects/update.ts](https://github.com/tru-ID/tru-cli/blob/v1.0.2/dist/commands/projects/update.ts)_
-
-## `tru setup:oauth2 IDP`
-
-Setup the CLI with oauth2 flow
-
-```
-USAGE
-  $ tru setup:oauth2 [IDP]
-
-ARGUMENTS
-  IDP  (google|github|microsoft) The oauth2 IDP
-
-DESCRIPTION
-  Setup the CLI with oauth2 flow
-```
-
-_See code: [dist/commands/setup/oauth2.ts](https://github.com/tru-ID/tru-cli/blob/v1.0.2/dist/commands/setup/oauth2.ts)_
 
 ## `tru simchecks:create [PHONE_NUMBER]`
 
@@ -823,12 +819,6 @@ To release the installers create a `.env` file with the following, including val
 AWS_ACCESS_KEY_ID=
 AWS_SECRET_ACCESS_KEY=
 NPM_TOKEN=
-```
-
-To upload to S3 run:
-
-```
-npm run publish:mac
 ```
 
 ##### Publish to NPM

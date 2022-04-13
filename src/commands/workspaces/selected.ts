@@ -11,6 +11,10 @@ import {
   tokenUrl,
 } from '../../DefaultUrls'
 import CommandWithGlobalConfig from '../../helpers/CommandWithGlobalConfig'
+import {
+  isWorkspaceSelected,
+  isWorkspaceTokenInfoValid,
+} from '../../helpers/ValidationUtils'
 import { logApiError } from '../../utilities'
 
 export default class WorkspaceSelected extends CommandWithGlobalConfig {
@@ -29,9 +33,12 @@ export default class WorkspaceSelected extends CommandWithGlobalConfig {
 
     await super.run()
 
+    isWorkspaceTokenInfoValid(this.globalConfig!)
+    isWorkspaceSelected(this.globalConfig!)
+
     const tokenManager = new RefreshTokenManager(
       {
-        refreshToken: this.globalConfig!.tokenInfo!.refresh_token!,
+        refreshToken: this.globalConfig!.tokenInfo!.refreshToken!,
         configLocation: this.getConfigPath(),
         tokenUrl: tokenUrl(loginBaseUrl(this.globalConfig!)),
         issuerUrl: issuerUrl(this.globalConfig!),

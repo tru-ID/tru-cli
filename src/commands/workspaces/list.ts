@@ -12,6 +12,7 @@ import {
   tokenUrl,
 } from '../../DefaultUrls'
 import CommandWithGlobalConfig from '../../helpers/CommandWithGlobalConfig'
+import { isWorkspaceTokenInfoValid } from '../../helpers/ValidationUtils'
 import { logApiError } from '../../utilities'
 
 export default class WorkspaceLists extends CommandWithGlobalConfig {
@@ -30,9 +31,11 @@ export default class WorkspaceLists extends CommandWithGlobalConfig {
 
     await super.run()
 
+    isWorkspaceTokenInfoValid(this.globalConfig!)
+
     const tokenManager = new RefreshTokenManager(
       {
-        refreshToken: this.globalConfig!.tokenInfo!.refresh_token!,
+        refreshToken: this.globalConfig!.tokenInfo!.refreshToken!,
         configLocation: this.getConfigPath(),
         tokenUrl: tokenUrl(loginBaseUrl(this.globalConfig!)),
         issuerUrl: issuerUrl(this.globalConfig!),
@@ -56,7 +59,7 @@ export default class WorkspaceLists extends CommandWithGlobalConfig {
       for (const dataResidency of userInfo.workspace_membership_in) {
         const workspacesAPIClient = new WorkspacesAPIClient(
           tokenManager,
-          apiBaseUrlDRString(dataResidency),
+          apiBaseUrlDRString(dataResidency, this.globalConfig!),
           this.logger,
         )
 

@@ -61,7 +61,7 @@ export default abstract class CommandWithGlobalConfig extends Command {
   async loadGlobalConfig(configLocation: string): Promise<void> {
     if (!fs.existsSync(configLocation)) {
       this.error(
-        `cannot find config file at ${configLocation}\nRun "tru setup:oauth2" to configure the CLI`,
+        `cannot find config file at ${configLocation}\nRun "tru login" to configure the CLI`,
       )
     }
 
