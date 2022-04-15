@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.3](https://github.com/tru-ID/tru-cli/compare/v1.0.2...v1.0.3) (2022-04-15)
+
+### ⚠ BREAKING CHANGES
+
+- Renamed `tru setup` to `tru login`.
+- Removed generation of workspaces token for `oauth2:token`.
+  ([b42a05a](https://github.com/tru-ID/tru-cli/commit/b42a05a4efe574185de2e8bfea76782b2df1851d))
+
 ## [1.0.0](https://github.com/tru-ID/tru-cli/compare/v0.9.7...v1.0.0) (2022-04-12)
 
 ### ⚠ BREAKING CHANGES
