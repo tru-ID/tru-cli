@@ -10,7 +10,7 @@ import {
   apiBaseUrlDR,
   issuerUrl,
   loginBaseUrl,
-  tokenUrl,
+  workspaceTokenUrl,
 } from '../../DefaultUrls'
 import CommandWithGlobalConfig from '../../helpers/CommandWithGlobalConfig'
 import CommandWithProjectConfig from '../../helpers/CommandWithProjectConfig'
@@ -85,7 +85,7 @@ Creating Project "My first project"
       {
         refreshToken: this.globalConfig!.tokenInfo!.refreshToken,
         configLocation: this.getConfigPath(),
-        tokenUrl: tokenUrl(loginBaseUrl(this.globalConfig!)),
+        tokenUrl: workspaceTokenUrl(loginBaseUrl(this.globalConfig!)),
         issuerUrl: issuerUrl(this.globalConfig!),
       },
       this.logger,
@@ -93,7 +93,10 @@ Creating Project "My first project"
 
     const projectsAPI = new ProjectsAPIClient(
       tokenManager,
-      apiBaseUrlDR(this.globalConfig!),
+      apiBaseUrlDR(
+        this.globalConfig!.selectedWorkspaceDataResidency!,
+        this.globalConfig!,
+      ),
       this.logger,
     )
 
@@ -150,6 +153,7 @@ Creating Project "My first project"
               scopes: projectCreationResult._embedded.credentials[0].scopes,
             },
           ],
+          data_residency: this.globalConfig?.selectedWorkspaceDataResidency,
         }
         // TODO find a better way to do this
         // eslint-disable-next-line

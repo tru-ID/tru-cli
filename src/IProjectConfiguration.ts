@@ -3,6 +3,7 @@ export interface IProjectConfiguration {
   name: string
   created_at: string
   credentials: Credential[]
+  data_residency?: string
 }
 
 export default interface Credential {

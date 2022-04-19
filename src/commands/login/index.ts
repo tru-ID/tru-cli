@@ -11,11 +11,11 @@ import {
 } from 'openid-client'
 import path from 'path'
 import {
+  authorizationUrl,
   issuerUrl,
   jkwsUri,
   loginBaseUrl,
-  oauthUrl,
-  tokenUrl,
+  workspaceTokenUrl,
 } from '../../DefaultUrls'
 import { IGlobalAuthConfiguration } from '../../IGlobalAuthConfiguration'
 
@@ -135,8 +135,8 @@ export default class Login extends Command {
   createIssuer(config: IGlobalAuthConfiguration, provider: string): Issuer {
     return new Issuer({
       issuer: issuerUrl(config) + '/', // just needed for validation
-      authorization_endpoint: oauthUrl(loginBaseUrl(config), provider),
-      token_endpoint: tokenUrl(loginBaseUrl(config)),
+      authorization_endpoint: authorizationUrl(loginBaseUrl(config), provider),
+      token_endpoint: workspaceTokenUrl(loginBaseUrl(config)),
       token_endpoint_auth_method: 'none',
       jwks_uri: jkwsUri(issuerUrl(config)),
     })
@@ -170,7 +170,7 @@ export default class Login extends Command {
         }
         res.end('Login Failed')
         server.close()
-        throw new Error(`Error during callback : ${error}`)
+        throw new Error(`Error during callback : ${error.error_description}`)
       }
 
       const tokenSet: TokenSet = await client.callback(

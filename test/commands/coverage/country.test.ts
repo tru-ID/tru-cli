@@ -61,32 +61,52 @@ describe('coverage:country', () => {
     sinon.restore()
   })
 
-  test
-    .nock('https://eu.api.tru.id', (api) =>
-      api
-        .persist()
-        .post(new RegExp('/oauth2/v1/token*'))
-        .reply(200, accessToken)
-        .get(new RegExp(`/coverage/v0.1/countries/${reachableCountryCode}`))
-        .reply(200, reachResponse),
-    )
-    .stdout()
-    .command(['coverage:country', reachableCountryCode])
-    .it('outputs result to cli.table', (ctx) => {
-      expect(ctx.stdout).to.contain(reachResponse.products[0].product_name)
-      expect(ctx.stdout).to.contain(
-        reachResponse.products[0].networks?.[0].network_id,
+  const dataResidency = [
+    {
+      data_residency: 'in',
+      config_data_residency: 'in',
+    },
+    {
+      data_residency: 'eu',
+      config_data_residency: undefined,
+    },
+  ]
+  dataResidency.forEach(({ data_residency, config_data_residency }) => {
+    test
+      .nock(`https://${data_residency}.api.tru.id`, (api) =>
+        api
+          .persist()
+          .post(new RegExp('/oauth2/v1/token*'))
+          .reply(200, accessToken)
+          .get(new RegExp(`/coverage/v0.1/countries/${reachableCountryCode}`))
+          .reply(200, reachResponse),
       )
-      expect(ctx.stdout).to.contain(
-        reachResponse.products[0].networks?.[0].network_name,
+      .do(() => {
+        readJsonStub
+          .withArgs(sinon.match(projectConfigFileLocation))
+          .resolves({ ...projectConfig, data_residency: config_data_residency })
+      })
+      .stdout()
+      .command(['coverage:country', reachableCountryCode])
+      .it(
+        `outputs result to cli.table for data_residency ${data_residency}`,
+        (ctx) => {
+          expect(ctx.stdout).to.contain(reachResponse.products[0].product_name)
+          expect(ctx.stdout).to.contain(
+            reachResponse.products[0].networks?.[0].network_id,
+          )
+          expect(ctx.stdout).to.contain(
+            reachResponse.products[0].networks?.[0].network_name,
+          )
+          expect(ctx.stdout).to.contain(
+            reachResponse.products[0].networks?.[0].prices?.[0].currency,
+          )
+          expect(ctx.stdout).to.contain(
+            reachResponse.products[0].networks?.[0].prices?.[0].amount,
+          )
+        },
       )
-      expect(ctx.stdout).to.contain(
-        reachResponse.products[0].networks?.[0].prices?.[0].currency,
-      )
-      expect(ctx.stdout).to.contain(
-        reachResponse.products[0].networks?.[0].prices?.[0].amount,
-      )
-    })
+  })
 
   test
     .nock('https://eu.api.tru.id', (api) =>

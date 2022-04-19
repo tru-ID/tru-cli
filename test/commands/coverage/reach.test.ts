@@ -69,38 +69,55 @@ describe('coverage:reach', () => {
     sinon.restore()
   })
 
-  test
-    .stdout()
-    .nock('https://eu.api.tru.id', (api) =>
-      api
-        .persist()
-        .post(new RegExp('/oauth2/v1/token*'))
-        .reply(200, accessToken)
-        .get(new RegExp('/coverage/v0.1/device_ips/.*'))
-        .reply(200, reachResponse),
-    )
-    .command(['coverage:reach', reachableIp])
-    .it('outputs result to cli.table', (ctx) => {
-      expect(ctx.stdout).to.contain(reachResponse.country_code)
-      expect(ctx.stdout).to.contain(reachResponse.network_id)
-      expect(ctx.stdout).to.contain(reachResponse.network_name)
-      expect(ctx.stdout).to.contain(reachResponse.products[0].product_name)
-    })
+  const dataResidency = [
+    {
+      data_residency: 'in',
+      config_data_residency: 'in',
+    },
+    {
+      data_residency: 'eu',
+      config_data_residency: undefined,
+    },
+  ]
+  dataResidency.forEach(({ data_residency, config_data_residency }) => {
+    test
+      .nock(`https://${data_residency}.api.tru.id`, (api) =>
+        api
+          .persist()
+          .post(new RegExp('/oauth2/v1/token*'))
+          .reply(200, accessToken)
+          .get(new RegExp('/coverage/v0.1/device_ips/.*'))
+          .reply(200, reachResponse),
+      )
+      .do(() => {
+        readJsonStub
+          .withArgs(sinon.match(projectConfigFileLocation))
+          .resolves({ ...projectConfig, data_residency: config_data_residency })
+      })
+      .stdout()
+      .command(['coverage:reach', reachableIp])
+      .it('outputs result to cli.table', (ctx) => {
+        expect(ctx.stdout).to.contain(reachResponse.country_code)
+        expect(ctx.stdout).to.contain(reachResponse.network_id)
+        expect(ctx.stdout).to.contain(reachResponse.network_name)
+        expect(ctx.stdout).to.contain(reachResponse.products[0].product_name)
+      })
 
-  test
-    .stdout()
-    .nock('https://eu.api.tru.id', (api) =>
-      api
-        .persist()
-        .post(new RegExp('/oauth2/v1/tokens*'))
-        .reply(200, accessToken)
-        .get('/coverage/v0.1/device_ips/unreachableIp')
-        .reply(200),
-    )
-    .command(['coverage:reach', unreachableIp])
-    .it('outputs no reach result', (ctx) => {
-      expect(ctx.stdout).to.contain('No reach')
-    })
+    test
+      .stdout()
+      .nock('https://eu.api.tru.id', (api) =>
+        api
+          .persist()
+          .post(new RegExp('/oauth2/v1/tokens*'))
+          .reply(200, accessToken)
+          .get('/coverage/v0.1/device_ips/unreachableIp')
+          .reply(200),
+      )
+      .command(['coverage:reach', unreachableIp])
+      .it('outputs no reach result', (ctx) => {
+        expect(ctx.stdout).to.contain('No reach')
+      })
+  })
 
   test
     .do((_ctx) => {

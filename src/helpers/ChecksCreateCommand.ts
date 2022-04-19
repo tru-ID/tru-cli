@@ -14,7 +14,6 @@ import { logApiError } from '../utilities'
 import {
   doesProjectConfigExist,
   isProjectCredentialsValid,
-  isWorkspaceSelected,
 } from './ValidationUtils'
 
 // TODO this command has to be rebuilt from scratch
@@ -64,15 +63,20 @@ export default abstract class ChecksCreateCommand extends CommandWithProjectConf
 
     await super.run()
 
+    doesProjectConfigExist(this.projectConfig)
+    isProjectCredentialsValid(this.projectConfig!)
+
+    if (!this.projectConfig?.data_residency) {
+      this.warn(
+        'No data_residency specified in project config tru.json. It will default to eu',
+      )
+    }
+
     if (this.args.phone_number === undefined) {
       const response = await promptForNumber(this.typeOfCheck)
 
       this.args.phone_number = response.phone_number
     }
-
-    doesProjectConfigExist(this.projectConfig)
-    isProjectCredentialsValid(this.projectConfig!)
-    isWorkspaceSelected(this.globalConfig!)
 
     this.log(`Creating ${this.typeOfCheck} for ${this.args.phone_number}`)
 
@@ -80,7 +84,10 @@ export default abstract class ChecksCreateCommand extends CommandWithProjectConf
       clientId: this.projectConfig!.credentials[0].client_id!,
       clientSecret: this.projectConfig!.credentials[0].client_secret!,
       scopes: [this.tokenScope],
-      tokenUrl: tokenUrlDR(this.globalConfig!),
+      tokenUrl: tokenUrlDR(
+        this.projectConfig?.data_residency || 'eu',
+        this.globalConfig!,
+      ),
     }
 
     const checkApiClient = this.getApiClient(apiConfiguration, this.logger)

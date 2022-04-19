@@ -9,44 +9,42 @@ export const loginBaseUrl = (config: IGlobalAuthConfiguration): string => {
     : LOGIN_BASE_URL_DEFAULT
 }
 
-export const oauthUrl = (loginUrl: string, provider: string): string =>
+export const authorizationUrl = (loginUrl: string, provider: string): string =>
   `${loginUrl}/oauth2/auth?provider_id=${provider}`
 
 export const jkwsUri = (jwsBaseUri: string): string =>
   `${jwsBaseUri}/.well-known/jwks.json`
 
-export const tokenUrl = (loginUrl: string): string => `${loginUrl}/oauth2/token`
-
 export const issuerUrl = (config: IGlobalAuthConfiguration): string => {
   return loginBaseUrl(config)
 }
 
-export const apiBaseUrlPattern = (config: IGlobalAuthConfiguration) => {
+export const userinfo = (config: IGlobalAuthConfiguration): string => {
+  return `${loginBaseUrl(config)}/login/userinfo`
+}
+
+export const workspaceTokenUrl = (loginUrl: string): string =>
+  `${loginUrl}/oauth2/token`
+
+const apiBaseUrlPattern = (config: IGlobalAuthConfiguration): string => {
   return config.apiBaseUrlPattern
     ? config.apiBaseUrlPattern
     : API_BASE_URL_PATTERN
 }
 
-export const apiBaseUrlDR = (config: IGlobalAuthConfiguration): string => {
-  return apiBaseUrlPattern(config).replace(
-    'DATA_RESIDENCY',
-    config.selectedWorkspaceDataResidency
-      ? config.selectedWorkspaceDataResidency
-      : '',
-  )
-}
-
-export const apiBaseUrlDRString = (
+export const apiBaseUrlDR = (
   dataResidency: string,
   config: IGlobalAuthConfiguration,
 ): string => {
-  return apiBaseUrlPattern(config).replace('DATA_RESIDENCY', dataResidency)
+  return apiBaseUrlPattern(config).replace(
+    'DATA_RESIDENCY',
+    dataResidency ? dataResidency : '',
+  )
 }
 
-export const tokenUrlDR = (config: IGlobalAuthConfiguration): string => {
-  return `${apiBaseUrlDR(config)}/oauth2/v1/token`
-}
-
-export const userinfo = (config: IGlobalAuthConfiguration): string => {
-  return `${loginBaseUrl(config)}/login/userinfo`
+export const tokenUrlDR = (
+  dataResidency: string,
+  config: IGlobalAuthConfiguration,
+): string => {
+  return `${apiBaseUrlDR(dataResidency, config)}/oauth2/v1/token`
 }

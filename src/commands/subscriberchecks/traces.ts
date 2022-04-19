@@ -27,14 +27,16 @@ export default class SubscriberCheckTraces extends ChecksTraceCommand {
 
   getApiClient(
     apiConfiguration: APIClientCredentialsConfiguration,
-
     logger: ILogger,
   ): SubscriberCheckAPIClient {
     const tokenManager = new ClientCredentialsManager(apiConfiguration, logger)
 
     return new SubscriberCheckAPIClient(
       tokenManager,
-      apiBaseUrlDR(this.globalConfig!),
+      apiBaseUrlDR(
+        this.projectConfig?.data_residency || 'eu',
+        this.globalConfig!,
+      ),
       logger,
     )
   }

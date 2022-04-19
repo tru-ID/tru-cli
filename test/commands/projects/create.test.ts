@@ -15,7 +15,7 @@ chai.use(sinonChai)
 
 const globalConfig: IGlobalAuthConfiguration = {
   selectedWorkspace: 'workspace_id',
-  selectedWorkspaceDataResidency: 'eu',
+  selectedWorkspaceDataResidency: 'in',
   tokenInfo: {
     refreshToken: 'refresh_token',
     scope: 'console openid',
@@ -68,6 +68,7 @@ const expectedProjectConfigJson: IProjectConfiguration = {
       scopes: ['phone_check'],
     },
   ],
+  data_residency: 'in',
 }
 
 describe('Command: projects:create', () => {
@@ -95,7 +96,7 @@ describe('Command: projects:create', () => {
   })
 
   testToken
-    .nock('https://eu.api.tru.id', (api) => {
+    .nock('https://in.api.tru.id', (api) => {
       api
         .persist()
         .post(new RegExp('/console/v0.2/workspaces/workspace_id/projects'), {
@@ -123,7 +124,7 @@ describe('Command: projects:create', () => {
     })
 
   testToken
-    .nock('https://eu.api.tru.id', (api) => {
+    .nock('https://in.api.tru.id', (api) => {
       api
         .persist()
         .post(new RegExp('/console/v0.2/workspaces/workspace_id/projects'), {
@@ -143,26 +144,8 @@ describe('Command: projects:create', () => {
     .command(['projects:create', 'My Inline Project'])
     .it('uses the inline argument for the name project')
 
-  //TODO does it respect overriden values
-
-  // test
-  //   .do(() => {
-  //     projectsApiCreateStub
-  //       .withArgs({ name: 'Error Project' })
-  //       .throws(createError('Boom!', { foo: 'bar' }))
-  //   })
-  //   .stdout()
-  //   .command(['projects:create', 'Error Project'])
-  //   .exit(1)
-  //   .it(
-  //     'provides user feedback if there is an error with the Projects API',
-  //     (ctx) => {
-  //       expect(ctx.stdout).to.contain('API Error')
-  //     },
-  //   )
-
   testToken
-    .nock('https://eu.api.tru.id', (api) => {
+    .nock('https://in.api.tru.id', (api) => {
       api
         .persist()
         .post(new RegExp('/console/v0.2/workspaces/workspace_id/projects'), {
@@ -188,7 +171,7 @@ describe('Command: projects:create', () => {
     )
 
   testToken
-    .nock('https://eu.api.tru.id', (api) => {
+    .nock('https://in.api.tru.id', (api) => {
       api
         .persist()
         .post(new RegExp('/console/v0.2/workspaces/workspace_id/projects'), {
@@ -217,7 +200,7 @@ describe('Command: projects:create', () => {
   const customProjectDir = 'path/to/a/custom/dir'
   const customProjectConfigFilePath = `${customProjectDir}/tru.json`
   testToken
-    .nock('https://eu.api.tru.id', (api) => {
+    .nock('https://in.api.tru.id', (api) => {
       api
         .persist()
         .post(new RegExp('/console/v0.2/workspaces/workspace_id/projects'), {
@@ -276,7 +259,7 @@ describe('Command: projects:create', () => {
     )
 
   testToken
-    .nock('https://eu.api.tru.id', (api) => {
+    .nock('https://in.api.tru.id', (api) => {
       api
         .persist()
         .post(new RegExp('/console/v0.2/workspaces/workspace_id/projects'), {
@@ -320,7 +303,7 @@ describe('Command: projects:create', () => {
   const modeParams = [{ mode: 'sandbox' }, { mode: 'live' }]
   modeParams.forEach(({ mode }) => {
     testToken
-      .nock('https://eu.api.tru.id', (api) => {
+      .nock('https://in.api.tru.id', (api) => {
         api
           .persist()
           .post(new RegExp('/console/v0.2/workspaces/workspace_id/projects'), {

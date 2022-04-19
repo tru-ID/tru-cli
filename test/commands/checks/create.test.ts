@@ -286,6 +286,52 @@ describe('PhoneCheck and SubscriberCheck Create Scenarios', () => {
     ]
     params.forEach(({ command, typeOfCheck, scope }) => {
       test
+        .nock('https://in.api.tru.id', (api) =>
+          api
+            .persist()
+            .post(new RegExp('/oauth2/v1/token*'))
+            .reply(200, accessToken)
+            .post(new RegExp(`/${scope}/v0.1/checks*`), {
+              phone_number: phoneNumberToTest,
+            })
+            .reply(
+              200,
+              scope === 'subscriber_check'
+                ? createSubscriberCheckResponse
+                : createPhoneCheckResponse,
+            ),
+        )
+        .do(() => {
+          readJsonStub
+            .withArgs(sinon.match(projectConfigFileLocation))
+            .resolves({ ...projectConfig, data_residency: 'in' })
+        })
+        .stdout()
+        .command([command, phoneNumberToTest])
+        .it(
+          `${command} -- perform ${typeOfCheck} for data_residency in`,
+          (ctx) => {
+            expect(ctx.stdout).to.contain(`${typeOfCheck} ACCEPTED`)
+          },
+        )
+    })
+  }
+
+  {
+    const params = [
+      {
+        typeOfCheck: 'SubscriberCheck',
+        command: 'subscriberchecks:create',
+        scope: 'subscriber_check',
+      },
+      {
+        command: 'phonechecks:create',
+        typeOfCheck: 'PhoneCheck',
+        scope: 'phone_check',
+      },
+    ]
+    params.forEach(({ command, typeOfCheck, scope }) => {
+      test
         .nock('https://eu.api.tru.id', (api) =>
           api
             .persist()

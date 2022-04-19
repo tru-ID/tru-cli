@@ -10,7 +10,6 @@ import CommandWithProjectConfig from '../../helpers/CommandWithProjectConfig'
 import {
   doesProjectConfigExist,
   isProjectCredentialsValid,
-  isWorkspaceSelected,
 } from '../../helpers/ValidationUtils'
 import { IProjectConfiguration } from '../../IProjectConfiguration'
 
@@ -46,15 +45,23 @@ Emesua0F7gj3qOaav7UaKaBwefaaefaAxlrdGom_mb3U.78Od2d9XpvTQbd44eM1Uf7nzz9e9nezs5TR
 
     await this.loadProjectConfig()
 
-    isWorkspaceSelected(this.globalConfig!)
     doesProjectConfigExist(this.projectConfig)
     isProjectCredentialsValid(this.projectConfig!)
+
+    if (!this.projectConfig?.data_residency) {
+      this.warn(
+        'No data_residency specified in project config tru.json. It will default to eu',
+      )
+    }
 
     const configClientCredentials: APIClientCredentialsConfiguration = {
       clientId: this.projectConfig!.credentials[0].client_id!,
       clientSecret: this.projectConfig!.credentials[0].client_secret!,
       scopes: this.projectConfig!.credentials[0].scopes!,
-      tokenUrl: tokenUrlDR(this.globalConfig!),
+      tokenUrl: tokenUrlDR(
+        this.projectConfig?.data_residency || 'eu',
+        this.globalConfig!,
+      ),
     }
 
     const clientCredentialsManager = new ClientCredentialsManager(
@@ -98,8 +105,7 @@ Emesua0F7gj3qOaav7UaKaBwefaaefaAxlrdGom_mb3U.78Od2d9XpvTQbd44eM1Uf7nzz9e9nezs5TR
   }
 
   getScopes(projectConfig?: IProjectConfiguration): string[] {
-    let scopes: string[]
-    scopes = projectConfig?.credentials[0].scopes ?? ['phone_check']
+    const scopes = projectConfig?.credentials[0].scopes ?? ['phone_check']
 
     return scopes
   }

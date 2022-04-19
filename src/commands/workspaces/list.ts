@@ -6,10 +6,10 @@ import {
   WorkspacesAPIClient,
 } from '../../api/WorkspacesAPIClient'
 import {
-  apiBaseUrlDRString,
+  apiBaseUrlDR,
   issuerUrl,
   loginBaseUrl,
-  tokenUrl,
+  workspaceTokenUrl,
 } from '../../DefaultUrls'
 import CommandWithGlobalConfig from '../../helpers/CommandWithGlobalConfig'
 import { isWorkspaceTokenInfoValid } from '../../helpers/ValidationUtils'
@@ -37,7 +37,7 @@ export default class WorkspaceLists extends CommandWithGlobalConfig {
       {
         refreshToken: this.globalConfig!.tokenInfo!.refreshToken!,
         configLocation: this.getConfigPath(),
-        tokenUrl: tokenUrl(loginBaseUrl(this.globalConfig!)),
+        tokenUrl: workspaceTokenUrl(loginBaseUrl(this.globalConfig!)),
         issuerUrl: issuerUrl(this.globalConfig!),
       },
       this.logger,
@@ -59,7 +59,7 @@ export default class WorkspaceLists extends CommandWithGlobalConfig {
       for (const dataResidency of userInfo.workspace_membership_in) {
         const workspacesAPIClient = new WorkspacesAPIClient(
           tokenManager,
-          apiBaseUrlDRString(dataResidency, this.globalConfig!),
+          apiBaseUrlDR(dataResidency, this.globalConfig!),
           this.logger,
         )
 
@@ -80,7 +80,7 @@ export default class WorkspaceLists extends CommandWithGlobalConfig {
       resources,
       {
         data_residency: {
-          header: 'data_residency',
+          header: 'DR',
         },
         workspace_id: {
           header: 'workspace_id',
@@ -94,6 +94,7 @@ export default class WorkspaceLists extends CommandWithGlobalConfig {
         },
         created_at: {
           header: 'created_at',
+          extended: true,
         },
       },
       {

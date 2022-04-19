@@ -33,7 +33,10 @@ export default class SimCheckTraces extends ChecksTraceCommand {
 
     return new SimCheckAPIClient(
       tokenManager,
-      apiBaseUrlDR(this.globalConfig!),
+      apiBaseUrlDR(
+        this.projectConfig?.data_residency || 'eu',
+        this.globalConfig!,
+      ),
       logger,
     )
   }

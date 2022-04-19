@@ -13,7 +13,6 @@ import { promptForNumber } from '../../helpers/phone'
 import {
   doesProjectConfigExist,
   isProjectCredentialsValid,
-  isWorkspaceSelected,
 } from '../../helpers/ValidationUtils'
 import { logApiError } from '../../utilities'
 
@@ -54,7 +53,12 @@ export default class SimChecksCreate extends CommandWithProjectConfig {
 
     doesProjectConfigExist(this.projectConfig)
     isProjectCredentialsValid(this.projectConfig!)
-    isWorkspaceSelected(this.globalConfig!)
+
+    if (!this.projectConfig?.data_residency) {
+      this.warn(
+        'No data_residency specified in project config tru.json. It will default to eu',
+      )
+    }
 
     if (this.args.phone_number === undefined) {
       const response = await promptForNumber(this.typeOfCheck)
@@ -68,7 +72,10 @@ export default class SimChecksCreate extends CommandWithProjectConfig {
       clientId: this.projectConfig!.credentials[0].client_id!,
       clientSecret: this.projectConfig!.credentials[0].client_secret!,
       scopes: [this.tokenScope],
-      tokenUrl: tokenUrlDR(this.globalConfig!),
+      tokenUrl: tokenUrlDR(
+        this.projectConfig?.data_residency || 'eu',
+        this.globalConfig!,
+      ),
     }
 
     const simCheckApiClient = this.getApiClient(apiConfiguration, this.logger)
@@ -106,7 +113,10 @@ export default class SimChecksCreate extends CommandWithProjectConfig {
 
     return new SimCheckAPIClient(
       tokenManager,
-      apiBaseUrlDR(this.globalConfig!),
+      apiBaseUrlDR(
+        this.projectConfig?.data_residency || 'eu',
+        this.globalConfig!,
+      ),
       logger,
     )
   }

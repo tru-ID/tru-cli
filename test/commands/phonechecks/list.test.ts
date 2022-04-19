@@ -106,23 +106,40 @@ describe('phonechecks:list', () => {
       expect(ctx.stdout).to.contain(phoneCheckResource.status)
     })
 
-  test
-    .nock('https://eu.api.tru.id', (api) =>
-      api
-        .persist()
-        .post(new RegExp('/oauth2/v1/token*'))
-        .reply(200, accessToken)
-        .get(new RegExp(`/phone_check/v0.1/checks*`))
-        .reply(200, phoneCheckResource),
-    )
-    .stdout()
-    .command(['phonechecks:list', 'check_id_value'])
-    .it('outputs result of a single resource to cli.table', (ctx) => {
-      expect(ctx.stdout).to.contain(phoneCheckResource.check_id)
-      expect(ctx.stdout).to.contain(phoneCheckResource.created_at)
-      expect(ctx.stdout).to.contain(phoneCheckResource.charge_amount)
-      expect(ctx.stdout).to.contain(phoneCheckResource.charge_currency)
-      expect(ctx.stdout).to.contain(phoneCheckResource.match)
-      expect(ctx.stdout).to.contain(phoneCheckResource.status)
-    })
+  const dataResidency = [
+    {
+      data_residency: 'in',
+      config_data_residency: 'in',
+    },
+    {
+      data_residency: 'eu',
+      config_data_residency: undefined,
+    },
+  ]
+  dataResidency.forEach(({ data_residency, config_data_residency }) => {
+    test
+      .nock(`https://${data_residency}.api.tru.id`, (api) =>
+        api
+          .persist()
+          .post(new RegExp('/oauth2/v1/token*'))
+          .reply(200, accessToken)
+          .get(new RegExp(`/phone_check/v0.1/checks*`))
+          .reply(200, phoneCheckResource),
+      )
+      .do(() => {
+        readJsonStub
+          .withArgs(sinon.match(projectConfigFileLocation))
+          .resolves({ ...projectConfig, data_residency: config_data_residency })
+      })
+      .stdout()
+      .command(['phonechecks:list', 'check_id_value'])
+      .it('outputs result of a single resource to cli.table', (ctx) => {
+        expect(ctx.stdout).to.contain(phoneCheckResource.check_id)
+        expect(ctx.stdout).to.contain(phoneCheckResource.created_at)
+        expect(ctx.stdout).to.contain(phoneCheckResource.charge_amount)
+        expect(ctx.stdout).to.contain(phoneCheckResource.charge_currency)
+        expect(ctx.stdout).to.contain(phoneCheckResource.match)
+        expect(ctx.stdout).to.contain(phoneCheckResource.status)
+      })
+  })
 })

@@ -27,14 +27,16 @@ export default class PhoneCheckTraces extends ChecksTraceCommand {
 
   getApiClient(
     apiConfiguration: APIClientCredentialsConfiguration,
-
     logger: ILogger,
-  ) {
+  ): PhoneChecksAPIClient {
     const tokenManager = new ClientCredentialsManager(apiConfiguration, logger)
 
     return new PhoneChecksAPIClient(
       tokenManager,
-      apiBaseUrlDR(this.globalConfig!),
+      apiBaseUrlDR(
+        this.projectConfig?.data_residency || 'eu',
+        this.globalConfig!,
+      ),
       logger,
     )
   }

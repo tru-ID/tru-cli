@@ -9,7 +9,7 @@ import {
   apiBaseUrlDR,
   issuerUrl,
   loginBaseUrl,
-  tokenUrl,
+  workspaceTokenUrl,
 } from '../../DefaultUrls'
 import CommandWithGlobalConfig from '../../helpers/CommandWithGlobalConfig'
 import { displayPagination } from '../../helpers/ux'
@@ -73,7 +73,7 @@ export default class ProjectsList extends CommandWithGlobalConfig {
       {
         refreshToken: this.globalConfig!.tokenInfo!.refreshToken,
         configLocation: this.getConfigPath(),
-        tokenUrl: tokenUrl(loginBaseUrl(this.globalConfig!)),
+        tokenUrl: workspaceTokenUrl(loginBaseUrl(this.globalConfig!)),
         issuerUrl: issuerUrl(this.globalConfig!),
       },
       this.logger,
@@ -81,7 +81,10 @@ export default class ProjectsList extends CommandWithGlobalConfig {
 
     const projectsAPIClient = new ProjectsAPIClient(
       tokenManager,
-      apiBaseUrlDR(this.globalConfig!),
+      apiBaseUrlDR(
+        this.globalConfig!.selectedWorkspaceDataResidency!,
+        this.globalConfig!,
+      ),
       this.logger,
     )
 

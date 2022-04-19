@@ -12,8 +12,6 @@ import { ConsoleLogger, LogLevel } from '../../helpers/ConsoleLogger'
 import {
   doesProjectConfigExist,
   isProjectCredentialsValid,
-  isWorkspaceSelected,
-  isWorkspaceTokenInfoValid,
 } from '../../helpers/ValidationUtils'
 import Credential from '../../IProjectConfiguration'
 import { logApiError } from '../../utilities'
@@ -43,10 +41,14 @@ export default class CoverageReach extends CommandWithProjectConfig {
 
     doesProjectConfigExist(this.projectConfig)
     isProjectCredentialsValid(this.projectConfig!)
-    isWorkspaceTokenInfoValid(this.globalConfig!)
-    isWorkspaceSelected(this.globalConfig!)
 
-    const credentials = this.projectConfig?.credentials[0]!
+    if (!this.projectConfig?.data_residency) {
+      this.warn(
+        'No data_residency specified in project config tru.json. It will default to eu',
+      )
+    }
+
+    const credentials = this.projectConfig!.credentials[0]!
 
     const apiClient = this.newApiClient(credentials, flags.debug)
 
@@ -95,14 +97,20 @@ export default class CoverageReach extends CommandWithProjectConfig {
       clientId: credentials!.client_id,
       clientSecret: credentials!.client_secret,
       scopes: [requiredScope],
-      tokenUrl: tokenUrlDR(this.globalConfig!),
+      tokenUrl: tokenUrlDR(
+        this.projectConfig?.data_residency || 'eu',
+        this.globalConfig!,
+      ),
     }
 
     const tokenManager = new ClientCredentialsManager(config, logger)
 
     return new CoverageAPIClient(
       tokenManager,
-      apiBaseUrlDR(this.globalConfig!),
+      apiBaseUrlDR(
+        this.projectConfig?.data_residency || 'eu',
+        this.globalConfig!,
+      ),
       logger,
     )
   }

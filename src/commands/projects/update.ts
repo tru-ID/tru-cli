@@ -7,7 +7,7 @@ import {
   apiBaseUrlDR,
   issuerUrl,
   loginBaseUrl,
-  tokenUrl,
+  workspaceTokenUrl,
 } from '../../DefaultUrls'
 import CommandWithProjectConfig from '../../helpers/CommandWithProjectConfig'
 import {
@@ -83,7 +83,6 @@ export default class ProjectsUpdate extends CommandWithProjectConfig {
         'At least one flag must be supplied to indicate the update to be applied to the Project',
       )
       this.logger.error('')
-      this.showCommandHelp({ exitCode: 1 })
     }
 
     this.log(`Updated Project with project_id "${this.args['project-id']}"`)
@@ -92,7 +91,7 @@ export default class ProjectsUpdate extends CommandWithProjectConfig {
       {
         refreshToken: this.globalConfig!.tokenInfo!.refreshToken,
         configLocation: this.getConfigPath(),
-        tokenUrl: tokenUrl(loginBaseUrl(this.globalConfig!)),
+        tokenUrl: workspaceTokenUrl(loginBaseUrl(this.globalConfig!)),
         issuerUrl: issuerUrl(this.globalConfig!),
       },
       this.logger,
@@ -100,7 +99,10 @@ export default class ProjectsUpdate extends CommandWithProjectConfig {
 
     const projectsAPIClient = new ProjectsAPIClient(
       tokenManager,
-      apiBaseUrlDR(this.globalConfig!),
+      apiBaseUrlDR(
+        this.globalConfig!.selectedWorkspaceDataResidency!,
+        this.globalConfig!,
+      ),
       this.logger,
     )
 

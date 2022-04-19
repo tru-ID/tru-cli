@@ -102,36 +102,51 @@ describe('Command: oauth2:token', () => {
       },
     )
 
-  test
-    // For project credentials
-    .nock('https://eu.api.tru.id', (api) => {
-      api
-        .persist()
-        .post(
-          new RegExp('/oauth2/v1/token'),
-          'grant_type=client_credentials&scope=sim_check%20phone_check%20subscriber_check',
-        )
-        .basicAuth({
-          user: '6779ef20e75817b79602',
-          pass: 'dzi1v4osLNr5vv0.2mnvcKM37.',
-        })
-        .reply(200, {
-          access_token: 'access_token_project',
-          expires_in: 3599,
-          scopes: 'sim_check phone_check subscriber_check',
-          token_type: 'bearer',
-        })
-    })
-    .do(() => {
-      readJsonStub
-        .withArgs(sinon.match(new RegExp(/tru.json/)))
-        .resolves(projectConfig)
-    })
-    .stdout()
-    .command(['oauth2:token'])
-    .it(`should create access token if in project folder`, (ctx) => {
-      expect(ctx.stdout).to.contain('access_token_project')
-    })
+  const dataResidency = [
+    {
+      data_residency: 'in',
+      config_data_residency: 'in',
+    },
+    {
+      data_residency: 'eu',
+      config_data_residency: undefined,
+    },
+  ]
+  dataResidency.forEach(({ data_residency, config_data_residency }) => {
+    test
+      // For project credentials
+      .nock(`https://${data_residency}.api.tru.id`, (api) => {
+        api
+          .persist()
+          .post(
+            new RegExp('/oauth2/v1/token'),
+            'grant_type=client_credentials&scope=sim_check%20phone_check%20subscriber_check',
+          )
+          .basicAuth({
+            user: '6779ef20e75817b79602',
+            pass: 'dzi1v4osLNr5vv0.2mnvcKM37.',
+          })
+          .reply(200, {
+            access_token: 'access_token_project',
+            expires_in: 3599,
+            scopes: 'sim_check phone_check subscriber_check',
+            token_type: 'bearer',
+          })
+      })
+      .do(() => {
+        readJsonStub
+          .withArgs(sinon.match(new RegExp(/tru.json/)))
+          .resolves({ ...projectConfig, data_residency: config_data_residency })
+      })
+      .stdout()
+      .command(['oauth2:token'])
+      .it(
+        `should create access token if in project folder and project data residency is ${config_data_residency}`,
+        (ctx) => {
+          expect(ctx.stdout).to.contain('access_token_project')
+        },
+      )
+  })
 
   test
     .do(() => {

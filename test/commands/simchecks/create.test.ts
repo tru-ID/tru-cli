@@ -71,36 +71,51 @@ describe('SIMCheck Create Scenarios', () => {
       'to',
       'tru.json',
     )
-    test
-      .nock('https://eu.api.tru.id', (api) =>
-        api
-          .persist()
-          .post(new RegExp('/oauth2/v1/token*'))
-          .reply(200, accessToken)
-          .post('/sim_check/v0.1/checks', { phone_number: phoneNumberToTest })
-          .reply(200, createSimCheckResponse),
-      )
-      .do(() => {
-        readJsonStub
-          .withArgs(sinon.match(customProjectConfigFullPath))
-          .resolves(projectConfig)
-      })
-      .stdout()
-      .command([
-        'simchecks:create',
-        phoneNumberToTest,
-        `--${CommandWithProjectConfig.projectDirFlagName}=${customProjectConfigDirPath}`,
-      ])
-      .it(
-        `'simchecks:create' -- should load the project configuration from the location specified by the ${CommandWithProjectConfig.projectDirFlagName} flag`,
-        (ctx) => {
-          expect(readJsonStub).to.have.been.calledWith(
-            customProjectConfigFullPath,
-          )
-          expect(ctx.stdout).to.contain(`status: COMPLETED`)
-          expect(ctx.stdout).to.contain(`no_sim_change: false`)
-        },
-      )
+    const dataResidency = [
+      {
+        data_residency: 'in',
+        config_data_residency: 'in',
+      },
+      {
+        data_residency: 'eu',
+        config_data_residency: undefined,
+      },
+    ]
+    dataResidency.forEach(({ data_residency, config_data_residency }) => {
+      test
+        .nock(`https://${data_residency}.api.tru.id`, (api) =>
+          api
+            .persist()
+            .post(new RegExp('/oauth2/v1/token*'))
+            .reply(200, accessToken)
+            .post('/sim_check/v0.1/checks', { phone_number: phoneNumberToTest })
+            .reply(200, createSimCheckResponse),
+        )
+        .do(() => {
+          readJsonStub
+            .withArgs(sinon.match(customProjectConfigFullPath))
+            .resolves({
+              ...projectConfig,
+              data_residency: config_data_residency,
+            })
+        })
+        .stdout()
+        .command([
+          'simchecks:create',
+          phoneNumberToTest,
+          `--${CommandWithProjectConfig.projectDirFlagName}=${customProjectConfigDirPath}`,
+        ])
+        .it(
+          `'simchecks:create' -- should load the project configuration from the location specified by the ${CommandWithProjectConfig.projectDirFlagName} flag`,
+          (ctx) => {
+            expect(readJsonStub).to.have.been.calledWith(
+              customProjectConfigFullPath,
+            )
+            expect(ctx.stdout).to.contain(`status: COMPLETED`)
+            expect(ctx.stdout).to.contain(`no_sim_change: false`)
+          },
+        )
+    })
   }
 
   test

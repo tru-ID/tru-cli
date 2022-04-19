@@ -6,10 +6,10 @@ import {
   WorkspacesAPIClient,
 } from '../../api/WorkspacesAPIClient'
 import {
-  apiBaseUrlDRString,
+  apiBaseUrlDR,
   issuerUrl,
   loginBaseUrl,
-  tokenUrl,
+  workspaceTokenUrl,
 } from '../../DefaultUrls'
 import CommandWithGlobalConfig from '../../helpers/CommandWithGlobalConfig'
 import { isWorkspaceTokenInfoValid } from '../../helpers/ValidationUtils'
@@ -52,7 +52,7 @@ export default class WorkspaceSwitch extends CommandWithGlobalConfig {
       {
         refreshToken: this.globalConfig!.tokenInfo!.refreshToken!,
         configLocation: this.getConfigPath(),
-        tokenUrl: tokenUrl(loginBaseUrl(this.globalConfig!)),
+        tokenUrl: workspaceTokenUrl(loginBaseUrl(this.globalConfig!)),
         issuerUrl: issuerUrl(this.globalConfig!),
       },
       this.logger,
@@ -60,7 +60,7 @@ export default class WorkspaceSwitch extends CommandWithGlobalConfig {
 
     const workspacesAPIClient = new WorkspacesAPIClient(
       tokenManager,
-      apiBaseUrlDRString(
+      apiBaseUrlDR(
         this.args['data_residency'].toLowerCase(),
         this.globalConfig!,
       ),
@@ -84,7 +84,7 @@ export default class WorkspaceSwitch extends CommandWithGlobalConfig {
       resources,
       {
         data_residency: {
-          header: 'data_residency',
+          header: 'DR',
         },
         workspace_id: {
           header: 'workspace_id',
@@ -112,7 +112,8 @@ export default class WorkspaceSwitch extends CommandWithGlobalConfig {
   async updateGlobalConfig(workspace: IWorkspaceResource): Promise<void> {
     await this.loadGlobalConfig(this.getConfigPath())
 
-    this.globalConfig!.selectedWorkspaceDataResidency = workspace.data_residency
+    this.globalConfig!.selectedWorkspaceDataResidency =
+      workspace.data_residency.toLocaleLowerCase()
     this.globalConfig!.selectedWorkspace = workspace.workspace_id
 
     await this.saveConfig(this.getConfigPath(), this.globalConfig!)

@@ -21,7 +21,7 @@ $ npm install -g @tru_id/cli
 $ tru COMMAND
 running command...
 $ tru (--version)
-@tru_id/cli/1.0.3 linux-x64 node-v16.14.0
+@tru_id/cli/1.0.3 linux-x64 node-v16.14.2
 $ tru --help [COMMAND]
 USAGE
   $ tru COMMAND
@@ -62,19 +62,19 @@ Retrieve country based coverage and prices
 
 ```
 USAGE
-  $ tru coverage:country [CODE] [--debug] [-h] [--project-dir <value>] [--columns <value> | -x] [--sort <value>]
+  $ tru coverage:country [CODE] [--debug] [--help] [--project-dir <value>] [--columns <value> | -x] [--sort <value>]
     [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ]
 
 ARGUMENTS
   CODE  two letter code ISO 3166-1 alpha-2 or country dialing code
 
 FLAGS
-  -h, --help             Show CLI help.
   -x, --extended         show extra columns
   --columns=<value>      only show provided columns (comma-separated)
   --csv                  output is csv format [alias: --output=csv]
   --debug                Enables debug logging for the CLI
   --filter=<value>       filter property by partial string matching, ex: name=foo
+  --help                 Show CLI help.
   --no-header            hide table header from output
   --no-truncate          do not truncate output to fit screen
   --output=<option>      output in a more machine friendly format
@@ -94,19 +94,19 @@ Find if a certain device ip is reachable
 
 ```
 USAGE
-  $ tru coverage:reach [DEVICE-IP] [--debug] [-h] [--project-dir <value>] [--columns <value> | -x] [--sort <value>]
-    [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ]
+  $ tru coverage:reach [DEVICE-IP] [--debug] [--help] [--project-dir <value>] [--columns <value> | -x] [--sort
+    <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ]
 
 ARGUMENTS
   DEVICE-IP  The device ip in ipv4 or ipv6 format
 
 FLAGS
-  -h, --help             Show CLI help.
   -x, --extended         show extra columns
   --columns=<value>      only show provided columns (comma-separated)
   --csv                  output is csv format [alias: --output=csv]
   --debug                Enables debug logging for the CLI
   --filter=<value>       filter property by partial string matching, ex: name=foo
+  --help                 Show CLI help.
   --no-header            hide table header from output
   --no-truncate          do not truncate output to fit screen
   --output=<option>      output in a more machine friendly format
@@ -163,13 +163,13 @@ Creates an OAuth2 token
 
 ```
 USAGE
-  $ tru oauth2:token [--debug] [-h] [--project-dir <value>] [--output csv|json|yaml | --no-truncate | ] [-x | ]
-    [--no-header | ]
+  $ tru oauth2:token [--debug] [--help] [--project-dir <value>] [--output csv|json|yaml | --no-truncate | ] [-x |
+    ] [--no-header | ]
 
 FLAGS
-  -h, --help             Show CLI help.
   -x, --extended         show extra columns
   --debug                Enables debug logging for the CLI
+  --help                 Show CLI help.
   --no-header            hide table header from output
   --no-truncate          do not truncate output to fit screen
   --output=<option>      output in a more machine friendly format
@@ -198,14 +198,14 @@ Creates a PhoneCheck within a project
 
 ```
 USAGE
-  $ tru phonechecks:create [PHONE_NUMBER] [--debug] [-h] [--project-dir <value>]
+  $ tru phonechecks:create [PHONE_NUMBER] [--debug] [--help] [--project-dir <value>]
 
 ARGUMENTS
   PHONE_NUMBER  The phone number to perform the Check on
 
 FLAGS
-  -h, --help             Show CLI help.
   --debug                Enables debug logging for the CLI
+  --help                 Show CLI help.
   --project-dir=<value>  The directory that contains the tru.json Project configuration file
 
 DESCRIPTION
@@ -220,20 +220,20 @@ Lists details for all PhoneChecks or a specific PhoneCheck if the a check-id arg
 
 ```
 USAGE
-  $ tru phonechecks:list [CHECK_ID] [--debug] [-h] [--project-dir <value>] [--columns <value> | -x] [--sort <value>]
-    [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ] [--page_number <value>]
-    [--page_size <value>] [--search <value>]
+  $ tru phonechecks:list [CHECK_ID] [--debug] [--help] [--project-dir <value>] [--columns <value> | -x] [--sort
+    <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ] [--page_number
+    <value>] [--page_size <value>] [--search <value>]
 
 ARGUMENTS
   CHECK_ID  The check_id for the PhoneCheck to list
 
 FLAGS
-  -h, --help             Show CLI help.
   -x, --extended         show extra columns
   --columns=<value>      only show provided columns (comma-separated)
   --csv                  output is csv format [alias: --output=csv]
   --debug                Enables debug logging for the CLI
   --filter=<value>       filter property by partial string matching, ex: name=foo
+  --help                 Show CLI help.
   --no-header            hide table header from output
   --no-truncate          do not truncate output to fit screen
   --output=<option>      output in a more machine friendly format
@@ -260,19 +260,20 @@ Get the traces of a PhoneCheck
 
 ```
 USAGE
-  $ tru phonechecks:traces [CHECK_ID] [--debug] [-h] [--project-dir <value>] [--columns <value> | -x] [--sort <value>]
-    [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ] [--trace-id <value>]
+  $ tru phonechecks:traces [CHECK_ID] [--debug] [--help] [--project-dir <value>] [--columns <value> | -x] [--sort
+    <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ] [--trace-id
+    <value>]
 
 ARGUMENTS
   CHECK_ID  The check_id for which we want to get the traces
 
 FLAGS
-  -h, --help             Show CLI help.
   -x, --extended         show extra columns
   --columns=<value>      only show provided columns (comma-separated)
   --csv                  output is csv format [alias: --output=csv]
   --debug                Enables debug logging for the CLI
   --filter=<value>       filter property by partial string matching, ex: name=foo
+  --help                 Show CLI help.
   --no-header            hide table header from output
   --no-truncate          do not truncate output to fit screen
   --output=<option>      output in a more machine friendly format
@@ -293,15 +294,15 @@ Creates a new Project
 
 ```
 USAGE
-  $ tru projects:create [NAME] [--debug] [-h] [--project-dir <value>] [--phonecheck-callback <value> | ] [--mode
+  $ tru projects:create [NAME] [--debug] [--help] [--project-dir <value>] [--phonecheck-callback <value> | ] [--mode
     live|sandbox]
 
 ARGUMENTS
   NAME  the name of the project to create
 
 FLAGS
-  -h, --help                     Show CLI help.
   --debug                        Enables debug logging for the CLI
+  --help                         Show CLI help.
   --mode=<option>                Set the project mode to "live" or "sandbox"
                                  <options: live|sandbox>
   --phonecheck-callback=<value>  set a callback to be invoked when a PhoneCheck reaches an end state
@@ -330,7 +331,7 @@ Lists details for all Projects or a Projects that match a given criteria
 
 ```
 USAGE
-  $ tru projects:list [PROJECT_ID] [--debug] [-h] [--columns <value> | -x] [--sort <value>] [--filter <value>]
+  $ tru projects:list [PROJECT_ID] [--debug] [--help] [--columns <value> | -x] [--sort <value>] [--filter <value>]
     [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ] [--page_number <value>] [--page_size <value>]
     [--search <value>]
 
@@ -338,12 +339,12 @@ ARGUMENTS
   PROJECT_ID  The project_id for the Project to retrieve
 
 FLAGS
-  -h, --help             Show CLI help.
   -x, --extended         show extra columns
   --columns=<value>      only show provided columns (comma-separated)
   --csv                  output is csv format [alias: --output=csv]
   --debug                Enables debug logging for the CLI
   --filter=<value>       filter property by partial string matching, ex: name=foo
+  --help                 Show CLI help.
   --no-header            hide table header from output
   --no-truncate          do not truncate output to fit screen
   --output=<option>      output in a more machine friendly format
@@ -369,15 +370,15 @@ Update an existing Project
 
 ```
 USAGE
-  $ tru projects:update [PROJECT-ID] [--debug] [-h] [--project-dir <value>] [--phonecheck-callback <value> |
+  $ tru projects:update [PROJECT-ID] [--debug] [--help] [--project-dir <value>] [--phonecheck-callback <value> |
     --remove-phonecheck-callback] [--mode live|sandbox]
 
 ARGUMENTS
   PROJECT-ID  the ID of the project to update
 
 FLAGS
-  -h, --help                     Show CLI help.
   --debug                        Enables debug logging for the CLI
+  --help                         Show CLI help.
   --mode=<option>                Set the project mode to "live" or "sandbox"
                                  <options: live|sandbox>
   --phonecheck-callback=<value>  set a callback to be invoked when a PhoneCheck reaches an end state
@@ -405,14 +406,14 @@ Create SIMChecks within a Project
 
 ```
 USAGE
-  $ tru simchecks:create [PHONE_NUMBER] [--debug] [-h] [--project-dir <value>]
+  $ tru simchecks:create [PHONE_NUMBER] [--debug] [--help] [--project-dir <value>]
 
 ARGUMENTS
   PHONE_NUMBER  The phone number to perform the SIMCheck on
 
 FLAGS
-  -h, --help             Show CLI help.
   --debug                Enables debug logging for the CLI
+  --help                 Show CLI help.
   --project-dir=<value>  The directory that contains the tru.json Project configuration file
 
 DESCRIPTION
@@ -427,20 +428,20 @@ Lists details for all SIMChecks or a specific SIMCheck if the a check-id argumen
 
 ```
 USAGE
-  $ tru simchecks:list [CHECK_ID] [--debug] [-h] [--project-dir <value>] [--columns <value> | -x] [--sort <value>]
-    [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ] [--page_number <value>]
-    [--page_size <value>] [--search <value>]
+  $ tru simchecks:list [CHECK_ID] [--debug] [--help] [--project-dir <value>] [--columns <value> | -x] [--sort
+    <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ] [--page_number
+    <value>] [--page_size <value>] [--search <value>]
 
 ARGUMENTS
   CHECK_ID  The check_id for the SIMCheck to list
 
 FLAGS
-  -h, --help             Show CLI help.
   -x, --extended         show extra columns
   --columns=<value>      only show provided columns (comma-separated)
   --csv                  output is csv format [alias: --output=csv]
   --debug                Enables debug logging for the CLI
   --filter=<value>       filter property by partial string matching, ex: name=foo
+  --help                 Show CLI help.
   --no-header            hide table header from output
   --no-truncate          do not truncate output to fit screen
   --output=<option>      output in a more machine friendly format
@@ -467,19 +468,20 @@ Get the traces of a SIMCheck
 
 ```
 USAGE
-  $ tru simchecks:traces [CHECK_ID] [--debug] [-h] [--project-dir <value>] [--columns <value> | -x] [--sort <value>]
-    [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ] [--trace-id <value>]
+  $ tru simchecks:traces [CHECK_ID] [--debug] [--help] [--project-dir <value>] [--columns <value> | -x] [--sort
+    <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ] [--trace-id
+    <value>]
 
 ARGUMENTS
   CHECK_ID  The check_id for which we want to get the traces
 
 FLAGS
-  -h, --help             Show CLI help.
   -x, --extended         show extra columns
   --columns=<value>      only show provided columns (comma-separated)
   --csv                  output is csv format [alias: --output=csv]
   --debug                Enables debug logging for the CLI
   --filter=<value>       filter property by partial string matching, ex: name=foo
+  --help                 Show CLI help.
   --no-header            hide table header from output
   --no-truncate          do not truncate output to fit screen
   --output=<option>      output in a more machine friendly format
@@ -500,14 +502,14 @@ Creates SubscriberChecks within a project
 
 ```
 USAGE
-  $ tru subscriberchecks:create [PHONE_NUMBER] [--debug] [-h] [--project-dir <value>]
+  $ tru subscriberchecks:create [PHONE_NUMBER] [--debug] [--help] [--project-dir <value>]
 
 ARGUMENTS
   PHONE_NUMBER  The phone number to perform the Check on
 
 FLAGS
-  -h, --help             Show CLI help.
   --debug                Enables debug logging for the CLI
+  --help                 Show CLI help.
   --project-dir=<value>  The directory that contains the tru.json Project configuration file
 
 DESCRIPTION
@@ -522,20 +524,20 @@ Lists details for all SubscriberChecks or a specific SubscriberCheck if the a ch
 
 ```
 USAGE
-  $ tru subscriberchecks:list [CHECK_ID] [--debug] [-h] [--project-dir <value>] [--columns <value> | -x] [--sort <value>]
-    [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ] [--page_number <value>]
-    [--page_size <value>] [--search <value>]
+  $ tru subscriberchecks:list [CHECK_ID] [--debug] [--help] [--project-dir <value>] [--columns <value> | -x] [--sort
+    <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ] [--page_number
+    <value>] [--page_size <value>] [--search <value>]
 
 ARGUMENTS
   CHECK_ID  The check_id for the SubscriberCheck to list
 
 FLAGS
-  -h, --help             Show CLI help.
   -x, --extended         show extra columns
   --columns=<value>      only show provided columns (comma-separated)
   --csv                  output is csv format [alias: --output=csv]
   --debug                Enables debug logging for the CLI
   --filter=<value>       filter property by partial string matching, ex: name=foo
+  --help                 Show CLI help.
   --no-header            hide table header from output
   --no-truncate          do not truncate output to fit screen
   --output=<option>      output in a more machine friendly format
@@ -562,19 +564,20 @@ Get the traces of a SubscriberCheck
 
 ```
 USAGE
-  $ tru subscriberchecks:traces [CHECK_ID] [--debug] [-h] [--project-dir <value>] [--columns <value> | -x] [--sort <value>]
-    [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ] [--trace-id <value>]
+  $ tru subscriberchecks:traces [CHECK_ID] [--debug] [--help] [--project-dir <value>] [--columns <value> | -x] [--sort
+    <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ] [--trace-id
+    <value>]
 
 ARGUMENTS
   CHECK_ID  The check_id for which we want to get the traces
 
 FLAGS
-  -h, --help             Show CLI help.
   -x, --extended         show extra columns
   --columns=<value>      only show provided columns (comma-separated)
   --csv                  output is csv format [alias: --output=csv]
   --debug                Enables debug logging for the CLI
   --filter=<value>       filter property by partial string matching, ex: name=foo
+  --help                 Show CLI help.
   --no-header            hide table header from output
   --no-truncate          do not truncate output to fit screen
   --output=<option>      output in a more machine friendly format
@@ -595,18 +598,18 @@ Get Daily Usage. The date range defaults to current date.
 
 ```
 USAGE
-  $ tru usage:daily [--debug] [-h] [--columns <value> | -x] [--sort <value>] [--filter <value>] [--output
+  $ tru usage:daily [--debug] [--help] [--columns <value> | -x] [--sort <value>] [--filter <value>] [--output
     csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ] [--search <value>] [--group-by <value>] [--page_number
     <value>] [--page_size <value>]
 
 FLAGS
-  -h, --help             Show CLI help.
   -x, --extended         show extra columns
   --columns=<value>      only show provided columns (comma-separated)
   --csv                  output is csv format [alias: --output=csv]
   --debug                Enables debug logging for the CLI
   --filter=<value>       filter property by partial string matching, ex: name=foo
   --group-by=<value>     Group results by one or more fields e.g product_id or project_id or product_id,project_id
+  --help                 Show CLI help.
   --no-header            hide table header from output
   --no-truncate          do not truncate output to fit screen
   --output=<option>      output in a more machine friendly format
@@ -628,18 +631,18 @@ Get Hourly Usage. The date range defaults to current date.
 
 ```
 USAGE
-  $ tru usage:hourly [--debug] [-h] [--columns <value> | -x] [--sort <value>] [--filter <value>] [--output
+  $ tru usage:hourly [--debug] [--help] [--columns <value> | -x] [--sort <value>] [--filter <value>] [--output
     csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ] [--search <value>] [--group-by <value>] [--page_number
     <value>] [--page_size <value>]
 
 FLAGS
-  -h, --help             Show CLI help.
   -x, --extended         show extra columns
   --columns=<value>      only show provided columns (comma-separated)
   --csv                  output is csv format [alias: --output=csv]
   --debug                Enables debug logging for the CLI
   --filter=<value>       filter property by partial string matching, ex: name=foo
   --group-by=<value>     Group results by one or more fields e.g product_id or project_id or product_id,project_id
+  --help                 Show CLI help.
   --no-header            hide table header from output
   --no-truncate          do not truncate output to fit screen
   --output=<option>      output in a more machine friendly format
@@ -661,18 +664,18 @@ Get Monthly Usage. The date range defaults to the current calendar month.
 
 ```
 USAGE
-  $ tru usage:monthly [--debug] [-h] [--columns <value> | -x] [--sort <value>] [--filter <value>] [--output
+  $ tru usage:monthly [--debug] [--help] [--columns <value> | -x] [--sort <value>] [--filter <value>] [--output
     csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ] [--search <value>] [--group-by <value>] [--page_number
     <value>] [--page_size <value>]
 
 FLAGS
-  -h, --help             Show CLI help.
   -x, --extended         show extra columns
   --columns=<value>      only show provided columns (comma-separated)
   --csv                  output is csv format [alias: --output=csv]
   --debug                Enables debug logging for the CLI
   --filter=<value>       filter property by partial string matching, ex: name=foo
   --group-by=<value>     Group results by one or more fields e.g product_id or project_id or product_id,project_id
+  --help                 Show CLI help.
   --no-header            hide table header from output
   --no-truncate          do not truncate output to fit screen
   --output=<option>      output in a more machine friendly format
@@ -694,11 +697,11 @@ List of available workspaces
 
 ```
 USAGE
-  $ tru workspaces:list [--debug] [-h] [--output csv|json|yaml | --no-truncate | ] [--no-header | ]
+  $ tru workspaces:list [--debug] [--help] [--output csv|json|yaml | --no-truncate | ] [--no-header | ]
 
 FLAGS
-  -h, --help         Show CLI help.
   --debug            Enables debug logging for the CLI
+  --help             Show CLI help.
   --no-header        hide table header from output
   --no-truncate      do not truncate output to fit screen
   --output=<option>  output in a more machine friendly format
@@ -716,11 +719,11 @@ Displays selected workspace information
 
 ```
 USAGE
-  $ tru workspaces:selected [--debug] [-h] [--output csv|json|yaml | --no-truncate | ] [--no-header | ]
+  $ tru workspaces:selected [--debug] [--help] [--output csv|json|yaml | --no-truncate | ] [--no-header | ]
 
 FLAGS
-  -h, --help         Show CLI help.
   --debug            Enables debug logging for the CLI
+  --help             Show CLI help.
   --no-header        hide table header from output
   --no-truncate      do not truncate output to fit screen
   --output=<option>  output in a more machine friendly format
@@ -738,16 +741,16 @@ Switch workspaces
 
 ```
 USAGE
-  $ tru workspaces:switch [DATA_RESIDENCY] [WORKSPACE_ID] [--debug] [-h] [--output csv|json|yaml | --no-truncate | ]
-    [--no-header | ]
+  $ tru workspaces:switch [DATA_RESIDENCY] [WORKSPACE_ID] [--debug] [--help] [--output csv|json|yaml | --no-truncate |
+    ] [--no-header | ]
 
 ARGUMENTS
   DATA_RESIDENCY  Data residency where the workspace is located
   WORKSPACE_ID    Selected Workspace
 
 FLAGS
-  -h, --help         Show CLI help.
   --debug            Enables debug logging for the CLI
+  --help             Show CLI help.
   --no-header        hide table header from output
   --no-truncate      do not truncate output to fit screen
   --output=<option>  output in a more machine friendly format

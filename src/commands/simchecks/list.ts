@@ -13,7 +13,6 @@ import { displayPagination } from '../../helpers/ux'
 import {
   doesProjectConfigExist,
   isProjectCredentialsValid,
-  isWorkspaceSelected,
 } from '../../helpers/ValidationUtils'
 import { logApiError } from '../../utilities'
 
@@ -72,7 +71,10 @@ export default class SimCheckList extends CommandWithProjectConfig {
 
     return new SimCheckAPIClient(
       tokenManager,
-      apiBaseUrlDR(this.globalConfig!),
+      apiBaseUrlDR(
+        this.projectConfig?.data_residency || 'eu',
+        this.globalConfig!,
+      ),
       logger,
     )
   }
@@ -87,13 +89,21 @@ export default class SimCheckList extends CommandWithProjectConfig {
 
     doesProjectConfigExist(this.projectConfig)
     isProjectCredentialsValid(this.projectConfig!)
-    isWorkspaceSelected(this.globalConfig!)
+
+    if (!this.projectConfig?.data_residency) {
+      this.warn(
+        'No data_residency specified in project config tru.json. It will default to eu',
+      )
+    }
 
     const apiConfiguration: APIClientCredentialsConfiguration = {
       clientId: this.projectConfig!.credentials[0].client_id!,
       clientSecret: this.projectConfig!.credentials[0].client_secret,
       scopes: [this.tokenScope],
-      tokenUrl: tokenUrlDR(this.globalConfig!),
+      tokenUrl: tokenUrlDR(
+        this.projectConfig?.data_residency || 'eu',
+        this.globalConfig!,
+      ),
     }
 
     const apiCheckClient = this.getApiClient(apiConfiguration, this.logger)

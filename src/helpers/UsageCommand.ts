@@ -1,7 +1,12 @@
 import { CliUx, Config, Flags } from '@oclif/core'
 import { RefreshTokenManager } from '../api/TokenManager'
 import { UsageApiClient, UsageResource } from '../api/UsageAPIClient'
-import { apiBaseUrlDR, issuerUrl, loginBaseUrl, tokenUrl } from '../DefaultUrls'
+import {
+  apiBaseUrlDR,
+  issuerUrl,
+  loginBaseUrl,
+  workspaceTokenUrl,
+} from '../DefaultUrls'
 import CommandWithGlobalConfig from '../helpers/CommandWithGlobalConfig'
 import ILogger from '../helpers/ILogger'
 import { displayPagination } from '../helpers/ux'
@@ -52,7 +57,7 @@ export default abstract class UsageCommand extends CommandWithGlobalConfig {
       {
         refreshToken: this.globalConfig!.tokenInfo!.refreshToken!,
         configLocation: this.getConfigPath(),
-        tokenUrl: tokenUrl(loginBaseUrl(this.globalConfig!)),
+        tokenUrl: workspaceTokenUrl(loginBaseUrl(this.globalConfig!)),
         issuerUrl: issuerUrl(this.globalConfig!),
       },
       this.logger,
@@ -60,7 +65,10 @@ export default abstract class UsageCommand extends CommandWithGlobalConfig {
 
     return new UsageApiClient(
       tokenManager,
-      apiBaseUrlDR(this.globalConfig!),
+      apiBaseUrlDR(
+        this.globalConfig!.selectedWorkspaceDataResidency!,
+        this.globalConfig!,
+      ),
       logger,
     )
   }

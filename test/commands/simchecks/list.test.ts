@@ -93,36 +93,54 @@ describe('simchecks:list', () => {
     sinon.restore()
   })
 
-  test
-    .nock('https://eu.api.tru.id', (api) =>
-      api
-        .persist()
-        .post(new RegExp('/oauth2/v1/token*'))
-        .reply(200, accessToken)
-        .get(new RegExp('/sim_check/v0.1/checks*'))
-        .reply(200, listResource),
-    )
-    .stdout()
-    .command(['simchecks:list'])
-    .it(
-      'SimCheckAPIClient: should call SimCheckAPIClient.list() if optional check_id argment is not supplied',
-      (ctx) => {
-        expect(ctx.stdout).to.contain('check_id')
-        expect(ctx.stdout).to.contain('created_at')
-        expect(ctx.stdout).to.contain('status')
-        expect(ctx.stdout).to.contain('charge_currency')
-        expect(ctx.stdout).to.contain('charge_amount')
-        expect(ctx.stdout).to.contain('no_sim_change')
-        expect(ctx.stdout).to.contain('Page 1 of 1')
-        expect(ctx.stdout).to.contain('SIMChecks: 1 to 1 of 1')
-        expect(ctx.stdout).to.contain(simCheckResource.check_id)
-        expect(ctx.stdout).to.contain(simCheckResource.created_at)
-        expect(ctx.stdout).to.contain(simCheckResource.charge_amount)
-        expect(ctx.stdout).to.contain(simCheckResource.charge_currency)
-        expect(ctx.stdout).to.contain(simCheckResource.status)
-        expect(ctx.stdout).to.contain(simCheckResource.no_sim_change)
-      },
-    )
+  const dataResidency = [
+    {
+      data_residency: 'in',
+      config_data_residency: 'in',
+    },
+    {
+      data_residency: 'eu',
+      config_data_residency: undefined,
+    },
+  ]
+  dataResidency.forEach(({ data_residency, config_data_residency }) => {
+    test
+      .nock(`https://${data_residency}.api.tru.id`, (api) =>
+        api
+          .persist()
+          .post(new RegExp('/oauth2/v1/token*'))
+          .reply(200, accessToken)
+          .get(new RegExp('/sim_check/v0.1/checks*'))
+          .reply(200, listResource),
+      )
+      .do(() => {
+        readJsonStub.withArgs(sinon.match(projectConfigFileLocation)).resolves({
+          ...projectConfig,
+          data_residency: config_data_residency,
+        })
+      })
+      .stdout()
+      .command(['simchecks:list'])
+      .it(
+        `should display fields if optional check_id argument is not supplied for data residency ${data_residency}`,
+        (ctx) => {
+          expect(ctx.stdout).to.contain('check_id')
+          expect(ctx.stdout).to.contain('created_at')
+          expect(ctx.stdout).to.contain('status')
+          expect(ctx.stdout).to.contain('charge_currency')
+          expect(ctx.stdout).to.contain('charge_amount')
+          expect(ctx.stdout).to.contain('no_sim_change')
+          expect(ctx.stdout).to.contain('Page 1 of 1')
+          expect(ctx.stdout).to.contain('SIMChecks: 1 to 1 of 1')
+          expect(ctx.stdout).to.contain(simCheckResource.check_id)
+          expect(ctx.stdout).to.contain(simCheckResource.created_at)
+          expect(ctx.stdout).to.contain(simCheckResource.charge_amount)
+          expect(ctx.stdout).to.contain(simCheckResource.charge_currency)
+          expect(ctx.stdout).to.contain(simCheckResource.status)
+          expect(ctx.stdout).to.contain(simCheckResource.no_sim_change)
+        },
+      )
+  })
 
   test
     .nock('https://eu.api.tru.id', (api) =>
@@ -136,7 +154,7 @@ describe('simchecks:list', () => {
     .stdout()
     .command(['simchecks:list', `${simCheckResource.check_id}`])
     .it(
-      'should call SimCheckAPIClient.get(checkId) if optional check_id argment is supplied',
+      `should display fields if optional check_id argment is supplied`,
       (ctx) => {
         expect(ctx.stdout).to.contain('check_id')
         expect(ctx.stdout).to.contain('created_at')

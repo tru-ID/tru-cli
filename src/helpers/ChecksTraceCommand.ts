@@ -12,7 +12,6 @@ import ILogger from './ILogger'
 import {
   doesProjectConfigExist,
   isProjectCredentialsValid,
-  isWorkspaceSelected,
 } from './ValidationUtils'
 
 export type LogEntry = {
@@ -72,13 +71,21 @@ export default abstract class ChecksTraceCommand extends CommandWithProjectConfi
 
     doesProjectConfigExist(this.projectConfig)
     isProjectCredentialsValid(this.projectConfig!)
-    isWorkspaceSelected(this.globalConfig!)
+
+    if (!this.projectConfig?.data_residency) {
+      this.warn(
+        'No data_residency specified in project config tru.json. It will default to eu',
+      )
+    }
 
     const apiConfiguration: APIClientCredentialsConfiguration = {
       clientId: this.projectConfig!.credentials[0].client_id!,
       clientSecret: this.projectConfig!.credentials[0].client_secret!,
       scopes: [this.tokenScope],
-      tokenUrl: tokenUrlDR(this.globalConfig!),
+      tokenUrl: tokenUrlDR(
+        this.projectConfig?.data_residency || 'eu',
+        this.globalConfig!,
+      ),
     }
 
     const checkApiClient = this.getApiClient(apiConfiguration, this.logger)

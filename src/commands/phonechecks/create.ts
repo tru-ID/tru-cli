@@ -41,7 +41,10 @@ export default class PhoneChecksCreate extends ChecksCreateCommand {
 
     return new PhoneChecksAPIClient(
       tokenManager,
-      apiBaseUrlDR(this.globalConfig!),
+      apiBaseUrlDR(
+        this.projectConfig?.data_residency || 'eu',
+        this.globalConfig!,
+      ),
       logger,
     )
   }

@@ -104,7 +104,7 @@ describe('workspaces selected', () => {
       'outputs result of a single resource to cli.table when response time is 6s',
       (ctx) => {
         expect(ctx.stdout).to.contain(workspaceResource.data_residency)
-        expect(ctx.stdout).to.contain(workspaceResource.created_at)
+        expect(ctx.stdout).to.contain(workspaceResource.workspace_id)
         expect(ctx.stdout).to.contain(
           workspaceResource._embedded.balance.currency,
         )

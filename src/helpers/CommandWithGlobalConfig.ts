@@ -1,4 +1,4 @@
-import { Command, Config, Flags, Help } from '@oclif/core'
+import { Command, Config, Flags } from '@oclif/core'
 import fs from 'fs-extra'
 import path from 'path'
 import { ConsoleLogger, LogLevel } from '../helpers/ConsoleLogger'
@@ -10,7 +10,7 @@ export default abstract class CommandWithGlobalConfig extends Command {
     debug: Flags.boolean({
       description: 'Enables debug logging for the CLI',
     }),
-    help: Flags.help({ char: 'h' }),
+    help: Flags.help(),
   }
 
   flags: {
@@ -43,15 +43,6 @@ export default abstract class CommandWithGlobalConfig extends Command {
       !this.flags.debug ? LogLevel.info : LogLevel.debug,
     )
     this.logger.debug('--debug', true)
-  }
-
-  showCommandHelp({ exitCode = 0 }: { exitCode: number }): void {
-    const help = new Help(this.config)
-    const cmd = this.config.findCommand(this.id as string)
-    if (cmd) {
-      help.showCommandHelp(cmd)
-    }
-    return this.exit(exitCode)
   }
 
   getConfigPath(): string {
