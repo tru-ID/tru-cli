@@ -82,7 +82,7 @@ export default class ProjectsUpdate extends CommandWithProjectConfig {
       this.logger.error(
         'At least one flag must be supplied to indicate the update to be applied to the Project',
       )
-      this.exit(-1)
+      this.exit(1)
     }
 
     this.log(`Updated Project with project_id "${this.args['project-id']}"`)
