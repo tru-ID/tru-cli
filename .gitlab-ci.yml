@@ -35,8 +35,6 @@ unit_tests_node_latest:
 
 publish_npm_dev:
   stage: build and publish
-  rules:
-    - if: $CI_COMMIT_TAG
   dependencies:
     - unit_tests_node_14
     - unit_tests_node_16
@@ -46,6 +44,9 @@ publish_npm_dev:
     - npm run build
     - npm run canary_version_suffix
     - npm run npm:publish:dev
+  when: manual
+  only:
+    - canary
 
 publish_npm_prod:
   stage: build and publish
