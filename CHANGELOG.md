@@ -2,31 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-### [1.0.3](https://github.com/tru-ID/tru-cli/compare/v1.0.2...v1.0.3) (2022-04-15)
+### [1.0.5](https://github.com/tru-ID/tru-cli/compare/v0.9.7...v1.0.5) (2022-05-05)
+
+Please ignore versions `1.0.0` to `1.0.4` and update to `1.0.5`
 
 ### ⚠ BREAKING CHANGES
 
-- Renamed `tru setup` to `tru login`.
-- Removed generation of workspaces token for `oauth2:token`.
-  ([b42a05a](https://github.com/tru-ID/tru-cli/commit/b42a05a4efe574185de2e8bfea76782b2df1851d))
-
-## [1.0.0](https://github.com/tru-ID/tru-cli/compare/v0.9.7...v1.0.0) (2022-04-12)
-
-### ⚠ BREAKING CHANGES
-
-- **setup:** Added oauth2 support for setting up cli. ([f829edd](https://github.com/tru-ID/tru-cli/commit/f829edda66bea7ae7b6f3dc790a22444ce1825da))
+- **login** Added oauth2 support for setting up cli. ([f829edd](https://github.com/tru-ID/tru-cli/commit/f829edda66bea7ae7b6f3dc790a22444ce1825da)). This command replaced `setup`
 
 The CLI previously supported only authentication with workspace credentials (client_credentials grant).
-This is now removed. Now we introduced authentication_code grant via browser. Please run `setup:oauth2`
+This is now removed. Now we introduced authentication_code grant via browser. Please run `login`
 before using this version.
 
-### Features
+- **oauth2:token**: Removed generation of workspaces token
+  ([b42a05a](https://github.com/tru-ID/tru-cli/commit/b42a05a4efe574185de2e8bfea76782b2df1851d))
 
-- Added new workspaces commands
-
-  - `workspaces:list` List of available workspaces
-  - `workspaces:selected` Displays selected workspace information
-  - `workspaces:switch` Switch workspaces
+- Removed `workflow` from commands `phonechecks:create` and `subscriberchecks:create`
 
 ### [0.9.7](https://github.com/tru-ID/tru-cli/compare/v0.9.6...v0.9.7) (2021-11-26)
 
