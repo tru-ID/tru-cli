@@ -1,13 +1,22 @@
-import { flags } from '@oclif/command'
-import { cli } from 'cli-ux'
-import { APIConfiguration } from '../../api/APIConfiguration'
+import { CliUx, Flags } from '@oclif/core'
 import {
   IListProjectsResponse,
   IProjectResource,
   ProjectsAPIClient,
 } from '../../api/ProjectsAPIClient'
+import { RefreshTokenManager } from '../../api/TokenManager'
+import {
+  apiBaseUrlDR,
+  issuerUrl,
+  loginBaseUrl,
+  workspaceTokenUrl,
+} from '../../DefaultUrls'
 import CommandWithGlobalConfig from '../../helpers/CommandWithGlobalConfig'
 import { displayPagination } from '../../helpers/ux'
+import {
+  isWorkspaceSelected,
+  isWorkspaceTokenInfoValid,
+} from '../../helpers/ValidationUtils'
 import { logApiError } from '../../utilities'
 
 export default class ProjectsList extends CommandWithGlobalConfig {
@@ -22,20 +31,20 @@ export default class ProjectsList extends CommandWithGlobalConfig {
     },
   ]
 
-  static pageNumberFlag = flags.integer({
+  static pageNumberFlag = Flags.integer({
     description: `The page number to return in the list resource. Ignored if the "project_id" argument is used.`,
     default: 1,
   })
-  static pageSizeFlag = flags.integer({
+  static pageSizeFlag = Flags.integer({
     description:
       'The page size to return in list resource request. Ignored if the "project_id" argument is used.',
     default: 10,
   })
-  static searchFlag = flags.string({
+  static searchFlag = Flags.string({
     description:
       'A RSQL search query. To ensure correct parsing put your query in quotes. For example "--search \'name=p*\'". Ignored if the "check_id" argument is used.',
   })
-  static sortFlag = flags.string({
+  static sortFlag = Flags.string({
     description:
       'Sort query in the form "{parameter_name},{direction}". For example, "created_at,asc" or "created_at,desc". Ignored if the "check_id" argument is used.',
     //default: 'created_at,asc' API current expects createdAt so no default at present
@@ -43,7 +52,7 @@ export default class ProjectsList extends CommandWithGlobalConfig {
 
   static flags = {
     ...CommandWithGlobalConfig.flags,
-    ...cli.table.flags(),
+    ...CliUx.ux.table.flags(),
     page_number: ProjectsList.pageNumberFlag,
     page_size: ProjectsList.pageSizeFlag,
     search: ProjectsList.searchFlag,
@@ -51,55 +60,71 @@ export default class ProjectsList extends CommandWithGlobalConfig {
   }
 
   async run() {
-    const result = this.parse(ProjectsList)
+    const result = await this.parse(ProjectsList)
     this.args = result.args
     this.flags = result.flags
 
     await super.run()
 
+    isWorkspaceTokenInfoValid(this.globalConfig!)
+    isWorkspaceSelected(this.globalConfig!)
+
+    const tokenManager = new RefreshTokenManager(
+      {
+        refreshToken: this.globalConfig!.tokenInfo!.refreshToken,
+        configLocation: this.getConfigPath(),
+        tokenUrl: workspaceTokenUrl(loginBaseUrl(this.globalConfig!)),
+        issuerUrl: issuerUrl(this.globalConfig!),
+      },
+      this.logger,
+    )
+
     const projectsAPIClient = new ProjectsAPIClient(
-      new APIConfiguration({
-        clientId: this.globalConfig?.defaultWorkspaceClientId,
-        clientSecret: this.globalConfig?.defaultWorkspaceClientSecret,
-        scopes: ['projects'],
-        baseUrl:
-          this.globalConfig?.apiBaseUrlOverride ??
-          `https://${this.globalConfig?.defaultWorkspaceDataResidency}.api.tru.id`,
-      }),
+      tokenManager,
+      apiBaseUrlDR(
+        this.globalConfig!.selectedWorkspaceDataResidency!,
+        this.globalConfig!,
+      ),
       this.logger,
     )
 
     if (this.args.project_id) {
       let singleResource: IProjectResource
       try {
-        singleResource = await projectsAPIClient.get(this.args.project_id)
+        singleResource = await projectsAPIClient.get(
+          this.globalConfig!.selectedWorkspace!,
+          this.args.project_id,
+        )
 
         this.displayResults([singleResource])
       } catch (error) {
-        logApiError(this.log, error)
+        logApiError(this, error)
         this.exit(1)
       }
     } else {
       let listResource: IListProjectsResponse
       try {
-        listResource = await projectsAPIClient.list({
-          size: this.flags.page_size,
-          page: this.flags.page_number,
-          search: this.flags.search,
-          sort: this.flags.sort,
-        })
+        listResource = await projectsAPIClient.list(
+          this.globalConfig!.selectedWorkspace!,
+          {
+            size: this.flags.page_size,
+            page: this.flags.page_number,
+            search: this.flags.search,
+            sort: this.flags.sort,
+          },
+        )
 
         this.displayResults(listResource._embedded.projects)
         displayPagination(this.logger, listResource.page, 'Projects')
       } catch (error) {
-        logApiError(this.log, error)
+        logApiError(this, error)
         this.exit(1)
       }
     }
   }
 
-  displayResults(resources: IProjectResource[]) {
-    cli.table(
+  displayResults(resources: IProjectResource[]): void {
+    CliUx.ux.table(
       resources,
       {
         name: {
@@ -112,20 +137,16 @@ export default class ProjectsList extends CommandWithGlobalConfig {
         created_at: {
           header: 'created_at',
         },
-        credentials_client_id: {
-          header: 'credentials[0].client_id',
-          extended: true,
-          get: (row) => (row.credentials ? row.credentials[0].client_id : null),
-        },
         url: {
           header: '_links.self.href',
           extended: true,
-          get: (row) => row._links.self.href,
+          get: (row: IProjectResource) => row._links.self.href,
         },
         phonecheck_callback_url: {
           header: 'configuration.phone_check.callback_url',
           extended: true,
-          get: (row) => row.configuration?.phone_check?.callback_url,
+          get: (row: IProjectResource) =>
+            row.configuration?.phone_check?.callback_url,
         },
       },
       {

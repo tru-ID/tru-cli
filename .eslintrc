@@ -1,8 +1,10 @@
 {
-  "extends": ["oclif", "oclif-typescript", "prettier"],
+  "root": true,
+  "extends": ["oclif-typescript", "prettier"],
   "rules": {
     "unicorn/filename-case": 0,
     "@typescript-eslint/interface-name-prefix": 0,
-    "unicorn/catch-error-name": 0
+    "unicorn/catch-error-name": 0,
+    "no-console": "warn"
   }
 }

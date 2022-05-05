@@ -1,41 +1,46 @@
-import { flags } from '@oclif/command'
-import { cli } from 'cli-ux'
-import { APIConfiguration } from '../../api/APIConfiguration'
+import { CliUx, Flags } from '@oclif/core'
+import { APIClientCredentialsConfiguration } from '../../api/APIConfiguration'
 import {
   IListSimCheckResource,
   ISimCheckResource,
   SimCheckAPIClient,
 } from '../../api/SimCheckAPIClient'
+import { ClientCredentialsManager } from '../../api/TokenManager'
+import { apiBaseUrlDR, tokenUrlDR } from '../../DefaultUrls'
 import CommandWithProjectConfig from '../../helpers/CommandWithProjectConfig'
 import ILogger from '../../helpers/ILogger'
 import { displayPagination } from '../../helpers/ux'
+import {
+  doesProjectConfigExist,
+  isProjectCredentialsValid,
+} from '../../helpers/ValidationUtils'
 import { logApiError } from '../../utilities'
 
 export default class SimCheckList extends CommandWithProjectConfig {
   static description =
     'Lists details for all SIMChecks or a specific SIMCheck if the a check-id argument is passed'
 
-  static pageNumberFlag = flags.integer({
+  static pageNumberFlag = Flags.integer({
     description: `The page number to return in the list resource. Ignored if the "check_id" argument is used.`,
     default: 1,
   })
-  static pageSizeFlag = flags.integer({
+  static pageSizeFlag = Flags.integer({
     description:
       'The page size to return in list resource request. Ignored if the "check_id" argument is used.',
     default: 10,
   })
-  static searchFlag = flags.string({
+  static searchFlag = Flags.string({
     description:
       'A RSQL search query. To ensure correct parsing put your query in quotes. For example "--search \'status==COMPLETED\'". Ignored if the "check_id" argument is used.',
   })
-  static sortFlag = flags.string({
+  static sortFlag = Flags.string({
     description:
       'Sort query in the form "{parameter_name},{direction}". For example, "created_at,asc" or "created_at,desc". Ignored if the "check_id" argument is used.',
   })
 
   static flags = {
     ...CommandWithProjectConfig.flags,
-    ...cli.table.flags(),
+    ...CliUx.ux.table.flags(),
     page_number: SimCheckList.pageNumberFlag,
     page_size: SimCheckList.pageSizeFlag,
     search: SimCheckList.searchFlag,
@@ -58,26 +63,48 @@ export default class SimCheckList extends CommandWithProjectConfig {
     return this.parse(SimCheckList)
   }
 
-  getApiClient(apiConfiguration: APIConfiguration, logger: ILogger) {
-    return new SimCheckAPIClient(apiConfiguration, logger)
+  getApiClient(
+    apiConfiguration: APIClientCredentialsConfiguration,
+    logger: ILogger,
+  ): SimCheckAPIClient {
+    const tokenManager = new ClientCredentialsManager(apiConfiguration, logger)
+
+    return new SimCheckAPIClient(
+      tokenManager,
+      apiBaseUrlDR(
+        this.projectConfig?.data_residency || 'eu',
+        this.globalConfig!,
+      ),
+      logger,
+    )
   }
 
   async run() {
-    const result = this.parseCommand()
+    const result = await this.parseCommand()
     this.args = result.args
     this.flags = result.flags
     await this.loadProjectConfig()
 
     await super.run()
 
-    let apiConfiguration = new APIConfiguration({
-      clientId: this.projectConfig?.credentials[0].client_id,
-      clientSecret: this.projectConfig?.credentials[0].client_secret,
+    doesProjectConfigExist(this.projectConfig)
+    isProjectCredentialsValid(this.projectConfig!)
+
+    if (!this.projectConfig?.data_residency) {
+      this.warn(
+        'No data_residency specified in project config tru.json. It will default to eu',
+      )
+    }
+
+    const apiConfiguration: APIClientCredentialsConfiguration = {
+      clientId: this.projectConfig!.credentials[0].client_id!,
+      clientSecret: this.projectConfig!.credentials[0].client_secret,
       scopes: [this.tokenScope],
-      baseUrl:
-        this.globalConfig?.apiBaseUrlOverride ??
-        `https://${this.globalConfig?.defaultWorkspaceDataResidency}.api.tru.id`,
-    })
+      tokenUrl: tokenUrlDR(
+        this.projectConfig?.data_residency || 'eu',
+        this.globalConfig!,
+      ),
+    }
 
     const apiCheckClient = this.getApiClient(apiConfiguration, this.logger)
 
@@ -88,7 +115,7 @@ export default class SimCheckList extends CommandWithProjectConfig {
 
         this.displayResults([singleResource])
       } catch (error) {
-        logApiError(this.log, error)
+        logApiError(this, error)
         this.exit(1)
       }
     } else {
@@ -108,14 +135,14 @@ export default class SimCheckList extends CommandWithProjectConfig {
           `${this.typeOfCheck}s`,
         )
       } catch (error) {
-        logApiError(this.log, error)
+        logApiError(this, error)
         this.exit(1)
       }
     }
   }
 
-  displayResults(resources: ISimCheckResource[]) {
-    cli.table(
+  displayResults(resources: ISimCheckResource[]): void {
+    CliUx.ux.table(
       resources,
       {
         check_id: {

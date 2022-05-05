@@ -1,17 +1,20 @@
-import { flags } from '@oclif/command'
-import * as Config from '@oclif/config'
-import { cli } from 'cli-ux'
-import { APIConfiguration } from '../api/APIConfiguration'
+import { CliUx, Config, Flags } from '@oclif/core'
+import { APIClientCredentialsConfiguration } from '../api/APIConfiguration'
 import {
   CheckLogResource,
   CheckTraceResource,
   TraceApiClient,
 } from '../api/TraceAPIClient'
+import { tokenUrlDR } from '../DefaultUrls'
 import { logApiError } from '../utilities'
 import CommandWithProjectConfig from './CommandWithProjectConfig'
 import ILogger from './ILogger'
+import {
+  doesProjectConfigExist,
+  isProjectCredentialsValid,
+} from './ValidationUtils'
 
-export interface LogEntry {
+export type LogEntry = {
   trace_id: string
   message: string
   timestamp: string
@@ -29,8 +32,8 @@ export default abstract class ChecksTraceCommand extends CommandWithProjectConfi
 
   static flags = {
     ...CommandWithProjectConfig.flags,
-    ...cli.table.flags(),
-    'trace-id': flags.string({
+    ...CliUx.ux.table.flags(),
+    'trace-id': Flags.string({
       description: 'The trace-id for which we want to get the logs',
       required: false,
     }),
@@ -44,7 +47,7 @@ export default abstract class ChecksTraceCommand extends CommandWithProjectConfi
     typeOfCheck: string,
     tokenScope: string,
     argv: string[],
-    config: Config.IConfig,
+    config: Config,
   ) {
     super(argv, config)
     this.typeOfCheck = typeOfCheck
@@ -54,50 +57,60 @@ export default abstract class ChecksTraceCommand extends CommandWithProjectConfi
   abstract parseCommand(): any
 
   abstract getApiClient(
-    apiConfiguration: APIConfiguration,
+    apiConfiguration: APIClientCredentialsConfiguration,
     logger: ILogger,
   ): TraceApiClient
 
   async run() {
-    const result = this.parseCommand()
+    const result = await this.parseCommand()
     this.args = result.args
     this.flags = result.flags
     await this.loadProjectConfig()
 
     await super.run()
 
-    let apiConfiguration = new APIConfiguration({
-      clientId: this.projectConfig?.credentials[0].client_id,
-      clientSecret: this.projectConfig?.credentials[0].client_secret,
-      scopes: [this.tokenScope],
-      baseUrl:
-        this.globalConfig?.apiBaseUrlOverride ??
-        `https://${this.globalConfig?.defaultWorkspaceDataResidency}.api.tru.id`,
-    })
+    doesProjectConfigExist(this.projectConfig)
+    isProjectCredentialsValid(this.projectConfig!)
 
-    const apiCheckClient = this.getApiClient(apiConfiguration, this.logger)
+    if (!this.projectConfig?.data_residency) {
+      this.warn(
+        'No data_residency specified in project config tru.json. It will default to eu',
+      )
+    }
+
+    const apiConfiguration: APIClientCredentialsConfiguration = {
+      clientId: this.projectConfig!.credentials[0].client_id!,
+      clientSecret: this.projectConfig!.credentials[0].client_secret!,
+      scopes: [this.tokenScope],
+      tokenUrl: tokenUrlDR(
+        this.projectConfig?.data_residency || 'eu',
+        this.globalConfig!,
+      ),
+    }
+
+    const checkApiClient = this.getApiClient(apiConfiguration, this.logger)
 
     if (this.flags.trace_id) {
       try {
-        let singleResource = await apiCheckClient.getTrace(
+        const singleResource = await checkApiClient.getTrace(
           this.args.check_id,
           this.flags.trace_id,
         )
 
         this.displayResults(this.transform([singleResource], this.logger))
       } catch (error) {
-        logApiError(this.log, error)
+        logApiError(this, error)
         this.exit(1)
       }
     } else {
       try {
-        let listResource = await apiCheckClient.getTraces(this.args.check_id)
+        const listResource = await checkApiClient.getTraces(this.args.check_id)
 
         this.displayResults(
           this.transform(listResource._embedded.traces, this.logger),
         )
       } catch (error) {
-        logApiError(this.log, error)
+        logApiError(this, error)
         this.exit(1)
       }
     }
@@ -124,8 +137,8 @@ export default abstract class ChecksTraceCommand extends CommandWithProjectConfi
     return result
   }
 
-  displayResults(resources: LogEntry[]): any {
-    cli.table(
+  displayResults(resources: LogEntry[]): void {
+    CliUx.ux.table(
       resources,
       {
         trace_id: {

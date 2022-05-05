@@ -1,17 +1,13 @@
-import { flags } from '@oclif/command'
-import { getHelpClass } from '@oclif/plugin-help'
-
-import * as fs from 'fs-extra'
-import * as path from 'path'
-
-import CommandWithGlobalConfig from './CommandWithGlobalConfig'
+import { Flags } from '@oclif/core'
+import fs from 'fs-extra'
+import path from 'path'
 import { IProjectConfiguration } from '../IProjectConfiguration'
-import { Command } from '@oclif/config'
+import CommandWithGlobalConfig from './CommandWithGlobalConfig'
 
 export default abstract class CommandWithProjectConfig extends CommandWithGlobalConfig {
   static projectDirFlagName = 'project-dir'
 
-  static projectDirFlag = flags.string({
+  static projectDirFlag = Flags.string({
     description:
       'The directory that contains the tru.json Project configuration file',
   })
@@ -27,7 +23,7 @@ export default abstract class CommandWithProjectConfig extends CommandWithGlobal
     await super.init()
   }
 
-  async loadProjectConfig() {
+  async loadProjectConfig(): Promise<void> {
     const projectDirectory =
       this.flags[CommandWithProjectConfig.projectDirFlagName] ?? process.cwd()
     const projectConfigFullPath = path.join(projectDirectory, 'tru.json')
@@ -41,21 +37,14 @@ export default abstract class CommandWithProjectConfig extends CommandWithGlobal
     }
     try {
       this.projectConfig = await fs.readJson(projectConfigFullPath)
-    } catch (error) {
-      this.log(
-        'There was a problem loading the tru.json configuration file',
-        `${error.toString()} ${JSON.stringify(error)}`,
-      )
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        this.log(
+          'There was a problem loading the tru.json configuration file',
+          `${error.toString()} ${JSON.stringify(error)}`,
+        )
+      }
       this.exit(1)
     }
-  }
-
-  showCommandHelp({ exitCode = 0 }: { exitCode: number }) {
-    const HelpClass = getHelpClass(this.config)
-    const help = new HelpClass(this.config)
-    const cmd = this.config.findCommand(this.id as string) as Command
-    help.showCommandHelp(cmd, this.config.topics)
-
-    return this.exit(exitCode)
   }
 }

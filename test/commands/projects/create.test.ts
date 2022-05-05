@@ -1,339 +1,228 @@
+import { CliUx } from '@oclif/core'
 import { test } from '@oclif/test'
-import * as sinon from 'ts-sinon'
-import * as chai from 'chai'
-import * as sinonChai from 'sinon-chai'
+import chai from 'chai'
+import fs from 'fs-extra'
+import sinonChai from 'sinon-chai'
+import sinon from 'ts-sinon'
+import { IProjectResource } from '../../../src/api/ProjectsAPIClient'
+import CommandWithProjectConfig from '../../../src/helpers/CommandWithProjectConfig'
+import { IGlobalAuthConfiguration } from '../../../src/IGlobalAuthConfiguration'
+import { IProjectConfiguration } from '../../../src/IProjectConfiguration'
+import { testToken } from '../../test_helpers'
 
 const expect = chai.expect
 chai.use(sinonChai)
 
-import * as fs from 'fs-extra'
-import * as inquirer from 'inquirer'
-
-import * as projectsModule from '../../../src/api/ProjectsAPIClient'
-import { ICreateProjectResponse } from '../../../src/api/ProjectsAPIClient'
-import IGlobalConfiguration from '../../../src/IGlobalConfiguration'
-import * as consoleLoggerModule from '../../../src/helpers/ConsoleLogger'
-import CommandWithProjectConfig from '../../../src/helpers/CommandWithProjectConfig'
-import PhoneChecksCreate from '../../../src/commands/phonechecks/create'
-import { phoneCheckCallbackUrlFlag } from '../../../src/helpers/ProjectFlags'
-
-let projectsApiCreateStub: any = null
-
-let expectedUserConfig: IGlobalConfiguration = {
-  defaultWorkspaceClientId: 'my client id',
-  defaultWorkspaceClientSecret: 'my client secret',
-  defaultWorkspaceDataResidency: 'eu',
-}
-
-let expectedUserConfigWithOverride: IGlobalConfiguration = {
-  ...expectedUserConfig,
-  apiBaseUrlOverride: 'https://eu-dev.api-dev.tru.id',
+const globalConfig: IGlobalAuthConfiguration = {
+  selectedWorkspace: 'workspace_id',
+  selectedWorkspaceDataResidency: 'in',
+  tokenInfo: {
+    refreshToken: 'refresh_token',
+    scope: 'console openid',
+  },
 }
 
 // Stubs
 let existsSyncStub: any
-let projectConfigFileCreationStub: any
 let readJsonStub: any
-let consoleLoggerConstructorStub: any
-let consoleLoggerDebugStub: any
-let consoleLoggerWarnStub: any
-let consoleLoggerErrorStub: any
-let phoneCheckCreateRunStub: any
+let outputJsonStub: any
 
-const newProjectName: string = 'My First Project'
-const expectedProjectDirectoryName = 'my_first_project'
-const expectedProjectFullPath = `${process.cwd()}/${expectedProjectDirectoryName}`
-const expectedProjectConfigFileFullPath = `${expectedProjectFullPath}/tru.json`
+const newProjectName = 'My First Project'
+const expectedProjectConfigFileFullPath = `${process.cwd()}/my_first_project/tru.json`
 
-const createProjectAPIResponse: ICreateProjectResponse = {
+const createProjectAPIResponse: IProjectResource = {
   project_id: 'c69bc0e6-a429-11ea-bb37-0242ac130003',
   name: newProjectName,
   mode: 'live',
+  disabled: false,
   created_at: '2020-06-01T16:43:30+00:00',
   updated_at: '2020-06-01T16:43:30+00:00',
-  credentials: [
-    {
-      client_id: '6779ef20e75817b79602',
-      client_secret: 'dzi1v4osLNr5vv0.2mnvcKM37.',
-      created_at: '2020-06-01T16:43:30+00:00',
-    },
-  ],
+  _embedded: {
+    credentials: [
+      {
+        client_id: '6779ef20e75817b79602',
+        client_secret: 'dzi1v4osLNr5vv0.2mnvcKM37.',
+        scopes: ['phone_check'],
+        created_at: '2020-06-01T16:43:30+00:00',
+      },
+    ],
+  },
   _links: {
     self: {
       href: 'https://eu.api.tru.id/console/v1/projects/c69bc0e6-a429-11ea-bb37-0242ac130003',
     },
+    my_credentials: {
+      href: 'https://eu.api.tru.id/console/v1/projects/c69bc0e6-a429-11ea-bb37-0242ac130003/credentials',
+    },
   },
 }
 
-const expectedProjectConfigJson: any = {
-  ...createProjectAPIResponse,
+const expectedProjectConfigJson: IProjectConfiguration = {
+  project_id: 'c69bc0e6-a429-11ea-bb37-0242ac130003',
+  name: newProjectName,
+  created_at: '2020-06-01T16:43:30+00:00',
+  credentials: [
+    {
+      client_id: '6779ef20e75817b79602',
+      client_secret: 'dzi1v4osLNr5vv0.2mnvcKM37.',
+      scopes: ['phone_check'],
+    },
+  ],
+  data_residency: 'in',
 }
-delete expectedProjectConfigJson._links
 
 describe('Command: projects:create', () => {
   beforeEach(() => {
-    existsSyncStub = sinon.default
+    existsSyncStub = sinon
       .stub(fs, 'existsSync')
-      .withArgs(sinon.default.match(new RegExp(/config.json/)))
+      .withArgs(sinon.match(new RegExp(/config.json/)))
       .returns(true)
 
-    readJsonStub = sinon.default.stub(fs, 'readJson')
-    readJsonStub.resolves(expectedUserConfig)
+    readJsonStub = sinon.stub(fs, 'readJson')
+    readJsonStub.resolves(globalConfig)
 
-    sinon.default
-      .stub(inquirer, 'prompt')
-      .resolves({ projectName: newProjectName })
-
-    projectsApiCreateStub = sinon.default.stub(
-      projectsModule.ProjectsAPIClient.prototype,
-      'create',
-    )
-    projectsApiCreateStub
-      .withArgs({ name: newProjectName })
-      .resolves(createProjectAPIResponse)
-
-    phoneCheckCreateRunStub = sinon.default.stub(PhoneChecksCreate, 'run')
+    outputJsonStub = sinon
+      .stub(fs, 'outputJson')
+      .withArgs(
+        sinon.match(new RegExp(/tru.json/)),
+        sinon.match.any,
+        sinon.match.any,
+      )
+      .resolves()
   })
 
   afterEach(() => {
-    sinon.default.restore()
+    sinon.restore()
   })
 
-  test
+  testToken
+    .nock('https://in.api.tru.id', (api) => {
+      api
+        .persist()
+        .post(new RegExp('/console/v0.2/workspaces/workspace_id/projects'), {
+          name: 'My First Project',
+        })
+        .matchHeader('Authorization', 'Bearer access_token_new')
+        .reply(200, createProjectAPIResponse)
+    })
     .do(() => {
       existsSyncStub
-        .withArgs(sinon.default.match(expectedProjectConfigFileFullPath))
+        .withArgs(sinon.match(expectedProjectConfigFileFullPath))
         .returns(false)
-      projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
-      projectConfigFileCreationStub.resolves()
     })
-    .command(['projects:create'])
-    .it('prompts for the name of a project', (ctx) => {
-      expect(projectsApiCreateStub).to.have.been.calledWith({
-        name: newProjectName,
-      })
-    })
-
-  test
-    .do(() => {
-      projectsApiCreateStub
-        .withArgs({ name: 'inline arg name' })
-        .resolves(createProjectAPIResponse)
-      projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
-      projectConfigFileCreationStub.resolves()
-    })
-    .command(['projects:create', 'inline arg name'])
-    .it('uses the inline argument for the name project', (ctx) => {
-      expect(projectsApiCreateStub).to.have.been.calledWith({
-        name: 'inline arg name',
-      })
-    })
-
-  let projectConstructorStub: any
-  test
-    .do(() => {
-      existsSyncStub
-        .withArgs(sinon.default.match(expectedProjectConfigFileFullPath))
-        .returns(false)
-      sinon.default.stub(fs, 'outputJson').resolves()
-
-      projectConstructorStub = sinon.default.spy(
-        projectsModule,
-        'ProjectsAPIClient',
-      )
-    })
-    .command(['projects:create', newProjectName])
-    .it(
-      'should instantiate a Project API object with configuration based on global configuration',
-      (ctx) => {
-        expect(projectConstructorStub).to.have.been.calledWith(
-          sinon.default.match
-            .has('clientId', expectedUserConfig.defaultWorkspaceClientId)
-            .and(
-              sinon.default.match.has(
-                'clientSecret',
-                expectedUserConfig.defaultWorkspaceClientSecret,
-              ),
-            )
-            .and(
-              sinon.default.match.has(
-                'baseUrl',
-                `https://${expectedUserConfig.defaultWorkspaceDataResidency}.api.tru.id`,
-              ),
-            ),
-          sinon.default.match.instanceOf(consoleLoggerModule.ConsoleLogger),
-        )
-      },
-    )
-
-  test
-    .do(() => {
-      existsSyncStub
-        .withArgs(sinon.default.match(expectedProjectConfigFileFullPath))
-        .returns(false)
-      sinon.default.stub(fs, 'outputJson').resolves()
-
-      projectConstructorStub = sinon.default.spy(
-        projectsModule,
-        'ProjectsAPIClient',
-      )
-    })
-    .command(['projects:create', newProjectName])
-    .it(
-      'should instantiate a Project API object with configuration based on global configuration',
-      (ctx) => {
-        expect(projectConstructorStub).to.have.been.calledWith(
-          sinon.default.match
-            .has('clientId', expectedUserConfig.defaultWorkspaceClientId)
-            .and(
-              sinon.default.match.has(
-                'clientSecret',
-                expectedUserConfig.defaultWorkspaceClientSecret,
-              ),
-            )
-            .and(
-              sinon.default.match.has(
-                'baseUrl',
-                `https://${expectedUserConfig.defaultWorkspaceDataResidency}.api.tru.id`,
-              ),
-            ),
-        )
-      },
-    )
-
-  test
-    .do(() => {
-      existsSyncStub
-        .withArgs(sinon.default.match(expectedProjectConfigFileFullPath))
-        .returns(false)
-      sinon.default.stub(fs, 'outputJson').resolves()
-
-      projectConstructorStub = sinon.default.spy(
-        projectsModule,
-        'ProjectsAPIClient',
-      )
-    })
-    .command(['projects:create', newProjectName])
-    .it(
-      'should instantiate a Project API object with scopes of `projects`',
-      (ctx) => {
-        expect(projectConstructorStub).to.have.been.calledWith(
-          sinon.default.match.has('scopes', 'projects'),
-        )
-      },
-    )
-
-  test
-    .do(() => {
-      existsSyncStub
-        .withArgs(sinon.default.match(expectedProjectConfigFileFullPath))
-        .returns(false)
-      sinon.default.stub(fs, 'outputJson').resolves()
-
-      // change default test behaviour for this specific test
-      readJsonStub.restore()
-      readJsonStub = sinon.default.stub(fs, 'readJson')
-      readJsonStub.resolves(expectedUserConfigWithOverride)
-
-      projectConstructorStub = sinon.default.spy(
-        projectsModule,
-        'ProjectsAPIClient',
-      )
-    })
-    .command(['projects:create', newProjectName])
-    .it(
-      'should instantiate a Project API object with configuration based on global configuration with apiBaseUrlOverride',
-      (ctx) => {
-        expect(projectConstructorStub).to.have.been.calledWith(
-          sinon.default.match
-            .has(
-              'clientId',
-              expectedUserConfigWithOverride.defaultWorkspaceClientId,
-            )
-            .and(
-              sinon.default.match.has(
-                'clientSecret',
-                expectedUserConfigWithOverride.defaultWorkspaceClientSecret,
-              ),
-            )
-            .and(
-              sinon.default.match.has(
-                'baseUrl',
-                `${expectedUserConfigWithOverride.apiBaseUrlOverride}`,
-              ),
-            ),
-        )
-      },
-    )
-
-  test
-    .do(() => {
-      projectsApiCreateStub.withArgs({ name: 'Error Project' }).throws()
-    })
+    .stub(CliUx.ux, 'prompt', () => async () => 'My First Project')
     .stdout()
-    .command(['projects:create', 'Error Project'])
-    .exit(1)
-    .it(
-      'provides user feedback if there is an error with the Projects API',
-      (ctx) => {
-        expect(ctx.stdout).to.contain('API Error')
-      },
-    )
+    .command(['projects:create'])
+    .it('prompts for the name of a project and config is created', (ctx) => {
+      expect(outputJsonStub).to.have.been.calledWith(
+        expectedProjectConfigFileFullPath,
+        sinon.match(expectedProjectConfigJson),
+      )
+      expect(ctx.stdout).to.contain(
+        `Project configuration saved to "${expectedProjectConfigFileFullPath}`,
+      )
+    })
 
-  test
+  testToken
+    .nock('https://in.api.tru.id', (api) => {
+      api
+        .persist()
+        .post(new RegExp('/console/v0.2/workspaces/workspace_id/projects'), {
+          name: 'My Inline Project',
+        })
+        .matchHeader('Authorization', 'Bearer access_token_new')
+        .reply(200, {
+          ...createProjectAPIResponse,
+          name: 'My Inline Project',
+        })
+    })
     .do(() => {
       existsSyncStub
-        .withArgs(sinon.default.match(expectedProjectConfigFileFullPath))
+        .withArgs(sinon.match(expectedProjectConfigFileFullPath))
+        .returns(false)
+    })
+    .command(['projects:create', 'My Inline Project'])
+    .it('uses the inline argument for the name project')
+
+  testToken
+    .nock('https://in.api.tru.id', (api) => {
+      api
+        .persist()
+        .post(new RegExp('/console/v0.2/workspaces/workspace_id/projects'), {
+          name: 'My First Project',
+        })
+        .matchHeader('Authorization', 'Bearer access_token_new')
+        .reply(200, createProjectAPIResponse)
+    })
+    .do(() => {
+      existsSyncStub
+        .withArgs(sinon.match(expectedProjectConfigFileFullPath))
         .returns(true)
     })
+    .stderr()
     .command(['projects:create', newProjectName])
-    .exit(1)
+    .catch((err) => {
+      expect(err.message).to.contain(
+        'Cannot create project. A Project configuration file (tru.json) already exists',
+      )
+    })
     .it(
-      'errors if the specific project directory already contains a tru.json file',
+      'should throw error if the specific project directory already contains a tru.json file',
     )
 
-  test
+  testToken
+    .nock('https://in.api.tru.id', (api) => {
+      api
+        .persist()
+        .post(new RegExp('/console/v0.2/workspaces/workspace_id/projects'), {
+          name: 'My First Project',
+        })
+        .matchHeader('Authorization', 'Bearer access_token_new')
+        .reply(200, createProjectAPIResponse)
+    })
     .do(() => {
       existsSyncStub
-        .withArgs(sinon.default.match(expectedProjectConfigFileFullPath))
+        .withArgs(sinon.match(expectedProjectConfigFileFullPath))
         .returns(false)
-      projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
-      projectConfigFileCreationStub.throws()
+      outputJsonStub.throws()
     })
-    .command(['projects:create', newProjectName])
-    .exit(1)
-    .it('errors if an exception occurs when creating the project directory')
-
-  test
-    .do(() => {
-      existsSyncStub
-        .withArgs(sinon.default.match(expectedProjectConfigFileFullPath))
-        .returns(false)
-
-      projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
-      projectConfigFileCreationStub.resolves()
+    .stderr()
+    .command(['projects:create', 'My First Project'])
+    .catch((err) => {
+      expect(err.message).to.contain(
+        'An unexpected error occurred: Error: Error',
+      )
     })
-    .command(['projects:create', newProjectName])
     .it(
-      'creates a tru.json project configuration file with the Project resource contents',
-      (ctx) => {
-        expect(projectConfigFileCreationStub).to.have.been.calledWith(
-          expectedProjectConfigFileFullPath,
-          sinon.default.match(expectedProjectConfigJson),
-        )
-      },
+      'should throw error if an exception occurs when creating the project directory',
     )
 
   const customProjectDir = 'path/to/a/custom/dir'
   const customProjectConfigFilePath = `${customProjectDir}/tru.json`
-  test
+  testToken
+    .nock('https://in.api.tru.id', (api) => {
+      api
+        .persist()
+        .post(new RegExp('/console/v0.2/workspaces/workspace_id/projects'), {
+          name: 'My First Project',
+        })
+        .matchHeader('Authorization', 'Bearer access_token_new')
+        .reply(200, createProjectAPIResponse)
+    })
     .do(() => {
       existsSyncStub
-        .withArgs(sinon.default.match(customProjectConfigFilePath))
+        .withArgs(sinon.match(customProjectConfigFilePath))
         .returns(false)
 
-      projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
-      projectConfigFileCreationStub.resolves()
+      outputJsonStub.reset()
+
+      outputJsonStub
+        .withArgs(
+          sinon.match(customProjectConfigFilePath),
+          sinon.match.any,
+          sinon.match.any,
+        )
+        .resolves()
     })
     .command([
       'projects:create',
@@ -342,194 +231,17 @@ describe('Command: projects:create', () => {
     ])
     .it(
       `creates a tru.json project configuration file in the location specified by the ${CommandWithProjectConfig.projectDirFlagName} flag`,
-      (ctx) => {
-        expect(projectConfigFileCreationStub).to.have.been.calledWith(
+      () => {
+        expect(outputJsonStub).to.have.been.calledWith(
           customProjectConfigFilePath,
-          sinon.default.match(expectedProjectConfigJson),
+          sinon.match(expectedProjectConfigJson),
         )
       },
     )
 
   test
-    .do(() => {
-      existsSyncStub.withArgs(expectedProjectConfigFileFullPath).returns(false)
-
-      projectsApiCreateStub
-        .withArgs({ name: createProjectAPIResponse.name })
-        .resolves(createProjectAPIResponse)
-      projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
-      projectConfigFileCreationStub.resolves()
-    })
-    .command(['projects:create', createProjectAPIResponse.name])
-    .it(
-      'creates a tru.json project configuration file stripping the _links contents',
-      (ctx) => {
-        expect(projectConfigFileCreationStub).to.have.been.calledWith(
-          expectedProjectConfigFileFullPath,
-          sinon.default.match((value) => {
-            return value._links === undefined
-          }),
-        )
-      },
-    )
-
-  test
-    .do(() => {
-      existsSyncStub
-        .withArgs(sinon.default.match(expectedProjectConfigFileFullPath))
-        .returns(false)
-
-      projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
-      projectConfigFileCreationStub.resolves()
-    })
     .stdout()
-    .command(['projects:create', newProjectName])
-    .it('informs the user of successful creation of the project', (ctx) => {
-      expect(ctx.stdout).to.contain(
-        `Project configuration saved to "${expectedProjectConfigFileFullPath}".`,
-      )
-    })
-
-  test
-    .do(() => {
-      projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
-      projectConfigFileCreationStub.resolves()
-
-      consoleLoggerConstructorStub = sinon.default.spy(
-        consoleLoggerModule,
-        'ConsoleLogger',
-      )
-    })
-    .stdout()
-    .command(['projects:create', newProjectName])
-    .it(
-      'should set the ConsoleLogger to log at info level by default',
-      (ctx) => {
-        expect(consoleLoggerConstructorStub).to.have.been.calledWith(
-          consoleLoggerModule.LogLevel.info,
-        )
-      },
-    )
-
-  test
-    .do(() => {
-      projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
-      projectConfigFileCreationStub.resolves()
-
-      consoleLoggerConstructorStub = sinon.default.spy(
-        consoleLoggerModule,
-        'ConsoleLogger',
-      )
-    })
-    .stdout()
-    .command(['projects:create', newProjectName, `--debug`])
-    .it(
-      'should set the ConsoleLogger level to debug when the debug flag is set',
-      (ctx) => {
-        expect(consoleLoggerConstructorStub).to.have.been.calledWith(
-          consoleLoggerModule.LogLevel.debug,
-        )
-      },
-    )
-
-  test
-    .do(() => {
-      projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
-      projectConfigFileCreationStub.resolves()
-
-      consoleLoggerDebugStub = sinon.default.stub(
-        consoleLoggerModule.ConsoleLogger.prototype,
-        'debug',
-      )
-    })
-    .stdout()
-    .command(['projects:create', newProjectName, `--debug`])
-    .it(
-      'should log that debug is set when the --debug flag is passed',
-      (ctx) => {
-        expect(consoleLoggerDebugStub).to.have.been.calledWith('--debug', true)
-      },
-    )
-
-  test
-    .do(() => {
-      projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
-      projectConfigFileCreationStub.resolves()
-
-      phoneCheckCreateRunStub.resolves()
-    })
-    .command(['projects:create', newProjectName, `--quickstart`])
-    .it('should call phoneCheckParams.run if --quickstart is used', (ctx) => {
-      expect(phoneCheckCreateRunStub).to.have.been.called
-    })
-
-  test
-    .do(() => {
-      projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
-      projectConfigFileCreationStub.resolves()
-
-      phoneCheckCreateRunStub.resolves()
-    })
-    .command(['projects:create', newProjectName, `--quickstart`])
-    .it(
-      'should pass --project-dir to the call to phoneCheckParams.run if --quickstart is used',
-      (ctx) => {
-        expect(phoneCheckCreateRunStub).to.have.been.calledWith(
-          sinon.default.match.array.contains([
-            '--project-dir',
-            expectedProjectFullPath,
-          ]),
-        )
-      },
-    )
-
-  test
-    .do(() => {
-      projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
-      projectConfigFileCreationStub.resolves()
-
-      phoneCheckCreateRunStub.resolves()
-    })
-    .command(['projects:create', newProjectName, `--quickstart`])
-    .it(
-      'should pass --workflow to the call to phoneCheckParams.run if --quickstart is used',
-      (ctx) => {
-        expect(phoneCheckCreateRunStub).to.have.been.calledWith(
-          sinon.default.match.array.contains(['--workflow']),
-        )
-      },
-    )
-
-  test
-    .do(() => {
-      projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
-      projectConfigFileCreationStub.resolves()
-
-      phoneCheckCreateRunStub.resolves()
-    })
-    .command(['projects:create', newProjectName, '--debug', `--quickstart`])
-    .it(
-      'should pass --debug to the call to phoneCheckParams.run if --debug was used in projects:create call',
-      (ctx) => {
-        expect(phoneCheckCreateRunStub).to.have.been.calledWith(
-          sinon.default.match.array.contains([
-            '--project-dir',
-            expectedProjectFullPath,
-          ]),
-        )
-      },
-    )
-
-  test
-    .do(() => {
-      projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
-      projectConfigFileCreationStub.resolves()
-
-      consoleLoggerErrorStub = sinon.default.stub(
-        consoleLoggerModule.ConsoleLogger.prototype,
-        'error',
-      )
-    })
+    .stderr()
     .command([
       'projects:create',
       newProjectName,
@@ -539,128 +251,69 @@ describe('Command: projects:create', () => {
     .exit()
     .it(
       'should show an error message if an invalid URL is supplied for the --phonecheck-callback flag',
-      () => {
-        expect(consoleLoggerErrorStub).to.have.been.calledWith(
-          `"${phoneCheckCallbackUrlFlag.flagName}" must be a valid URL`,
+      (ctx) => {
+        expect(ctx.stderr).to.contain(
+          '"phonecheck-callback" must be a valid URL',
         )
       },
     )
 
-  test
-    .do(() => {
-      projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
-      projectConfigFileCreationStub.resolves()
-
-      consoleLoggerWarnStub = sinon.default.stub(
-        consoleLoggerModule.ConsoleLogger.prototype,
-        'warn',
-      )
-
-      phoneCheckCreateRunStub.resolves()
-    })
-    .command([
-      'projects:create',
-      newProjectName,
-      '--phonecheck-callback',
-      `http://example.com/callback`,
-    ])
-    .it(
-      'should log a warning if the URL provided is HTTP and not HTTPS',
-      (ctx) => {
-        expect(consoleLoggerWarnStub).to.have.been.calledWith(
-          `"${phoneCheckCallbackUrlFlag.flagName}" was detected to be HTTP. Please consider updated to be HTTPS.`,
-        )
-      },
-    )
-
-  test
-    .do(() => {
-      projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
-      projectConfigFileCreationStub.resolves()
-
-      consoleLoggerWarnStub = sinon.default.stub(
-        consoleLoggerModule.ConsoleLogger.prototype,
-        'warn',
-      )
-
-      phoneCheckCreateRunStub.resolves()
-    })
-    .command([
-      'projects:create',
-      newProjectName,
-      '--phonecheck-callback',
-      `http://example.com/callback`,
-    ])
-    .it(
-      'should log a warning if the URL provided is HTTP and not HTTPS',
-      (ctx) => {
-        expect(consoleLoggerWarnStub).to.have.been.calledWith(
-          '"phonecheck-callback" was detected to be HTTP. Please consider updated to be HTTPS.',
-        )
-      },
-    )
-
-  test
-    .do(() => {
-      projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
-      projectConfigFileCreationStub.resolves()
-
-      phoneCheckCreateRunStub.resolves()
-    })
-    .command([
-      'projects:create',
-      newProjectName,
-      '--phonecheck-callback',
-      `https://example.com/callback`,
-    ])
-    .it(
-      'should create a Project with the expected callback_url configuration',
-      (ctx) => {
-        expect(projectsApiCreateStub).to.have.been.calledWith({
-          name: newProjectName,
+  testToken
+    .nock('https://in.api.tru.id', (api) => {
+      api
+        .persist()
+        .post(new RegExp('/console/v0.2/workspaces/workspace_id/projects'), {
+          name: 'My First Project',
           configuration: {
             phone_check: {
-              callback_url: 'https://example.com/callback',
+              callback_url: `http://example.com/callback`,
             },
           },
         })
+        .matchHeader('Authorization', 'Bearer access_token_new')
+        .reply(200, createProjectAPIResponse)
+    })
+    .stderr()
+    .stdout()
+    .command([
+      'projects:create',
+      newProjectName,
+      '--phonecheck-callback',
+      `http://example.com/callback`,
+    ])
+    .it(
+      'should log a warning if the URL provided is HTTP and not HTTPS',
+      (ctx) => {
+        expect(ctx.stderr).to.contain(
+          `"phonecheck-callback" was detected to be HTTP. Please consider updated to be HTTPS.`,
+        )
       },
     )
 
   test
-    .do(() => {
-      projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
-      projectConfigFileCreationStub.resolves()
-    })
+    .stderr()
     .command(['projects:create', newProjectName, '--mode', `cheese`])
-    .exit(2)
+    .catch((err) => {
+      expect(err.message).to.contain(
+        '--mode=cheese to be one of: live, sandbox',
+      )
+    })
     .it('should exit if an invalid --mode value is supplied')
 
-  test
-    .do(() => {
-      projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
-      projectConfigFileCreationStub.resolves()
-    })
-    .command(['projects:create', newProjectName, '--mode', `sandbox`])
-    .it('should create a Project with mode=sandbox', (ctx) => {
-      expect(projectsApiCreateStub).to.have.been.calledWith({
-        name: newProjectName,
-        mode: 'sandbox',
+  const modeParams = [{ mode: 'sandbox' }, { mode: 'live' }]
+  modeParams.forEach(({ mode }) => {
+    testToken
+      .nock('https://in.api.tru.id', (api) => {
+        api
+          .persist()
+          .post(new RegExp('/console/v0.2/workspaces/workspace_id/projects'), {
+            name: 'My First Project',
+            mode: mode,
+          })
+          .matchHeader('Authorization', 'Bearer access_token_new')
+          .reply(200, createProjectAPIResponse)
       })
-    })
-
-  test
-    .do(() => {
-      projectConfigFileCreationStub = sinon.default.stub(fs, 'outputJson')
-      projectConfigFileCreationStub.resolves()
-
-      phoneCheckCreateRunStub.resolves()
-    })
-    .command(['projects:create', newProjectName, '--mode', `live`])
-    .it('should create a Project with mode=live', (ctx) => {
-      expect(projectsApiCreateStub).to.have.been.calledWith({
-        name: newProjectName,
-        mode: 'live',
-      })
-    })
+      .command(['projects:create', newProjectName, '--mode', mode])
+      .it(`should create a Project with mode=${mode}`)
+  })
 })

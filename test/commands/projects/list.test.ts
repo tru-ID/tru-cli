@@ -1,187 +1,129 @@
-import { test } from '@oclif/test'
-import * as sinon from 'ts-sinon'
-import * as chai from 'chai'
-import * as sinonChai from 'sinon-chai'
+import chai from 'chai'
+import fs from 'fs-extra'
+import sinonChai from 'sinon-chai'
+import sinon from 'ts-sinon'
+import {
+  IListProjectsResponse,
+  IProjectResource,
+} from '../../../src/api/ProjectsAPIClient'
+import { globalConfig, testToken } from '../../test_helpers'
 
 const expect = chai.expect
 chai.use(sinonChai)
 
-import * as fs from 'fs-extra'
-
-import * as projectsAPIClientModules from '../../../src/api/ProjectsAPIClient'
-import IGlobalConfiguration from '../../../src/IGlobalConfiguration'
-import { IProjectConfiguration } from '../../../src/IProjectConfiguration'
-import { APIConfiguration } from '../../../src/api/APIConfiguration'
-import { ConsoleLogger } from '../../../src/helpers/ConsoleLogger'
-
-import { buildConsoleString } from '../../test_helpers'
-
-describe('projects:list', () => {
-  let projectsApiClientConstructorStub: any
-  let projectsApiClientListStub: any
-  let projectsApiClientGetStub: any
-  let readJsonStub: any
-  let consoleLoggerInfoStub: any
-
-  let expectedUserConfig: IGlobalConfiguration = {
-    defaultWorkspaceClientId: 'my client id',
-    defaultWorkspaceClientSecret: 'my client secret',
-    defaultWorkspaceDataResidency: 'eu',
-  }
-
-  const projectConfigFileLocation = `${process.cwd()}/tru.json`
-
-  const projectConfig: IProjectConfiguration = {
-    project_id: 'c69bc0e6-a429-11ea-bb37-0242ac130003',
-    name: 'My test project',
-    created_at: '2020-06-01T16:43:30+00:00',
-    updated_at: '2020-06-01T16:43:30+00:00',
+const projectResource: IProjectResource = {
+  project_id: 'c69bc0e6-a429-11ea-bb37-0242ac130003',
+  name: 'My test project',
+  mode: 'live',
+  disabled: false,
+  created_at: '2020-06-01T16:43:30+00:00',
+  updated_at: '2020-06-01T16:43:30+00:00',
+  _embedded: {
     credentials: [
       {
         client_id: 'project client id',
         client_secret: 'project client secret',
+        scopes: ['phone_check'],
         created_at: '2020-06-01T16:43:30+00:00',
       },
     ],
-  }
+  },
+  _links: {
+    self: {
+      href: 'https://eu.api.tru.id/console/v0.1/projects/c69bc0e6-a429-11ea-bb37-0242ac130003',
+    },
+    my_credentials: {
+      href: 'https://eu.api.tru.id/console/v0.1/projects/c69bc0e6-a429-11ea-bb37-0242ac130003/credentials',
+    },
+  },
+}
 
-  const projectResource: projectsAPIClientModules.IProjectResource = {
-    ...projectConfig,
-    mode: 'live',
-    _links: {
-      self: {
-        href: 'https://eu.api.tru.id/console/v0.1/projects/c69bc0e6-a429-11ea-bb37-0242ac130003',
-      },
-    },
-  }
+const projectsListResource: IListProjectsResponse = {
+  _links: {
+    first: { href: '' },
+    last: { href: '' },
+    next: { href: '' },
+    prev: { href: '' },
+    self: { href: '' },
+  },
+  _embedded: {
+    projects: [projectResource],
+  },
+  page: {
+    number: 1,
+    size: 1,
+    total_elements: 1,
+    total_pages: 1,
+  },
+}
 
-  const projectsListResource: projectsAPIClientModules.IListProjectsResponse = {
-    _links: {
-      first: { href: '' },
-      last: { href: '' },
-      next: { href: '' },
-      prev: { href: '' },
-      self: { href: '' },
-    },
-    _embedded: {
-      projects: [projectResource],
-    },
-    page: {
-      number: 1,
-      size: 1,
-      total_elements: 1,
-      total_pages: 1,
-    },
-  }
+let readJsonStub: any
 
+describe('projects:list', () => {
   beforeEach(() => {
-    sinon.default
+    sinon
       .stub(fs, 'existsSync')
-      .withArgs(sinon.default.match(new RegExp(/config.json/)))
+      .withArgs(sinon.match(new RegExp(/config.json/)))
       .returns(true)
 
-    readJsonStub = sinon.default.stub(fs, 'readJson')
+    readJsonStub = sinon.stub(fs, 'readJson')
+    readJsonStub.resolves(globalConfig)
 
-    readJsonStub
+    sinon
+      .stub(fs, 'outputJson')
       .withArgs(
-        sinon.default.match(sinon.default.match(new RegExp(/config.json/))),
+        sinon.match(new RegExp(/config.json/)),
+        sinon.match.any,
+        sinon.match.any,
       )
-      .resolves(expectedUserConfig)
-
-    readJsonStub
-      .withArgs(sinon.default.match(projectConfigFileLocation))
-      .resolves(projectConfig)
-
-    projectsApiClientListStub = sinon.default.stub(
-      projectsAPIClientModules.ProjectsAPIClient.prototype,
-      'list',
-    )
-    projectsApiClientListStub.resolves(projectsListResource)
-
-    projectsApiClientGetStub = sinon.default.stub(
-      projectsAPIClientModules.ProjectsAPIClient.prototype,
-      'get',
-    )
-    projectsApiClientGetStub.resolves(projectResource)
-
-    consoleLoggerInfoStub = sinon.default.stub(ConsoleLogger.prototype, 'info')
+      .resolves(globalConfig)
   })
 
   afterEach(() => {
-    sinon.default.restore()
+    sinon.restore()
   })
 
-  test
-    .do(() => {
-      projectsApiClientConstructorStub = sinon.default.spy(
-        projectsAPIClientModules,
-        'ProjectsAPIClient',
-      )
-    })
-    .command(['projects:list'])
-    .it(
-      'projects/list/ProjectsAPIClient: it should instantiate ProjectsAPIClient with expected arguments',
-      (ctx) => {
-        expect(projectsApiClientConstructorStub).to.be.calledWith(
-          sinon.default.match.instanceOf(APIConfiguration),
+  testToken
+    .nock('https://eu.api.tru.id', (api) =>
+      api
+        .get(
+          new RegExp(
+            `/console/v0.2/workspaces/${globalConfig.selectedWorkspace}/projects*`,
+          ),
         )
-      },
+        .reply(200, projectsListResource),
     )
-
-  test
+    .stdout()
     .command(['projects:list'])
-    .it(
-      'projects/list/ProjectsAPIClient.list: should call ProjectsAPIClient.list() if optional project_id argment is not supplied',
-      (ctx) => {
-        expect(projectsApiClientListStub).to.be.called
-      },
+    .it('should list projects', (ctx) => {
+      expect(ctx.stdout).to.contain('name')
+      expect(ctx.stdout).to.contain('project_id')
+      expect(ctx.stdout).to.contain('created_at')
+      expect(ctx.stdout).to.contain('Page 1 of 1')
+      expect(ctx.stdout).to.contain('Projects: 1 to 1 of 1')
+      expect(ctx.stdout).to.contain(projectResource.name)
+      expect(ctx.stdout).to.contain(projectResource.project_id)
+      expect(ctx.stdout).to.contain(projectResource.created_at)
+    })
+
+  testToken
+    .nock('https://eu.api.tru.id', (api) =>
+      api
+        .get(
+          new RegExp(
+            `/console/v0.2/workspaces/${globalConfig.selectedWorkspace}/projects/projects_id_value*`,
+          ),
+        )
+        .reply(200, projectResource),
     )
-
-  test
-    .command(['projects:list'])
-    .it('should contain header table output', (ctx) => {
-      const consoleOutputString = buildConsoleString(consoleLoggerInfoStub)
-
-      expect(consoleOutputString).to.contain('name')
-      expect(consoleOutputString).to.contain('project_id')
-      expect(consoleOutputString).to.contain('created_at')
-    })
-
-  test
-    .command(['projects:list'])
-    .it('should contain pagination output', (ctx) => {
-      const consoleOutputString = buildConsoleString(consoleLoggerInfoStub)
-
-      expect(consoleOutputString).to.contain('Page 1 of 1')
-      expect(consoleOutputString).to.contain('Projects: 1 to 1 of 1')
-    })
-
-  test
-    .command(['projects:list'])
-    .it('outputs resource list to cli.table', (ctx) => {
-      const consoleOutputString = buildConsoleString(consoleLoggerInfoStub)
-
-      expect(consoleOutputString).to.contain(projectResource.name)
-      expect(consoleOutputString).to.contain(projectResource.project_id)
-      expect(consoleOutputString).to.contain(projectResource.created_at)
-    })
-
-  test
+    .stdout()
     .command(['projects:list', 'projects_id_value'])
     .it(
       'should call ProjectsAPIClient.get(project_id) if optional projects_id argment is supplied',
       (ctx) => {
-        expect(projectsApiClientGetStub).to.be.calledWith('projects_id_value')
+        expect(ctx.stdout).to.contain(projectResource.name)
+        expect(ctx.stdout).to.contain(projectResource.project_id)
+        expect(ctx.stdout).to.contain(projectResource.created_at)
       },
     )
-
-  test
-    .command(['projects:list', 'projects_id_value'])
-    .it('outputs result of a single resource to cli.table', (ctx) => {
-      const consoleOutputString = buildConsoleString(consoleLoggerInfoStub)
-
-      expect(consoleOutputString).to.contain(projectResource.name)
-      expect(consoleOutputString).to.contain(projectResource.project_id)
-      expect(consoleOutputString).to.contain(projectResource.created_at)
-    })
 })

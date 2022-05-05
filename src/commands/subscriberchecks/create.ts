@@ -1,14 +1,13 @@
-import { flags } from '@oclif/command'
-import * as Config from '@oclif/config'
-import { APIConfiguration } from '../../api/APIConfiguration'
-import CommandWithProjectConfig from '../../helpers/CommandWithProjectConfig'
-import ILogger from '../../helpers/ILogger'
+import { Config } from '@oclif/core'
+import { APIClientCredentialsConfiguration } from '../../api/APIConfiguration'
 import {
   SubscriberCheckAPIClient,
   SubscriberCheckResource,
 } from '../../api/SubscriberCheckAPIClient'
+import { ClientCredentialsManager } from '../../api/TokenManager'
+import { apiBaseUrlDR } from '../../DefaultUrls'
 import ChecksCreateCommand from '../../helpers/ChecksCreateCommand'
-import { CheckResource } from '../../api/ChecksAPIClient'
+import ILogger from '../../helpers/ILogger'
 
 export default class SubscriberChecksCreate extends ChecksCreateCommand {
   static typeOfCheck = 'SubscriberCheck'
@@ -21,7 +20,7 @@ export default class SubscriberChecksCreate extends ChecksCreateCommand {
 
   static args = [...ChecksCreateCommand.args]
 
-  constructor(argv: string[], config: Config.IConfig) {
+  constructor(argv: string[], config: Config) {
     super('SubscriberCheck', 'subscriber_check', argv, config)
   }
 
@@ -29,18 +28,30 @@ export default class SubscriberChecksCreate extends ChecksCreateCommand {
     return this.parse(SubscriberChecksCreate)
   }
 
-  getApiClient(apiConfiguration: APIConfiguration, logger: ILogger) {
-    return new SubscriberCheckAPIClient(apiConfiguration, logger)
+  getApiClient(
+    apiConfiguration: APIClientCredentialsConfiguration,
+    logger: ILogger,
+  ): SubscriberCheckAPIClient {
+    const tokenManager = new ClientCredentialsManager(apiConfiguration, logger)
+
+    return new SubscriberCheckAPIClient(
+      tokenManager,
+      apiBaseUrlDR(
+        this.projectConfig?.data_residency || 'eu',
+        this.globalConfig!,
+      ),
+      logger,
+    )
   }
 
-  getPolling() {
+  getPolling(): number {
     return (
       this.globalConfig?.subscriberCheckWorkflowRetryMillisecondsOverride ??
       5000
     )
   }
 
-  logResult(checkResponse: SubscriberCheckResource) {
+  logResult(checkResponse: SubscriberCheckResource): void {
     this.log('')
     this.log(
       `${this.typeOfCheck} Workflow result:\n` +

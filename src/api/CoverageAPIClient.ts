@@ -1,5 +1,7 @@
 import axios from 'axios'
-import AbstractAPIClient from './AbstractAPIClient'
+import ILogger from '../helpers/ILogger'
+import { HttpClient } from './HttpClient'
+import { ClientCredentialsManager } from './TokenManager'
 
 export interface IPrice {
   currency: string
@@ -24,7 +26,7 @@ export interface ICoverageInfo {
 
 export type IProductCoverage = IProduct & ICoverageInfo
 
-export interface ICoverageReachResponse {
+export type ICoverageReachResponse = {
   network_id: string
   network_name: string
   country_code: string
@@ -37,7 +39,19 @@ export interface ICoverageCountryResponse {
   products: IProductCoverage[]
 }
 
-export class CoverageAPIClient extends AbstractAPIClient {
+export class CoverageAPIClient {
+  baseApiUrl: string
+  httpClient: HttpClient
+
+  constructor(
+    tokenManager: ClientCredentialsManager,
+    baseApiUrl: string,
+    logger: ILogger,
+  ) {
+    this.httpClient = new HttpClient(tokenManager, baseApiUrl, logger)
+    this.baseApiUrl = baseApiUrl
+  }
+
   async reach(deviceIp: string): Promise<ICoverageReachResponse | undefined> {
     let response: ICoverageReachResponse | undefined
     try {

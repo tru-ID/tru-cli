@@ -1,9 +1,14 @@
-import { APIConfiguration } from '../../api/APIConfiguration'
 import {
-  ICreateProjectResponse,
   IUpdateProjectPayload,
   ProjectsAPIClient,
 } from '../../api/ProjectsAPIClient'
+import { RefreshTokenManager } from '../../api/TokenManager'
+import {
+  apiBaseUrlDR,
+  issuerUrl,
+  loginBaseUrl,
+  workspaceTokenUrl,
+} from '../../DefaultUrls'
 import CommandWithProjectConfig from '../../helpers/CommandWithProjectConfig'
 import {
   phoneCheckCallbackUrlFlag,
@@ -11,9 +16,13 @@ import {
   projectModeFlag,
   removePhoneCheckCallbackFlag,
 } from '../../helpers/ProjectFlags'
+import {
+  isWorkspaceSelected,
+  isWorkspaceTokenInfoValid,
+} from '../../helpers/ValidationUtils'
 import { logApiError } from '../../utilities'
 
-export default class Create extends CommandWithProjectConfig {
+export default class ProjectsUpdate extends CommandWithProjectConfig {
   static description = 'Update an existing Project'
 
   static examples = [
@@ -39,11 +48,14 @@ export default class Create extends CommandWithProjectConfig {
   ]
 
   async run() {
-    const result = this.parse(Create)
+    const result = await this.parse(ProjectsUpdate)
     this.args = result.args
     this.flags = result.flags
 
     await super.run()
+
+    isWorkspaceTokenInfoValid(this.globalConfig!)
+    isWorkspaceSelected(this.globalConfig!)
 
     this.logger.debug('args', this.args)
     this.logger.debug('flags', this.flags)
@@ -70,25 +82,30 @@ export default class Create extends CommandWithProjectConfig {
       this.logger.error(
         'At least one flag must be supplied to indicate the update to be applied to the Project',
       )
-      this.logger.error('')
-      this.showCommandHelp({ exitCode: 1 })
+      this.exit(1)
     }
 
     this.log(`Updated Project with project_id "${this.args['project-id']}"`)
 
-    const projectsAPI = new ProjectsAPIClient(
-      new APIConfiguration({
-        clientId: this.globalConfig?.defaultWorkspaceClientId,
-        clientSecret: this.globalConfig?.defaultWorkspaceClientSecret,
-        scopes: ['projects'],
-        baseUrl:
-          this.globalConfig?.apiBaseUrlOverride ??
-          `https://${this.globalConfig?.defaultWorkspaceDataResidency}.api.tru.id`,
-      }),
+    const tokenManager = new RefreshTokenManager(
+      {
+        refreshToken: this.globalConfig!.tokenInfo!.refreshToken,
+        configLocation: this.getConfigPath(),
+        tokenUrl: workspaceTokenUrl(loginBaseUrl(this.globalConfig!)),
+        issuerUrl: issuerUrl(this.globalConfig!),
+      },
       this.logger,
     )
 
-    let projectCreationResult: ICreateProjectResponse
+    const projectsAPIClient = new ProjectsAPIClient(
+      tokenManager,
+      apiBaseUrlDR(
+        this.globalConfig!.selectedWorkspaceDataResidency!,
+        this.globalConfig!,
+      ),
+      this.logger,
+    )
+
     try {
       const updatePayload: IUpdateProjectPayload = {}
 
@@ -108,14 +125,15 @@ export default class Create extends CommandWithProjectConfig {
         updatePayload.mode = this.flags[projectModeFlag.flagName]
       }
 
-      projectCreationResult = await projectsAPI.update(
+      await projectsAPIClient.update(
+        this.globalConfig!.selectedWorkspace!,
         this.args['project-id'],
         updatePayload,
       )
 
       this.logger.info('✅ Project updated')
     } catch (error) {
-      logApiError(this.log, error)
+      logApiError(this, error)
       this.exit(1)
     }
   }

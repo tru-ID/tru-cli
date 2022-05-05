@@ -1,101 +1,62 @@
-image: node:latest
+image: node:16
 
 stages:
-  - build
   - test
-  - package
-  - publish
-  - notify
+  - build and publish
 
-# Cache modules in between jobs
+before_script:
+  - npm ci --cache .npm
+
 cache:
-  key: ${CI_COMMIT_REF_SLUG}
+  key:
+    files:
+      - package-lock.lock
   paths:
     - node_modules/
-
-install_dependencies:
-  stage: build
-  script:
-    - yarn install
-  artifacts:
-    paths:
-      - node_modules/
-
-unit_tests_node_10:
-  stage: test
-  image: node:10
-  script:
-    - yarn test
-
-unit_tests_node_12:
-  stage: test
-  image: node:12
-  script:
-    - yarn test
+    - .npm/
 
 unit_tests_node_14:
   stage: test
   image: node:14
   script:
-    - yarn test
+    - npm test
+
+unit_tests_node_16:
+  stage: test
+  image: node:16
+  script:
+    - npm test
 
 unit_tests_node_latest:
   stage: test
   image: node:latest
   script:
-    - yarn install
-    - yarn test
-    
-package_installers:
-  stage: package
-  only:
-    - canary
-    - main
-    - ci-publish-test
-  artifacts:
-    paths:
-      - dist # all files
-  before_script:
-    - apt update
-    - apt install p7zip-full -y
-  script:
-    - yarn install
-    - yarn run canary_version_suffix
-    - yarn run pack
+    - npm test
 
 publish_npm_dev:
-  stage: publish
+  stage: build and publish
+  dependencies:
+    - unit_tests_node_14
+    - unit_tests_node_16
+    - unit_tests_node_latest
+  script:
+    - npm config set //registry.npmjs.org/:_authToken ${NPM_TOKEN}
+    - npm run build
+    - npm run canary_version_suffix
+    - npm run npm:publish:dev
+  when: manual
   only:
     - canary
-    - ci-publish-test
-  dependencies:
-    - package_installers
-  needs:
-    - job: package_installers
-      artifacts: true
-  script:
-    - ls dist
-    - yarn install
-    - yarn run canary_version_suffix
-    - yarn run npm:publish:dev
 
 publish_npm_prod:
-  stage: publish
+  stage: build and publish
   only:
     - main
   dependencies:
-    - package_installers
-  needs:
-    - job: package_installers
-      artifacts: true
+    - unit_tests_node_14
+    - unit_tests_node_16
+    - unit_tests_node_latest
   script:
-    - ls dist
-    - yarn install
-    - yarn run npm:publish:prod
-
-notify_release:
-  stage: notify
-  only:
-    - main
-  script:
-    - scripts/notify_release.sh
+    - npm config set //registry.npmjs.org/:_authToken ${NPM_TOKEN}
+    - npm run build
+    - npm run npm:publish:prod

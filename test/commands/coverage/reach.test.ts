@@ -1,103 +1,130 @@
 import { test } from '@oclif/test'
-import * as chai from 'chai'
-import * as fs from 'fs-extra'
-import * as path from 'path'
-import * as sinonChai from 'sinon-chai'
-import * as sinon from 'ts-sinon'
-import * as coverageAPIClientModules from '../../../src/api/CoverageAPIClient'
-import IGlobalConfiguration from '../../../src/IGlobalConfiguration'
+import chai from 'chai'
+import fs from 'fs-extra'
+import path from 'path'
+import sinonChai from 'sinon-chai'
+import sinon from 'ts-sinon'
+import { ICoverageReachResponse } from '../../../src/api/CoverageAPIClient'
+import { IGlobalAuthConfiguration } from '../../../src/IGlobalAuthConfiguration'
 import { IProjectConfiguration } from '../../../src/IProjectConfiguration'
+import { accessToken } from '../../test_helpers'
 
 const expect = chai.expect
 chai.use(sinonChai)
 
+const reachableIp = 'mobileIpAddress'
+const unreachableIp = 'unreachableIp'
+
+const globalConfig: IGlobalAuthConfiguration = {
+  selectedWorkspace: 'workspace_id',
+  selectedWorkspaceDataResidency: 'eu',
+  tokenInfo: {
+    refreshToken: 'refresh_token',
+    scope: 'console openid',
+  },
+}
+
+const projectConfigFileLocation = path.join(process.cwd(), 'tru.json')
+const projectConfig: IProjectConfiguration = {
+  project_id: 'c69bc0e6-a429-11ea-bb37-0242ac130003',
+  name: 'My test project',
+  created_at: '2020-06-01T16:43:30+00:00',
+  credentials: [
+    {
+      client_id: 'project client id',
+      client_secret: 'project client secret',
+      scopes: ['coverage'],
+    },
+  ],
+}
+
+const reachResponse: ICoverageReachResponse = {
+  network_id: '1234',
+  network_name: 'ACME',
+  country_code: 'US',
+  products: [{ product_id: 'PCK', product_name: 'Phone Check' }],
+}
+
+let existsSyncStub: any
+let readJsonStub: any
+
 describe('coverage:reach', () => {
-  const reachableIp = 'mobileIpAddress'
-  const unreachableIp = 'unreachableIp'
-
-  const globalConfig: IGlobalConfiguration = {
-    defaultWorkspaceClientId: 'clientID',
-    defaultWorkspaceClientSecret: 'clientSecret',
-    defaultWorkspaceDataResidency: 'eu',
-  }
-
-  const projectConfigFileLocation = path.join(process.cwd(), 'tru.json')
-  const projectConfig: IProjectConfiguration = {
-    project_id: 'c69bc0e6-a429-11ea-bb37-0242ac130003',
-    name: 'My test project',
-    created_at: '2020-06-01T16:43:30+00:00',
-    updated_at: '2020-06-01T16:43:30+00:00',
-    credentials: [
-      {
-        client_id: 'project client id',
-        client_secret: 'project client secret',
-        scopes: ['coverage'],
-        created_at: '2020-06-01T16:43:30+00:00',
-      },
-    ],
-  }
-
-  const existsSyncStub: any = sinon.default.stub(fs, 'existsSync')
-  const coverageAPIReachStub: any = sinon.default.stub(
-    coverageAPIClientModules.CoverageAPIClient.prototype,
-    'reach',
-  )
-  const readJsonStub: any = sinon.default.stub(fs, 'readJson')
-
   beforeEach(() => {
+    existsSyncStub = sinon.stub(fs, 'existsSync')
+    readJsonStub = sinon.stub(fs, 'readJson')
     existsSyncStub
-      .withArgs(sinon.default.match(new RegExp(/config.json/)))
+      .withArgs(sinon.match(new RegExp(/config.json/)))
       .returns(true)
 
     readJsonStub
-      .withArgs(
-        sinon.default.match(sinon.default.match(new RegExp(/config.json/))),
-      )
+      .withArgs(sinon.match(sinon.match(new RegExp(/config.json/))))
       .resolves(globalConfig)
 
     readJsonStub
-      .withArgs(sinon.default.match(projectConfigFileLocation))
+      .withArgs(sinon.match(projectConfigFileLocation))
       .resolves(projectConfig)
   })
 
-  test
-    .add('mockedResponse', () => {
-      const reachResponse: coverageAPIClientModules.ICoverageReachResponse = {
-        network_id: '1234',
-        network_name: 'ACME',
-        country_code: 'US',
-        products: [{ product_id: 'PCK', product_name: 'Phone Check' }],
-      }
+  afterEach(() => {
+    sinon.restore()
+  })
 
-      coverageAPIReachStub.withArgs(reachableIp).resolves(reachResponse)
+  const dataResidency = [
+    {
+      data_residency: 'in',
+      config_data_residency: 'in',
+    },
+    {
+      data_residency: 'eu',
+      config_data_residency: undefined,
+    },
+  ]
+  dataResidency.forEach(({ data_residency, config_data_residency }) => {
+    test
+      .nock(`https://${data_residency}.api.tru.id`, (api) =>
+        api
+          .persist()
+          .post(new RegExp('/oauth2/v1/token*'))
+          .reply(200, accessToken)
+          .get(new RegExp('/coverage/v0.1/device_ips/.*'))
+          .reply(200, reachResponse),
+      )
+      .do(() => {
+        readJsonStub
+          .withArgs(sinon.match(projectConfigFileLocation))
+          .resolves({ ...projectConfig, data_residency: config_data_residency })
+      })
+      .stdout()
+      .command(['coverage:reach', reachableIp])
+      .it('outputs result to cli.table', (ctx) => {
+        expect(ctx.stdout).to.contain(reachResponse.country_code)
+        expect(ctx.stdout).to.contain(reachResponse.network_id)
+        expect(ctx.stdout).to.contain(reachResponse.network_name)
+        expect(ctx.stdout).to.contain(reachResponse.products[0].product_name)
+      })
 
-      return reachResponse
-    })
-    .stdout()
-    .command(['coverage:reach', reachableIp])
-    .it('outputs result to cli.table', (ctx) => {
-      expect(ctx.stdout).to.contain(ctx.mockedResponse.country_code)
-      expect(ctx.stdout).to.contain(ctx.mockedResponse.network_id)
-      expect(ctx.stdout).to.contain(ctx.mockedResponse.network_name)
-      expect(ctx.stdout).to.contain(ctx.mockedResponse.products[0].product_name)
-    })
+    test
+      .stdout()
+      .nock('https://eu.api.tru.id', (api) =>
+        api
+          .persist()
+          .post(new RegExp('/oauth2/v1/tokens*'))
+          .reply(200, accessToken)
+          .get('/coverage/v0.1/device_ips/unreachableIp')
+          .reply(200),
+      )
+      .command(['coverage:reach', unreachableIp])
+      .it('outputs no reach result', (ctx) => {
+        expect(ctx.stdout).to.contain('No reach')
+      })
+  })
 
   test
     .do((_ctx) => {
-      coverageAPIReachStub.withArgs(unreachableIp).resolves(undefined)
-    })
-    .stdout()
-    .command(['coverage:reach', unreachableIp])
-    .it('outputs no reach result', (ctx) => {
-      expect(ctx.stdout).to.contain('No reach')
-    })
-
-  test
-    .do((_ctx) => {
-      let projectWithoutRequiredScope = { ...projectConfig }
+      const projectWithoutRequiredScope = { ...projectConfig }
       projectWithoutRequiredScope.credentials[0].scopes = []
       readJsonStub
-        .withArgs(sinon.default.match(projectConfigFileLocation))
+        .withArgs(sinon.match(projectConfigFileLocation))
         .resolves(projectWithoutRequiredScope)
     })
     .command(['coverage:reach', 'noReachIpAddress'])

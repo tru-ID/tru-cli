@@ -1,4 +1,4 @@
-import * as Config from '@oclif/config'
+import { Config } from '@oclif/core'
 import UsageCommand from '../../helpers/UsageCommand'
 
 export default class MonthlyUsage extends UsageCommand {
@@ -9,7 +9,7 @@ export default class MonthlyUsage extends UsageCommand {
     ...UsageCommand.flags,
   }
 
-  constructor(argv: string[], config: Config.IConfig) {
+  constructor(argv: string[], config: Config) {
     super(argv, config, 'monthly')
   }
 

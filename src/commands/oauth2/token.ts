@@ -1,26 +1,30 @@
-import { cli } from 'cli-ux'
-import { APIConfiguration } from '../../api/APIConfiguration'
-import { ICreateTokenResponse } from '../../api/HttpClient'
-import { OAuth2APIClient } from '../../api/OAuth2APIClient'
+import { CliUx } from '@oclif/core'
+import { APIClientCredentialsConfiguration } from '../../api/APIConfiguration'
+import {
+  AccessToken,
+  ClientCredentialsManager,
+  RefreshTokenManager,
+} from '../../api/TokenManager'
+import { tokenUrlDR } from '../../DefaultUrls'
 import CommandWithProjectConfig from '../../helpers/CommandWithProjectConfig'
+import {
+  doesProjectConfigExist,
+  isProjectCredentialsValid,
+} from '../../helpers/ValidationUtils'
 import { IProjectConfiguration } from '../../IProjectConfiguration'
-import { logApiError } from '../../utilities'
 
 export default class CreateToken extends CommandWithProjectConfig {
   static description = 'Creates an OAuth2 token'
 
   static flags = {
     ...CommandWithProjectConfig.flags,
-    output: cli.table.flags().output,
-    extended: cli.table.flags().extended,
-    'no-header': cli.table.flags()['no-header'],
-    'no-truncate': cli.table.flags()['no-truncate'],
+    output: CliUx.ux.table.flags().output,
+    extended: CliUx.ux.table.flags().extended,
+    'no-header': CliUx.ux.table.flags()['no-header'],
+    'no-truncate': CliUx.ux.table.flags()['no-truncate'],
   }
 
   static examples = [
-    `# use workspace credentials to create token
-$ tru oauth2:token
-`,
     `# use project credentials to create token
 $ tru oauth2:token --${CommandWithProjectConfig.projectDirFlagName} path/to/project
 `,
@@ -30,62 +34,49 @@ $ echo $TOKEN
 Emesua0F7gj3qOaav7UaKaBwefaaefaAxlrdGom_mb3U.78Od2d9XpvTQbd44eM1Uf7nzz9e9nezs5TRjPmpDnMc`,
   ]
 
+  refreshTokenManager: RefreshTokenManager | undefined
+  clientCredentialsManager: ClientCredentialsManager | undefined
+
   async run() {
-    const result = this.parse(CreateToken)
+    const result = await this.parse(CreateToken)
 
     this.args = result.args
     this.flags = result.flags
 
-    // if --projects_dir has been supplied running in the context of the project
-    // otherwise, running in the context of the workspaces
-    const runningInProjectContext =
-      !!this.flags[CommandWithProjectConfig.projectDirFlagName]
+    await this.loadProjectConfig()
 
-    if (runningInProjectContext) {
-      await this.loadProjectConfig()
+    doesProjectConfigExist(this.projectConfig)
+    isProjectCredentialsValid(this.projectConfig!)
+
+    if (!this.projectConfig?.data_residency) {
+      this.warn(
+        'No data_residency specified in project config tru.json. It will default to eu',
+      )
     }
 
-    const clientId = runningInProjectContext
-      ? this.projectConfig?.credentials[0].client_id
-      : this.globalConfig?.defaultWorkspaceClientId
-    const clientSecret = runningInProjectContext
-      ? this.projectConfig?.credentials[0].client_secret
-      : this.globalConfig?.defaultWorkspaceClientSecret
-    const scopes: string[] = this.getScopes(
-      runningInProjectContext,
-      this.projectConfig,
-    )
+    const configClientCredentials: APIClientCredentialsConfiguration = {
+      clientId: this.projectConfig!.credentials[0].client_id!,
+      clientSecret: this.projectConfig!.credentials[0].client_secret!,
+      scopes: this.projectConfig!.credentials[0].scopes!,
+      tokenUrl: tokenUrlDR(
+        this.projectConfig?.data_residency || 'eu',
+        this.globalConfig!,
+      ),
+    }
 
-    this.logger.debug(
-      `Creating a token for a ${
-        runningInProjectContext ? 'Project' : 'Workspace'
-      } with the scope "${scopes.join(' ')}"`,
-    )
-
-    const apiClient = new OAuth2APIClient(
-      new APIConfiguration({
-        clientId: clientId,
-        clientSecret: clientSecret,
-        scopes: scopes,
-        baseUrl:
-          this.globalConfig?.apiBaseUrlOverride ??
-          `https://${this.globalConfig?.defaultWorkspaceDataResidency}.api.tru.id`,
-      }),
+    const clientCredentialsManager = new ClientCredentialsManager(
+      configClientCredentials,
       this.logger,
     )
 
-    try {
-      let tokenCreationResult = await apiClient.create()
+    const accessToken: AccessToken =
+      await clientCredentialsManager.getAccessToken()
 
-      this.displayResults([tokenCreationResult])
-    } catch (error) {
-      logApiError(this.log, error)
-      this.exit(1)
-    }
+    this.displayResults([accessToken])
   }
 
-  displayResults(resources: ICreateTokenResponse[]) {
-    cli.table(
+  displayResults(resources: AccessToken[]) {
+    CliUx.ux.table(
       resources,
       {
         access_token: {
@@ -113,20 +104,8 @@ Emesua0F7gj3qOaav7UaKaBwefaaefaAxlrdGom_mb3U.78Od2d9XpvTQbd44eM1Uf7nzz9e9nezs5TR
     )
   }
 
-  getScopes(
-    runningInProjectContext: boolean,
-    projectConfig?: IProjectConfiguration,
-  ): string[] {
-    let scopes: string[]
-
-    if (runningInProjectContext) {
-      // Defaulting to phone_check since that was the initial scope defined and just to keep compatible with old project config
-      // that do not have the scopes in tru.json of project directory.
-      scopes = projectConfig?.credentials[0].scopes ?? ['phone_check']
-    } else {
-      // In Workspace. Set Workspaces scopes
-      scopes = ['workspaces', 'projects', 'usage', 'balances']
-    }
+  getScopes(projectConfig?: IProjectConfiguration): string[] {
+    const scopes = projectConfig?.credentials[0].scopes ?? ['phone_check']
 
     return scopes
   }

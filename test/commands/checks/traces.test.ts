@@ -1,47 +1,24 @@
 import { test } from '@oclif/test'
-import * as chai from 'chai'
-import * as fs from 'fs-extra'
-import * as sinonChai from 'sinon-chai'
-import * as sinon from 'ts-sinon'
-import * as httpClientModule from '../../../src/api/HttpClient'
+import chai from 'chai'
+import fs from 'fs-extra'
+import sinonChai from 'sinon-chai'
+import sinon from 'ts-sinon'
 import {
   CheckTraceResource,
   IListCheckTracesResource,
 } from '../../../src/api/TraceAPIClient'
-import { ConsoleLogger } from '../../../src/helpers/ConsoleLogger'
-import IGlobalConfiguration from '../../../src/IGlobalConfiguration'
-import { IProjectConfiguration } from '../../../src/IProjectConfiguration'
-import { buildConsoleString } from '../../test_helpers'
+import {
+  accessToken,
+  globalConfig,
+  projectConfig,
+  projectConfigFileLocation,
+} from '../../test_helpers'
 
 const expect = chai.expect
 chai.use(sinonChai)
 
 describe('checks:traces', () => {
   let readJsonStub: any
-  let consoleLoggerInfoStub: any
-  let httpClientGetStub: any
-
-  const expectedUserConfig: IGlobalConfiguration = {
-    defaultWorkspaceClientId: 'my client id',
-    defaultWorkspaceClientSecret: 'my client secret',
-    defaultWorkspaceDataResidency: 'eu',
-  }
-
-  const projectConfigFileLocation = `${process.cwd()}/tru.json`
-
-  const projectConfig: IProjectConfiguration = {
-    project_id: 'c69bc0e6-a429-11ea-bb37-0242ac130003',
-    name: 'My test project',
-    created_at: '2020-06-01T16:43:30+00:00',
-    updated_at: '2020-06-01T16:43:30+00:00',
-    credentials: [
-      {
-        client_id: 'project client id',
-        client_secret: 'project client secret',
-        created_at: '2020-06-01T16:43:30+00:00',
-      },
-    ],
-  }
 
   const traceResource: CheckTraceResource = {
     trace_id: '123',
@@ -89,116 +66,99 @@ describe('checks:traces', () => {
   }
 
   const testParams = [
-    { command: 'subscriberchecks:traces', basepath: 'subscriber_check' },
-    { command: 'phonechecks:traces', basepath: 'phone_check' },
-    { command: 'simchecks:traces', basepath: 'sim_check' },
+    {
+      command: 'subscriberchecks:traces',
+      basepath: 'subscriber_check',
+      version: 'v0.1',
+    },
+    { command: 'phonechecks:traces', basepath: 'phone_check', version: 'v0.1' },
+    { command: 'simchecks:traces', basepath: 'sim_check', version: 'v0.1' },
   ]
 
   beforeEach(() => {
-    sinon.default
+    sinon
       .stub(fs, 'existsSync')
-      .withArgs(sinon.default.match(new RegExp(/config.json/)))
+      .withArgs(sinon.match(new RegExp(/config.json/)))
       .returns(true)
 
-    readJsonStub = sinon.default.stub(fs, 'readJson')
+    readJsonStub = sinon.stub(fs, 'readJson')
 
     readJsonStub
-      .withArgs(
-        sinon.default.match(sinon.default.match(new RegExp(/config.json/))),
-      )
-      .resolves(expectedUserConfig)
+      .withArgs(sinon.match(sinon.match(new RegExp(/config.json/))))
+      .resolves(globalConfig)
 
     readJsonStub
-      .withArgs(sinon.default.match(projectConfigFileLocation))
+      .withArgs(sinon.match(projectConfigFileLocation))
       .resolves(projectConfig)
-
-    httpClientGetStub = sinon.default.stub(
-      httpClientModule.HttpClient.prototype,
-      'get',
-    )
-    httpClientGetStub
-      .withArgs(
-        `/phone_check/v0.1/checks/check_id_value/traces`,
-        sinon.default.match.any,
-        sinon.default.match.any,
-      )
-      .resolves(listTraceResource)
-    httpClientGetStub
-      .withArgs(
-        `/sim_check/v0.1/checks/check_id_value/traces`,
-        sinon.default.match.any,
-        sinon.default.match.any,
-      )
-      .resolves(listTraceResource)
-    httpClientGetStub
-      .withArgs(
-        `/subscriber_check/v0.1/checks/check_id_value/traces`,
-        sinon.default.match.any,
-        sinon.default.match.any,
-      )
-      .resolves(listTraceResource)
-
-    consoleLoggerInfoStub = sinon.default.stub(ConsoleLogger.prototype, 'info')
   })
 
   afterEach(() => {
-    sinon.default.restore()
+    sinon.restore()
   })
 
-  testParams.forEach(({ command, basepath }) => {
+  testParams.forEach(({ command, basepath, version }) => {
     test
+      .nock('https://eu.api.tru.id', (api) =>
+        api
+          .persist()
+          .post(new RegExp('/oauth2/v1/token*'))
+          .reply(200, accessToken)
+          .get(new RegExp(`/${basepath}/v0.1/checks/check_id_value/traces`))
+          .reply(200, listTraceResource),
+      )
+      .stdout()
       .command([command, 'check_id_value'])
       .it(
-        `${command} should call /${basepath}/v0.1/checks/check_id_value/traces`,
-        () => {
-          expect(httpClientGetStub).to.be.calledWith(
-            `/${basepath}/v0.1/checks/check_id_value/traces`,
-            sinon.default.match.any,
-            sinon.default.match.any,
-          )
+        `${command} should call /${basepath}/${version}/checks/check_id_value/traces`,
+        (ctx) => {
+          expect(ctx.stdout).to.contain('trace_id')
+          expect(ctx.stdout).to.contain('timestamp')
+          expect(ctx.stdout).to.contain('message')
         },
       )
   })
 
-  testParams.forEach(({ command }) => {
+  testParams.forEach(({ command, basepath }) => {
     test
-      .command([command, 'check_id_value'])
-      .it(`${command} should contain header table output`, () => {
-        const consoleOutputString = buildConsoleString(consoleLoggerInfoStub)
-
-        expect(consoleOutputString).to.contain('trace_id')
-        expect(consoleOutputString).to.contain('timestamp')
-        expect(consoleOutputString).to.contain('message')
-      })
-  })
-
-  testParams.forEach(({ command }) => {
-    test
+      .nock('https://eu.api.tru.id', (api) =>
+        api
+          .persist()
+          .post(new RegExp('/oauth2/v1/token*'))
+          .reply(200, accessToken)
+          .get(new RegExp(`/${basepath}/v0.1/checks/check_id_value/traces`))
+          .reply(200, listTraceResource),
+      )
+      .stdout()
       .command([command, 'check_id_value', '-x'])
-      .it(`${command} should contain header table output`, () => {
-        const consoleOutputString = buildConsoleString(consoleLoggerInfoStub)
-
-        expect(consoleOutputString).to.contain('trace_id')
-        expect(consoleOutputString).to.contain('timestamp')
-        expect(consoleOutputString).to.contain('message')
-        expect(consoleOutputString).to.contain('attributes')
+      .it(`${command} should contain header table output`, (ctx) => {
+        expect(ctx.stdout).to.contain('trace_id')
+        expect(ctx.stdout).to.contain('timestamp')
+        expect(ctx.stdout).to.contain('message')
+        expect(ctx.stdout).to.contain('attributes')
       })
   })
 
-  testParams.forEach(({ command }) => {
+  testParams.forEach(({ command, basepath }) => {
     test
+      .nock('https://eu.api.tru.id', (api) =>
+        api
+          .persist()
+          .post(new RegExp('/oauth2/v1/token*'))
+          .reply(200, accessToken)
+          .get(new RegExp(`/${basepath}/v0.1/checks/check_id_value/traces`))
+          .reply(200, listTraceResource),
+      )
+      .stdout()
       .command([command, 'check_id_value', '--output=csv'])
-      .it('should contain correct values', () => {
-        const consoleOutputString = buildConsoleString(consoleLoggerInfoStub)
-
-        expect(consoleOutputString).to.contain('trace_id,timestamp,message')
-        expect(consoleOutputString).to.contain(
+      .it('should contain correct values', (ctx) => {
+        expect(ctx.stdout).to.contain('trace_id,timestamp,message')
+        expect(ctx.stdout).to.contain(
           '123,2021-02-03T15:04:30.630Z,Check create: phone number is routable',
         )
-        expect(consoleOutputString).to.contain(
+        expect(ctx.stdout).to.contain(
           '123,2021-02-03T15:04:30.698Z,Check balance: authorized',
         )
-        expect(consoleOutputString).to.contain(
+        expect(ctx.stdout).to.contain(
           '123,2021-02-03T15:04:30.705Z,Check create: contacting supplier',
         )
       })

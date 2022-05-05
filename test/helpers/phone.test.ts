@@ -1,11 +1,5 @@
-import * as chai from 'chai'
-import * as sinon from 'ts-sinon'
-import * as sinonChai from 'sinon-chai'
-
-const expect = chai.expect
-chai.use(sinonChai)
-
-import { validate, transform } from '../../src/helpers/phone'
+import { expect } from '@oclif/test'
+import { transform, validate } from '../../src/helpers/phone'
 
 describe('phone', () => {
   describe('validate', () => {

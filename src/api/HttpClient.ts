@@ -1,7 +1,6 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
-import * as qs from 'querystring'
 import ILogger from '../helpers/ILogger'
-import { APIConfiguration } from './APIConfiguration'
+import { TokenManager } from './TokenManager'
 
 interface IRequestLog {
   baseUrl: string
@@ -18,35 +17,23 @@ interface IResponseLog {
   headers: any
 }
 
-export declare interface ICreateTokenResponse {
-  access_token: string
-  id_token: string
-  expires_in: number
-  token_type: string
-  refresh_token: string
-  scope: string
-}
-
-interface TokenStore {
-  response: ICreateTokenResponse
-  dateInMs: number
-}
-
 export class HttpClient {
-  tokens: TokenStore | undefined
-
-  config: APIConfiguration
-
   logger: ILogger
 
   axios: AxiosInstance
 
-  constructor(apiConfiguration: APIConfiguration, logger: ILogger) {
-    this.config = apiConfiguration
+  tokenManager: TokenManager
+
+  baseApiUrl: string
+
+  constructor(tokenManager: TokenManager, baseApiUrl: string, logger: ILogger) {
     this.logger = logger
+    this.baseApiUrl = baseApiUrl
     this.axios = axios.create({
-      baseURL: this.config.baseUrl,
+      baseURL: this.baseApiUrl,
     })
+
+    this.tokenManager = tokenManager
 
     this.axios.interceptors.request.use(
       (config) => {
@@ -72,11 +59,11 @@ export class HttpClient {
   }
 
   async post<T>(path: string, parameters: any, headers: any): Promise<T> {
-    const accessTokenResponse = await this.createAccessToken()
+    const accessToken = await this.tokenManager.getAccessToken()
 
     const requestHeaders = {
       ...headers,
-      Authorization: `Bearer ${accessTokenResponse.access_token}`,
+      Authorization: `Bearer ${accessToken.access_token}`,
     }
 
     const response: AxiosResponse = await this.axios.post(path, parameters, {
@@ -87,11 +74,11 @@ export class HttpClient {
   }
 
   async patch<T>(path: string, operations: any[], headers: any): Promise<T> {
-    const accessTokenResponse = await this.createAccessToken()
+    const accessToken = await this.tokenManager.getAccessToken()
 
     const requestHeaders = {
       ...headers,
-      Authorization: `Bearer ${accessTokenResponse.access_token}`,
+      Authorization: `Bearer ${accessToken.access_token}`,
     }
 
     const response: AxiosResponse = await this.axios.patch(path, operations, {
@@ -102,11 +89,11 @@ export class HttpClient {
   }
 
   async get<T>(path: string, parameters: any, headers: any): Promise<T> {
-    const accessTokenResponse = await this.createAccessToken()
+    const accessToken = await this.tokenManager.getAccessToken()
 
     const requestHeaders = {
       ...headers,
-      Authorization: `Bearer ${accessTokenResponse.access_token}`,
+      Authorization: `Bearer ${accessToken.access_token}`,
     }
 
     const response: AxiosResponse = await this.axios.get(path, {
@@ -117,73 +104,12 @@ export class HttpClient {
     return response.data as T
   }
 
-  async createAccessToken(): Promise<ICreateTokenResponse> {
-    if (this.hasValidToken()) {
-      this.logger.debug('Token loaded from local')
-      return this.getToken()!
-    }
-
-    const auth = this.generateBasicAuth()
-
-    const path = '/oauth2/v1/token'
-    const scopes = this.config.scopes || ''
-    const params = qs.stringify({
-      grant_type: 'client_credentials',
-      scope: scopes,
-    })
-
-    const requestHeaders = {
-      Authorization: `Basic ${auth}`,
-      'Content-Type': 'application/x-www-form-urlencoded',
-    }
-
-    const response: AxiosResponse = await this.axios.post(path, params, {
-      headers: requestHeaders,
-    })
-
-    this.logger.debug('Token created')
-
-    this.storeToken(response.data as ICreateTokenResponse)
-
-    return response.data as ICreateTokenResponse
-  }
-
-  hasValidToken(): boolean {
-    if (this.tokens === undefined) {
-      return false
-    }
-
-    return (
-      this.tokens.dateInMs +
-        this.tokens.response.expires_in * 1000 +
-        300 * 1000 >
-      Date.now()
-    )
-  }
-
-  getToken(): ICreateTokenResponse | undefined {
-    return this.tokens?.response
-  }
-
-  storeToken(tokenResponse: ICreateTokenResponse) {
-    this.tokens = {
-      response: tokenResponse,
-      dateInMs: Date.now(),
-    }
-  }
-
-  generateBasicAuth(): string {
-    const toEncode = `${this.config.clientId}:${this.config.clientSecret}`
-    const auth = Buffer.from(toEncode).toString('base64')
-    return auth
-  }
-
   logRequest(config: AxiosRequestConfig): void {
     const log: IRequestLog = {
       baseUrl: config.baseURL ?? 'NOT SET',
       method: config.method?.toString() ?? 'NOT SET',
       url: config.url?.toString() ?? 'NOT SET',
-      body: config.data,
+      body: config.data ? JSON.stringify(config.data, null, 1) : undefined,
       parameters: config.params,
       headers: config.headers,
     }
@@ -193,7 +119,7 @@ export class HttpClient {
   logResponse(response: AxiosResponse): void {
     const log: IResponseLog = {
       statusCode: response.status,
-      data: response.data,
+      data: response.data ? JSON.stringify(response.data, null, 1) : undefined,
       headers: response.headers,
     }
     this.logger.debug('Response:', log)

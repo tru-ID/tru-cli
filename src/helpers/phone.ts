@@ -1,13 +1,10 @@
-import phone = require('phone')
-import * as inquirer from 'inquirer'
+import inquirer from 'inquirer'
+import phone from 'phone'
 
 export const validate = (number: string): boolean => {
   number = transform(number)
   const result = phone(number)
-  if (result[1]) {
-    return true
-  }
-  return false
+  return result.isValid
 }
 
 export const transform = (number: string): string => {
@@ -18,7 +15,7 @@ export const transform = (number: string): string => {
     number = '+' + number
   }
   const result = phone(number)
-  return result[0] || number
+  return result.phoneNumber || number
 }
 
 export const promptForNumber = async (typeOfCheck: string) => {

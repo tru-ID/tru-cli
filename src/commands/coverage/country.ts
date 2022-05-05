@@ -1,12 +1,18 @@
-import { cli } from 'cli-ux'
-import { APIConfiguration } from '../../api/APIConfiguration'
+import { CliUx } from '@oclif/core'
+import { APIClientCredentialsConfiguration } from '../../api/APIConfiguration'
 import {
   CoverageAPIClient,
   ICoverageCountryResponse,
 } from '../../api/CoverageAPIClient'
-import IAPICredentials from '../../api/IAPICredentails'
+import { ClientCredentialsManager } from '../../api/TokenManager'
+import { apiBaseUrlDR, tokenUrlDR } from '../../DefaultUrls'
 import CommandWithProjectConfig from '../../helpers/CommandWithProjectConfig'
 import { ConsoleLogger, LogLevel } from '../../helpers/ConsoleLogger'
+import {
+  doesProjectConfigExist,
+  isProjectCredentialsValid,
+} from '../../helpers/ValidationUtils'
+import Credential from '../../IProjectConfiguration'
 import { logApiError } from '../../utilities'
 
 export default class CoverageCountry extends CommandWithProjectConfig {
@@ -22,20 +28,20 @@ export default class CoverageCountry extends CommandWithProjectConfig {
 
   static flags = {
     ...CommandWithProjectConfig.flags,
-    ...cli.table.flags(),
+    ...CliUx.ux.table.flags(),
   }
 
   async run(): Promise<any> {
-    const { args, flags } = this.parse(CoverageCountry)
+    const { args, flags } = await this.parse(CoverageCountry)
     const code = args.code
 
     this.flags = flags
     await this.loadProjectConfig()
 
-    const credentials = this.projectConfig?.credentials[0]
-    if (!credentials) {
-      throw new Error('missing project credentials')
-    }
+    doesProjectConfigExist(this.projectConfig)
+    isProjectCredentialsValid(this.projectConfig!)
+
+    const credentials = this.projectConfig!.credentials[0]!
 
     const apiClient = this.newApiClient(credentials, flags.debug)
 
@@ -43,13 +49,13 @@ export default class CoverageCountry extends CommandWithProjectConfig {
     try {
       response = await apiClient.countryReach(code)
     } catch (error) {
-      logApiError(this.log, error)
+      logApiError(this, error)
       this.exit(1)
     }
 
     if (response) {
       const transformed = this.transformResult(response)
-      cli.table(
+      CliUx.ux.table(
         transformed,
         {
           country_code: { header: 'country_code', extended: true },
@@ -103,27 +109,40 @@ export default class CoverageCountry extends CommandWithProjectConfig {
     return result
   }
 
-  newApiClient(
-    credentials: IAPICredentials,
-    debug: boolean,
-  ): CoverageAPIClient {
+  newApiClient(credentials: Credential, debug: boolean): CoverageAPIClient {
     const requiredScope = credentials?.scopes?.find((s) => s === 'coverage')
 
     if (!requiredScope) {
       throw new Error(`this project does not have the required scope: coverage`)
     }
 
-    const config = new APIConfiguration({
-      clientId: credentials?.client_id,
-      clientSecret: credentials?.client_secret,
-      scopes: [requiredScope],
-      baseUrl:
-        this.globalConfig?.apiBaseUrlOverride ??
-        `https://${this.globalConfig?.defaultWorkspaceDataResidency}.api.tru.id`,
-    })
+    if (!this.projectConfig?.data_residency) {
+      this.warn(
+        'No data_residency specified in project config tru.json. It will default to eu',
+      )
+    }
 
     const logger = new ConsoleLogger(debug ? LogLevel.debug : LogLevel.info)
 
-    return new CoverageAPIClient(config, logger)
+    const config: APIClientCredentialsConfiguration = {
+      clientId: credentials?.client_id,
+      clientSecret: credentials?.client_secret,
+      scopes: [requiredScope],
+      tokenUrl: tokenUrlDR(
+        this.projectConfig?.data_residency || 'eu',
+        this.globalConfig!,
+      ),
+    }
+
+    const tokenManager = new ClientCredentialsManager(config, logger)
+
+    return new CoverageAPIClient(
+      tokenManager,
+      apiBaseUrlDR(
+        this.projectConfig?.data_residency || 'eu',
+        this.globalConfig!,
+      ),
+      logger,
+    )
   }
 }

@@ -1,16 +1,20 @@
-import * as Config from '@oclif/config'
-import { APIConfiguration } from '../../api/APIConfiguration'
+import { Config } from '@oclif/core'
+import { APIClientCredentialsConfiguration } from '../../api/APIConfiguration'
 import { CheckStatus } from '../../api/CheckStatus'
 import {
   ISimCheckResource,
   SimCheckAPIClient,
 } from '../../api/SimCheckAPIClient'
+import { ClientCredentialsManager } from '../../api/TokenManager'
+import { apiBaseUrlDR, tokenUrlDR } from '../../DefaultUrls'
 import CommandWithProjectConfig from '../../helpers/CommandWithProjectConfig'
 import ILogger from '../../helpers/ILogger'
 import { promptForNumber } from '../../helpers/phone'
+import {
+  doesProjectConfigExist,
+  isProjectCredentialsValid,
+} from '../../helpers/ValidationUtils'
 import { logApiError } from '../../utilities'
-
-const QR_CODE_LINK_HANDLER_URL = `https://r.tru.id?u={CHECK_URL}&c={CHECK_ID}&t={ACCESS_TOKEN}`
 
 export default class SimChecksCreate extends CommandWithProjectConfig {
   static description = 'Create SIMChecks within a Project'
@@ -31,7 +35,7 @@ export default class SimChecksCreate extends CommandWithProjectConfig {
 
   tokenScope = 'sim_check'
 
-  constructor(argv: string[], config: Config.IConfig) {
+  constructor(argv: string[], config: Config) {
     super(argv, config)
   }
 
@@ -40,12 +44,21 @@ export default class SimChecksCreate extends CommandWithProjectConfig {
   }
 
   async run() {
-    const result = this.parseCommand()
+    const result = await this.parseCommand()
     this.args = result.args
     this.flags = result.flags
     await this.loadProjectConfig()
 
     await super.run()
+
+    doesProjectConfigExist(this.projectConfig)
+    isProjectCredentialsValid(this.projectConfig!)
+
+    if (!this.projectConfig?.data_residency) {
+      this.warn(
+        'No data_residency specified in project config tru.json. It will default to eu',
+      )
+    }
 
     if (this.args.phone_number === undefined) {
       const response = await promptForNumber(this.typeOfCheck)
@@ -55,16 +68,17 @@ export default class SimChecksCreate extends CommandWithProjectConfig {
 
     this.log(`Creating ${this.typeOfCheck} for ${this.args.phone_number}\n`)
 
-    let apiConfiguration = new APIConfiguration({
-      clientId: this.projectConfig?.credentials[0].client_id,
-      clientSecret: this.projectConfig?.credentials[0].client_secret,
+    const apiConfiguration: APIClientCredentialsConfiguration = {
+      clientId: this.projectConfig!.credentials[0].client_id!,
+      clientSecret: this.projectConfig!.credentials[0].client_secret!,
       scopes: [this.tokenScope],
-      baseUrl:
-        this.globalConfig?.apiBaseUrlOverride ??
-        `https://${this.globalConfig?.defaultWorkspaceDataResidency}.api.tru.id`,
-    })
+      tokenUrl: tokenUrlDR(
+        this.projectConfig?.data_residency || 'eu',
+        this.globalConfig!,
+      ),
+    }
 
-    let simCheckApiClient = this.getApiClient(apiConfiguration, this.logger)
+    const simCheckApiClient = this.getApiClient(apiConfiguration, this.logger)
 
     let response: ISimCheckResource
 
@@ -73,8 +87,9 @@ export default class SimChecksCreate extends CommandWithProjectConfig {
         phone_number: this.args.phone_number,
       })
     } catch (error) {
-      logApiError(this.log, error)
+      logApiError(this, error)
       this.exit(1)
+      return
     }
 
     if (response.status === CheckStatus.COMPLETED) {
@@ -86,13 +101,23 @@ export default class SimChecksCreate extends CommandWithProjectConfig {
         `The ${this.typeOfCheck} could not be created. The ${this.typeOfCheck} status is ${response.status}`,
       )
       this.exit(1)
+      return
     }
   }
 
   getApiClient(
-    apiConfiguration: APIConfiguration,
+    apiConfiguration: APIClientCredentialsConfiguration,
     logger: ILogger,
   ): SimCheckAPIClient {
-    return new SimCheckAPIClient(apiConfiguration, logger)
+    const tokenManager = new ClientCredentialsManager(apiConfiguration, logger)
+
+    return new SimCheckAPIClient(
+      tokenManager,
+      apiBaseUrlDR(
+        this.projectConfig?.data_residency || 'eu',
+        this.globalConfig!,
+      ),
+      logger,
+    )
   }
 }

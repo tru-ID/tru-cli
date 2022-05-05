@@ -1,31 +1,39 @@
-import { flags } from '@oclif/command'
-import * as Config from '@oclif/config'
-import { cli } from 'cli-ux'
-import { APIConfiguration } from '../api/APIConfiguration'
+import { CliUx, Config, Flags } from '@oclif/core'
+import { RefreshTokenManager } from '../api/TokenManager'
 import { UsageApiClient, UsageResource } from '../api/UsageAPIClient'
+import {
+  apiBaseUrlDR,
+  issuerUrl,
+  loginBaseUrl,
+  workspaceTokenUrl,
+} from '../DefaultUrls'
 import CommandWithGlobalConfig from '../helpers/CommandWithGlobalConfig'
 import ILogger from '../helpers/ILogger'
 import { displayPagination } from '../helpers/ux'
 import { logApiError } from '../utilities'
+import {
+  isWorkspaceSelected,
+  isWorkspaceTokenInfoValid,
+} from './ValidationUtils'
 
 export default abstract class UsageCommand extends CommandWithGlobalConfig {
-  static pageNumberFlag = flags.integer({
+  static pageNumberFlag = Flags.integer({
     description: `The page number to return in the list resource.`,
     default: 1,
   })
-  static pageSizeFlag = flags.integer({
+  static pageSizeFlag = Flags.integer({
     description: 'The page size to return in list resource request.',
     default: 10,
   })
 
   static flags = {
     ...CommandWithGlobalConfig.flags,
-    ...cli.table.flags(),
-    search: flags.string({
+    ...CliUx.ux.table.flags(),
+    search: Flags.string({
       description: `The RSQL query for usage. date is required e.g --search='date>=2021-03-29'`,
       required: false,
     }),
-    'group-by': flags.string({
+    'group-by': Flags.string({
       description:
         'Group results by one or more fields e.g product_id or project_id or product_id,project_id',
       required: false,
@@ -38,33 +46,47 @@ export default abstract class UsageCommand extends CommandWithGlobalConfig {
 
   typeOfUsage: string
 
-  constructor(argv: string[], config: Config.IConfig, typeOfUsage: string) {
+  constructor(argv: string[], config: Config, typeOfUsage: string) {
     super(argv, config)
     this.tokenScope = 'usage'
     this.typeOfUsage = typeOfUsage
   }
 
-  getApiClient(
-    apiConfiguration: APIConfiguration,
-    logger: ILogger,
-  ): UsageApiClient {
-    return new UsageApiClient(apiConfiguration, logger)
+  getApiClient(logger: ILogger): UsageApiClient {
+    const tokenManager = new RefreshTokenManager(
+      {
+        refreshToken: this.globalConfig!.tokenInfo!.refreshToken!,
+        configLocation: this.getConfigPath(),
+        tokenUrl: workspaceTokenUrl(loginBaseUrl(this.globalConfig!)),
+        issuerUrl: issuerUrl(this.globalConfig!),
+      },
+      this.logger,
+    )
+
+    return new UsageApiClient(
+      tokenManager,
+      apiBaseUrlDR(
+        this.globalConfig!.selectedWorkspaceDataResidency!,
+        this.globalConfig!,
+      ),
+      logger,
+    )
   }
 
   displayResults(resources: UsageResource[]) {
     //Dynamic add columns
 
-    let columns: { [k: string]: any } = {}
+    const columns: { [k: string]: any } = {}
 
-    let params = Object.getOwnPropertyNames(resources[0])
+    const params = Object.getOwnPropertyNames(resources[0])
 
-    for (let param of params) {
+    for (const param of params) {
       columns[`${param}`] = {
         header: `${param}`,
       }
     }
 
-    cli.table(resources, columns, {
+    CliUx.ux.table(resources, columns, {
       printLine: (s: any) => {
         this.logger!.info(s)
       },
@@ -73,25 +95,19 @@ export default abstract class UsageCommand extends CommandWithGlobalConfig {
   }
 
   async run() {
-    const result = this.parse(UsageCommand)
+    const result = await this.parse(UsageCommand)
 
     this.args = result.args
     this.flags = result.flags
 
     await super.run()
 
-    let apiConfiguration = new APIConfiguration({
-      clientId: this.globalConfig?.defaultWorkspaceClientId,
-      clientSecret: this.globalConfig?.defaultWorkspaceClientSecret,
-      scopes: [this.tokenScope],
-      baseUrl:
-        this.globalConfig?.apiBaseUrlOverride ??
-        `https://${this.globalConfig?.defaultWorkspaceDataResidency}.api.tru.id`,
-    })
+    isWorkspaceTokenInfoValid(this.globalConfig!)
+    isWorkspaceSelected(this.globalConfig!)
 
-    const apiCheckClient = this.getApiClient(apiConfiguration, this.logger)
+    const apiCheckClient = this.getApiClient(this.logger)
 
-    let usageParams = {
+    const usageParams = {
       search: this.flags.search ?? this.defaultSearch(),
       group_by: this.flags[`group-by`],
       page: this.flags.page_number,
@@ -99,7 +115,8 @@ export default abstract class UsageCommand extends CommandWithGlobalConfig {
     }
 
     try {
-      let listResource = await apiCheckClient.getUsage(
+      const listResource = await apiCheckClient.getUsage(
+        this.globalConfig!.selectedWorkspace!,
         usageParams,
         this.typeOfUsage,
       )
@@ -110,7 +127,7 @@ export default abstract class UsageCommand extends CommandWithGlobalConfig {
 
       displayPagination(this.logger, listResource.page, `Usages`)
     } catch (error) {
-      logApiError(this.log, error)
+      logApiError(this, error)
       this.exit(1)
     }
   }

@@ -1,36 +1,30 @@
-import { flags } from '@oclif/command'
-import { cli } from 'cli-ux'
-import * as Config from '@oclif/config'
-
-import { APIConfiguration } from '../../api/APIConfiguration'
+import { CliUx, Config, Flags } from '@oclif/core'
+import { APIClientCredentialsConfiguration } from '../../api/APIConfiguration'
+import { CheckResource } from '../../api/ChecksAPIClient'
 import { PhoneChecksAPIClient } from '../../api/PhoneChecksAPIClient'
-import CommandWithProjectConfig from '../../helpers/CommandWithProjectConfig'
-import ILogger from '../../helpers/ILogger'
+import { ClientCredentialsManager } from '../../api/TokenManager'
+import { apiBaseUrlDR } from '../../DefaultUrls'
 import ChecksListCommand from '../../helpers/ChecksListCommand'
-import {
-  AbstractChecksApiClient,
-  CheckResource,
-  ICreateCheckResponse,
-} from '../../api/ChecksAPIClient'
+import ILogger from '../../helpers/ILogger'
 
-export default class PhoneChecksList extends ChecksListCommand<ICreateCheckResponse> {
+export default class PhoneChecksList extends ChecksListCommand {
   static description =
     'Lists details for all PhoneChecks or a specific PhoneCheck if the a check-id argument is passed'
 
-  static pageNumberFlag = flags.integer({
+  static pageNumberFlag = Flags.integer({
     description: `The page number to return in the list resource. Ignored if the "check_id" argument is used.`,
     default: 1,
   })
-  static pageSizeFlag = flags.integer({
+  static pageSizeFlag = Flags.integer({
     description:
       'The page size to return in list resource request. Ignored if the "check_id" argument is used.',
     default: 10,
   })
-  static searchFlag = flags.string({
+  static searchFlag = Flags.string({
     description:
       'A RSQL search query. To ensure correct parsing put your query in quotes. For example "--search \'status==COMPLETED\'". Ignored if the "check_id" argument is used.',
   })
-  static sortFlag = flags.string({
+  static sortFlag = Flags.string({
     description:
       'Sort query in the form "{parameter_name},{direction}". For example, "created_at,asc" or "created_at,desc". Ignored if the "check_id" argument is used.',
     //default: 'created_at,asc' API current expects createdAt so no default at present
@@ -48,20 +42,34 @@ export default class PhoneChecksList extends ChecksListCommand<ICreateCheckRespo
     },
   ]
 
-  constructor(argv: string[], config: Config.IConfig) {
+  constructor(argv: string[], config: Config) {
     super('PhoneCheck', 'phone_check', argv, config)
   }
 
-  parseCommand() {
-    return this.parse(PhoneChecksList)
+  async parseCommand() {
+    const command = await this.parse(PhoneChecksList)
+    return command
   }
 
-  getApiClient(apiConfiguration: APIConfiguration, logger: ILogger) {
-    return new PhoneChecksAPIClient(apiConfiguration, logger)
+  getApiClient(
+    apiConfiguration: APIClientCredentialsConfiguration,
+
+    logger: ILogger,
+  ): PhoneChecksAPIClient {
+    const tokenManager = new ClientCredentialsManager(apiConfiguration, logger)
+
+    return new PhoneChecksAPIClient(
+      tokenManager,
+      apiBaseUrlDR(
+        this.projectConfig?.data_residency || 'eu',
+        this.globalConfig!,
+      ),
+      logger,
+    )
   }
 
-  displayResults(resources: CheckResource[]) {
-    cli.table(
+  displayResults(resources: CheckResource[]): void {
+    CliUx.ux.table(
       resources,
       {
         check_id: {

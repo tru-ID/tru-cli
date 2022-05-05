@@ -1,22 +1,15 @@
-import { flags } from '@oclif/command'
-import { cli } from 'cli-ux'
-import * as Config from '@oclif/config'
-
-import { APIConfiguration } from '../../api/APIConfiguration'
-import CommandWithProjectConfig from '../../helpers/CommandWithProjectConfig'
-import ILogger from '../../helpers/ILogger'
+import { CliUx, Config } from '@oclif/core'
+import { APIClientCredentialsConfiguration } from '../../api/APIConfiguration'
 import {
   SubscriberCheckAPIClient,
   SubscriberCheckResource,
 } from '../../api/SubscriberCheckAPIClient'
+import { ClientCredentialsManager } from '../../api/TokenManager'
+import { apiBaseUrlDR } from '../../DefaultUrls'
 import ChecksListCommand from '../../helpers/ChecksListCommand'
-import {
-  AbstractChecksApiClient,
-  CheckResource,
-  ICreateCheckResponse,
-} from '../../api/ChecksAPIClient'
+import ILogger from '../../helpers/ILogger'
 
-export default class SubscriberCheckList extends ChecksListCommand<ICreateCheckResponse> {
+export default class SubscriberCheckList extends ChecksListCommand {
   static description =
     'Lists details for all SubscriberChecks or a specific SubscriberCheck if the a check-id argument is passed'
 
@@ -32,7 +25,7 @@ export default class SubscriberCheckList extends ChecksListCommand<ICreateCheckR
     ...ChecksListCommand.flags,
   }
 
-  constructor(argv: string[], config: Config.IConfig) {
+  constructor(argv: string[], config: Config) {
     super('SubscriberCheck', 'subscriber_check', argv, config)
   }
 
@@ -40,12 +33,24 @@ export default class SubscriberCheckList extends ChecksListCommand<ICreateCheckR
     return this.parse(SubscriberCheckList)
   }
 
-  getApiClient(apiConfiguration: APIConfiguration, logger: ILogger) {
-    return new SubscriberCheckAPIClient(apiConfiguration, logger)
+  getApiClient(
+    apiConfiguration: APIClientCredentialsConfiguration,
+    logger: ILogger,
+  ): SubscriberCheckAPIClient {
+    const tokenManager = new ClientCredentialsManager(apiConfiguration, logger)
+
+    return new SubscriberCheckAPIClient(
+      tokenManager,
+      apiBaseUrlDR(
+        this.projectConfig?.data_residency || 'eu',
+        this.globalConfig!,
+      ),
+      logger,
+    )
   }
 
-  displayResults(resources: SubscriberCheckResource[]) {
-    cli.table(
+  displayResults(resources: SubscriberCheckResource[]): void {
+    CliUx.ux.table(
       resources,
       {
         check_id: {

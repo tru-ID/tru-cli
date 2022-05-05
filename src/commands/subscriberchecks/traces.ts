@@ -1,8 +1,10 @@
-import * as Config from '@oclif/config'
-import { APIConfiguration } from '../../api/APIConfiguration'
+import { Config } from '@oclif/core'
+import { APIClientCredentialsConfiguration } from '../../api/APIConfiguration'
 import { SubscriberCheckAPIClient } from '../../api/SubscriberCheckAPIClient'
-import ILogger from '../../helpers/ILogger'
+import { ClientCredentialsManager } from '../../api/TokenManager'
+import { apiBaseUrlDR } from '../../DefaultUrls'
 import ChecksTraceCommand from '../../helpers/ChecksTraceCommand'
+import ILogger from '../../helpers/ILogger'
 
 export default class SubscriberCheckTraces extends ChecksTraceCommand {
   static description = 'Get the traces of a SubscriberCheck'
@@ -15,7 +17,7 @@ export default class SubscriberCheckTraces extends ChecksTraceCommand {
 
   static args = [...ChecksTraceCommand.args]
 
-  constructor(argv: string[], config: Config.IConfig) {
+  constructor(argv: string[], config: Config) {
     super('SubscriberCheck', 'subscriber_check', argv, config)
   }
 
@@ -23,7 +25,19 @@ export default class SubscriberCheckTraces extends ChecksTraceCommand {
     return this.parse(SubscriberCheckTraces)
   }
 
-  getApiClient(apiConfiguration: APIConfiguration, logger: ILogger) {
-    return new SubscriberCheckAPIClient(apiConfiguration, logger)
+  getApiClient(
+    apiConfiguration: APIClientCredentialsConfiguration,
+    logger: ILogger,
+  ): SubscriberCheckAPIClient {
+    const tokenManager = new ClientCredentialsManager(apiConfiguration, logger)
+
+    return new SubscriberCheckAPIClient(
+      tokenManager,
+      apiBaseUrlDR(
+        this.projectConfig?.data_residency || 'eu',
+        this.globalConfig!,
+      ),
+      logger,
+    )
   }
 }
