@@ -7,7 +7,7 @@ import { CheckStatus } from '../../../src/api/CheckStatus'
 import * as simchecks from '../../../src/api/SimCheckAPIClient'
 import { IGlobalAuthConfiguration } from '../../../src/IGlobalAuthConfiguration'
 import { IProjectConfiguration } from '../../../src/IProjectConfiguration'
-import { accessToken } from '../../test_helpers'
+import { accessToken, projectConfigFileLocation } from '../../test_helpers'
 
 const expect = chai.expect
 chai.use(sinonChai)
@@ -23,8 +23,6 @@ describe('simchecks:list', () => {
       scope: 'console openid',
     },
   }
-
-  const projectConfigFileLocation = `${process.cwd()}/tru.json`
 
   const projectConfig: IProjectConfiguration = {
     project_id: 'c69bc0e6-a429-11ea-bb37-0242ac130003',

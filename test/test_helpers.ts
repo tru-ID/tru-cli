@@ -1,4 +1,5 @@
 import { test } from '@oclif/test'
+import path from 'path'
 import { AccessToken, TokenManager } from '../src/api/TokenManager'
 import { IGlobalAuthConfiguration } from '../src/IGlobalAuthConfiguration'
 import { IProjectConfiguration } from '../src/IProjectConfiguration'
@@ -39,7 +40,7 @@ export const globalConfig: IGlobalAuthConfiguration = {
   },
 }
 
-export const projectConfigFileLocation = `${process.cwd()}/tru.json`
+export const projectConfigFileLocation = path.join(process.cwd(), 'tru.json')
 
 export const projectConfig: IProjectConfiguration = {
   project_id: 'c69bc0e6-a429-11ea-bb37-0242ac130003',
