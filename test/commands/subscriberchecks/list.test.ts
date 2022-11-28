@@ -104,7 +104,11 @@ describe('subscriberchecks:list', () => {
         })
       })
       .stdout()
-      .command(['subscriberchecks:list'])
+      // --no-truncate guarantees long strings are expanded and the test doesn't magically fail
+      // if you're running it in a small terminal windows, UUIDs most likely will be truncated e.g.,
+      //
+      // c69bc0e6-a429-11ea-bb37-0242ac1…
+      .command(['subscriberchecks:list', '--no-truncate'])
       .it(`should display results for ${data_residency}`, (ctx) => {
         expect(ctx.stdout).to.contain('check_id')
         expect(ctx.stdout).to.contain('created_at')
@@ -135,7 +139,7 @@ describe('subscriberchecks:list', () => {
         .reply(200, subscriberCheckResource),
     )
     .stdout()
-    .command(['subscriberchecks:list', 'check_id_value'])
+    .command(['subscriberchecks:list', 'check_id_value', '--no-truncate'])
     .it(
       'should call SubscriberChecksAPIClient.get(checkId) if optional check_id argment is supplied',
       (ctx) => {

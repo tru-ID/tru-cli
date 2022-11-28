@@ -150,7 +150,9 @@ describe('Command: oauth2:token', () => {
 
   test
     .do(() => {
-      existsSyncStub.withArgs(`${process.cwd()}/tru.json`).returns(false)
+      existsSyncStub
+        .withArgs(path.join(process.cwd(), 'tru.json'))
+        .returns(false)
     })
     .stdout()
     .stderr()
