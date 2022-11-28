@@ -10,7 +10,7 @@ import {
   accessToken,
   globalConfig,
   projectConfig,
-  projectConfigFileLocation
+  projectConfigFileLocation,
 } from '../../test_helpers'
 
 const expect = chai.expect
