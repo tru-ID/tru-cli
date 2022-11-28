@@ -32,6 +32,7 @@ export default abstract class ChecksListCommand extends CommandWithProjectConfig
   static sortFlag = Flags.string({
     description:
       'Sort query in the form "{parameter_name},{direction}". For example, "created_at,asc" or "created_at,desc". Ignored if the "check_id" argument is used.',
+    default: 'created_at,desc',
   })
 
   static flags = {
@@ -58,14 +59,14 @@ export default abstract class ChecksListCommand extends CommandWithProjectConfig
     this.tokenScope = tokenScope
   }
 
-  abstract parseCommand(): any
+  abstract parseCommand(): Promise<any>
 
   abstract getApiClient(
     apiConfiguration: APIClientCredentialsConfiguration,
     logger: ILogger,
   ): AbstractChecksApiClient<CheckResource>
 
-  async run() {
+  async run(): Promise<void> {
     const result = await this.parseCommand()
     this.args = result.args
     this.flags = result.flags

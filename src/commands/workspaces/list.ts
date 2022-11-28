@@ -25,7 +25,7 @@ export default class WorkspaceLists extends CommandWithGlobalConfig {
     'no-truncate': CliUx.ux.table.flags()['no-truncate'],
   }
 
-  async run() {
+  async run(): Promise<any> {
     const result = await this.parse(WorkspaceLists)
     this.flags = result.flags
 

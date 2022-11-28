@@ -29,7 +29,7 @@ export default class SubscriberCheckList extends ChecksListCommand {
     super('SubscriberCheck', 'subscriber_check', argv, config)
   }
 
-  parseCommand() {
+  parseCommand(): Promise<any> {
     return this.parse(SubscriberCheckList)
   }
 
@@ -50,6 +50,10 @@ export default class SubscriberCheckList extends ChecksListCommand {
   }
 
   displayResults(resources: SubscriberCheckResource[]): void {
+    // do not use table sort as it only works for simple types e.g., number, etc.
+    // and the API already returns sorted results
+    const flagsWithNoSort = { ...this.flags, sort: undefined }
+
     CliUx.ux.table(
       resources,
       {
@@ -88,7 +92,7 @@ export default class SubscriberCheckList extends ChecksListCommand {
         printLine: (s: any) => {
           this.logger!.info(s)
         },
-        ...this.flags, // parsed flags
+        ...flagsWithNoSort,
       },
     )
   }
