@@ -36,6 +36,7 @@ export default class SimCheckList extends CommandWithProjectConfig {
   static sortFlag = Flags.string({
     description:
       'Sort query in the form "{parameter_name},{direction}". For example, "created_at,asc" or "created_at,desc". Ignored if the "check_id" argument is used.',
+    default: 'created_at,desc',
   })
 
   static flags = {
@@ -59,7 +60,7 @@ export default class SimCheckList extends CommandWithProjectConfig {
 
   typeOfCheck = 'SIMCheck'
 
-  parseCommand() {
+  async parseCommand(): Promise<any> {
     return this.parse(SimCheckList)
   }
 
@@ -79,7 +80,7 @@ export default class SimCheckList extends CommandWithProjectConfig {
     )
   }
 
-  async run() {
+  async run(): Promise<void> {
     const result = await this.parseCommand()
     this.args = result.args
     this.flags = result.flags
@@ -142,6 +143,10 @@ export default class SimCheckList extends CommandWithProjectConfig {
   }
 
   displayResults(resources: ISimCheckResource[]): void {
+    // do not use table sort as it only works for simple types e.g., number, etc.
+    // and the API already returns sorted results
+    const flagsWithNoSort = { ...this.flags, sort: undefined }
+
     CliUx.ux.table(
       resources,
       {
@@ -173,7 +178,7 @@ export default class SimCheckList extends CommandWithProjectConfig {
         printLine: (s: any) => {
           this.logger!.info(s)
         },
-        ...this.flags, // parsed flags
+        ...flagsWithNoSort, // parsed flags
       },
     )
   }

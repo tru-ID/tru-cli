@@ -1,4 +1,4 @@
-import { CliUx, Config, Flags } from '@oclif/core'
+import { CliUx, Config } from '@oclif/core'
 import { APIClientCredentialsConfiguration } from '../../api/APIConfiguration'
 import { CheckResource } from '../../api/ChecksAPIClient'
 import { PhoneChecksAPIClient } from '../../api/PhoneChecksAPIClient'
@@ -10,25 +10,6 @@ import ILogger from '../../helpers/ILogger'
 export default class PhoneChecksList extends ChecksListCommand {
   static description =
     'Lists details for all PhoneChecks or a specific PhoneCheck if the a check-id argument is passed'
-
-  static pageNumberFlag = Flags.integer({
-    description: `The page number to return in the list resource. Ignored if the "check_id" argument is used.`,
-    default: 1,
-  })
-  static pageSizeFlag = Flags.integer({
-    description:
-      'The page size to return in list resource request. Ignored if the "check_id" argument is used.',
-    default: 10,
-  })
-  static searchFlag = Flags.string({
-    description:
-      'A RSQL search query. To ensure correct parsing put your query in quotes. For example "--search \'status==COMPLETED\'". Ignored if the "check_id" argument is used.',
-  })
-  static sortFlag = Flags.string({
-    description:
-      'Sort query in the form "{parameter_name},{direction}". For example, "created_at,asc" or "created_at,desc". Ignored if the "check_id" argument is used.',
-    //default: 'created_at,asc' API current expects createdAt so no default at present
-  })
 
   static flags = {
     ...ChecksListCommand.flags,
@@ -46,7 +27,7 @@ export default class PhoneChecksList extends ChecksListCommand {
     super('PhoneCheck', 'phone_check', argv, config)
   }
 
-  async parseCommand() {
+  async parseCommand(): Promise<any> {
     const command = await this.parse(PhoneChecksList)
     return command
   }
@@ -69,6 +50,10 @@ export default class PhoneChecksList extends ChecksListCommand {
   }
 
   displayResults(resources: CheckResource[]): void {
+    // do not use table sort as it only works for simple types e.g., number, etc.
+    // and the API already returns sorted results
+    const flagsWithNoSort = { ...this.flags, sort: undefined }
+
     CliUx.ux.table(
       resources,
       {
@@ -104,7 +89,7 @@ export default class PhoneChecksList extends ChecksListCommand {
         printLine: (s: any) => {
           this.logger!.info(s)
         },
-        ...this.flags, // parsed flags
+        ...flagsWithNoSort, // parsed flags
       },
     )
   }
