@@ -249,7 +249,7 @@ describe('Command: projects:update', () => {
     ])
     .catch((err) => {
       expect(err.message).to.contain(
-        '--remove-phonecheck-callback= cannot also be provided when using --phonecheck-callback',
+        '--remove-phonecheck-callback=true cannot also be provided when using --phonecheck-callback',
       )
     })
     .it(

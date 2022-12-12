@@ -86,7 +86,7 @@ describe('phonechecks:list', () => {
         .reply(200, checksListResource),
     )
     .stdout()
-    .command(['phonechecks:list'])
+    .command(['phonechecks:list', '--no-truncate'])
     .it('should contain header table output', (ctx) => {
       expect(ctx.stdout).to.contain('check_id')
       expect(ctx.stdout).to.contain('created_at')
@@ -132,7 +132,7 @@ describe('phonechecks:list', () => {
           .resolves({ ...projectConfig, data_residency: config_data_residency })
       })
       .stdout()
-      .command(['phonechecks:list', 'check_id_value'])
+      .command(['phonechecks:list', 'check_id_value', '--no-truncate'])
       .it('outputs result of a single resource to cli.table', (ctx) => {
         expect(ctx.stdout).to.contain(phoneCheckResource.check_id)
         expect(ctx.stdout).to.contain(phoneCheckResource.created_at)
