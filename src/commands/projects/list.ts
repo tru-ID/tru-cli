@@ -42,12 +42,12 @@ export default class ProjectsList extends CommandWithGlobalConfig {
   })
   static searchFlag = Flags.string({
     description:
-      'A RSQL search query. To ensure correct parsing put your query in quotes. For example "--search \'name=p*\'". Ignored if the "check_id" argument is used.',
+      'A RSQL search query. To ensure correct parsing put your query in quotes. For example "--search \'name=p*\'". Ignored if the "project_id" argument is used.',
   })
   static sortFlag = Flags.string({
     description:
-      'Sort query in the form "{parameter_name},{direction}". For example, "created_at,asc" or "created_at,desc". Ignored if the "check_id" argument is used.',
-    //default: 'created_at,asc' API current expects createdAt so no default at present
+      'Sort query in the form "{parameter_name},{direction}". For example, "created_at,asc" or "created_at,desc". Ignored if the "project_id" argument is used.',
+    default: 'created_at,desc',
   })
 
   static flags = {
@@ -59,7 +59,7 @@ export default class ProjectsList extends CommandWithGlobalConfig {
     sort: ProjectsList.sortFlag,
   }
 
-  async run() {
+  async run(): Promise<void> {
     const result = await this.parse(ProjectsList)
     this.args = result.args
     this.flags = result.flags
@@ -124,6 +124,10 @@ export default class ProjectsList extends CommandWithGlobalConfig {
   }
 
   displayResults(resources: IProjectResource[]): void {
+    // do not use table sort as it only works for simple types e.g., number, etc.
+    // and the API already returns sorted results
+    const flagsWithNoSort = { ...this.flags, sort: undefined }
+
     CliUx.ux.table(
       resources,
       {
@@ -153,7 +157,7 @@ export default class ProjectsList extends CommandWithGlobalConfig {
         printLine: (s: any) => {
           this.logger!.info(s)
         },
-        ...this.flags, // parsed flags
+        ...flagsWithNoSort,
       },
     )
   }

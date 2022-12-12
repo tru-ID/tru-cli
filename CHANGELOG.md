@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.1.0](https://github.com/tru-ID/tru-cli/compare/v1.0.5...v1.1.0) (2022-12-06)
+
+
+### Features
+
+* change list commands sort default to created_at,desc ([e722803](https://github.com/tru-ID/tru-cli/commit/e722803a4791782410b99d7fb988bdaac8116cdf))
+
 ### [1.0.5](https://github.com/tru-ID/tru-cli/compare/v0.9.7...v1.0.5) (2022-05-05)
 
 Please ignore versions `1.0.0` to `1.0.4` and update to `1.0.5`
