@@ -17,10 +17,11 @@ import {
   loginBaseUrl,
   workspaceTokenUrl,
 } from '../../DefaultUrls'
+import { renderLoginError, renderLoginSuccess } from '../../helpers/template'
 import { IGlobalAuthConfiguration } from '../../IGlobalAuthConfiguration'
 
 export default class Login extends Command {
-  static description = 'Login to CLI'
+  static description = 'Login to tru.ID'
 
   static args = [
     {
@@ -31,7 +32,7 @@ export default class Login extends Command {
     },
   ]
 
-  async run() {
+  async run(): Promise<void> {
     const { args } = await this.parse(Login)
 
     const configLocation = path.join(this.config.configDir, 'config.json')
@@ -76,8 +77,7 @@ export default class Login extends Command {
     })
 
     server.listen(serverPort, async () => {
-      this.log(`Server listening on port ${serverPort}`)
-      this.log(authorizationUrl)
+      this.log(`Visit this url to login: ${authorizationUrl}`)
       await CliUx.ux.open(authorizationUrl)
     })
 
@@ -86,7 +86,7 @@ export default class Login extends Command {
     })
   }
 
-  async catch(err: Error) {
+  async catch(err: Error): Promise<any> {
     this.error(`failed to login: ${err.message}`, { exit: 1 })
   }
 
@@ -158,9 +158,11 @@ export default class Login extends Command {
     if (req.url?.startsWith('/?')) {
       callbackParams = client.callbackParams(req)
       if (!callbackParams) {
-        res.end('Login Failed')
+        const errorReason = 'no callback received'
+        res.setHeader('Connection', 'close');
+        res.end(renderLoginError(errorReason))
         server.close()
-        throw new Error(`No callback received`)
+        throw new Error(errorReason)
       }
 
       if (callbackParams.error) {
@@ -168,9 +170,13 @@ export default class Login extends Command {
           error: callbackParams.error,
           error_description: callbackParams.error_description,
         }
-        res.end('Login Failed')
+
+        res.setHeader('Connection', 'close');
+        res.end(renderLoginError(`received callback with error=${error.error}`))
         server.close()
-        throw new Error(`Error during callback : ${error.error_description}`)
+        throw new Error(
+          `error during callback : error=${error.error} description=${error.error_description}`,
+        )
       }
 
       const tokenSet: TokenSet = await client.callback(
@@ -184,12 +190,16 @@ export default class Login extends Command {
 
       await this.updateConfig(configLocation, configOAuth, tokenSet)
 
-      this.log(`tokens were written to ${configLocation}`)
-      res.end(
-        `Success. Tokens were written to ${configLocation}. You can now close the browser`,
-      )
+      this.log(`Configuration written to: ${path.resolve(configLocation)}`)
+      this.log(`Next steps:
+  - 'tru workspaces:list' to list the workspace available to work on
+  - 'tru workspaces:switch' to work on a given workspace
+      `)
+      res.setHeader('Connection', 'close');
+      res.end(renderLoginSuccess())
       server.close()
     } else {
+      res.setHeader('Connection', 'close');
       res.end()
       server.close()
     }
