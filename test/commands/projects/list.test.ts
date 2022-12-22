@@ -94,7 +94,7 @@ describe('projects:list', () => {
         .reply(200, projectsListResource),
     )
     .stdout()
-    .command(['projects:list'])
+    .command(['projects:list', '--no-truncate'])
     .it('should list projects', (ctx) => {
       expect(ctx.stdout).to.contain('name')
       expect(ctx.stdout).to.contain('project_id')
@@ -117,7 +117,7 @@ describe('projects:list', () => {
         .reply(200, projectResource),
     )
     .stdout()
-    .command(['projects:list', 'projects_id_value'])
+    .command(['projects:list', 'projects_id_value', '--no-truncate'])
     .it(
       'should call ProjectsAPIClient.get(project_id) if optional projects_id argment is supplied',
       (ctx) => {

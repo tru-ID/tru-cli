@@ -118,7 +118,7 @@ describe('simchecks:list', () => {
         })
       })
       .stdout()
-      .command(['simchecks:list'])
+      .command(['simchecks:list', '--no-truncate'])
       .it(
         `should display fields if optional check_id argument is not supplied for data residency ${data_residency}`,
         (ctx) => {
@@ -150,7 +150,11 @@ describe('simchecks:list', () => {
         .reply(200, simCheckResource),
     )
     .stdout()
-    .command(['simchecks:list', `${simCheckResource.check_id}`])
+    .command([
+      'simchecks:list',
+      `${simCheckResource.check_id}`,
+      '--no-truncate',
+    ])
     .it(
       `should display fields if optional check_id argment is supplied`,
       (ctx) => {
