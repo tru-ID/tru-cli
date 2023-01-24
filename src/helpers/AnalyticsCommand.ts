@@ -1,6 +1,9 @@
 import { CliUx, Config, Flags } from '@oclif/core'
+import {
+  AnalyticsApiClient,
+  AnalyticsResource,
+} from '../api/AnalyticsAPIClient'
 import { RefreshTokenManager } from '../api/TokenManager'
-import { UsageApiClient, UsageResource } from '../api/UsageAPIClient'
 import {
   apiBaseUrlDR,
   issuerUrl,
@@ -16,7 +19,7 @@ import {
   isWorkspaceTokenInfoValid,
 } from './ValidationUtils'
 
-export default abstract class UsageCommand extends CommandWithGlobalConfig {
+export default abstract class AnalyticsCommand extends CommandWithGlobalConfig {
   static pageNumberFlag = Flags.integer({
     description: `The page number to return in the list resource.`,
     default: 1,
@@ -30,29 +33,37 @@ export default abstract class UsageCommand extends CommandWithGlobalConfig {
     ...CommandWithGlobalConfig.flags,
     ...CliUx.ux.table.flags(),
     search: Flags.string({
-      description: `The RSQL query for usage. date is required e.g --search='date>=2021-03-29'`,
+      description: `The RSQL query for analytics. date is required e.g --search='date>=2021-03-29'`,
       required: false,
     }),
     'group-by': Flags.string({
       description:
-        'Group results by one or more fields e.g product_id or project_id or product_id,project_id',
+        'Group results by one or more fields e.g project_id or network_id',
       required: false,
     }),
-    'page-number': UsageCommand.pageNumberFlag,
-    'page-size': UsageCommand.pageSizeFlag,
+    'page-number': AnalyticsCommand.pageNumberFlag,
+    'page-size': AnalyticsCommand.pageSizeFlag,
   }
 
   tokenScope: string
 
-  typeOfUsage: string
+  productId: string
 
-  constructor(argv: string[], config: Config, typeOfUsage: string) {
+  timeBucket: string
+
+  constructor(
+    argv: string[],
+    config: Config,
+    productId: string,
+    timeBucket: string,
+  ) {
     super(argv, config)
-    this.tokenScope = 'usage'
-    this.typeOfUsage = typeOfUsage
+    this.tokenScope = 'console'
+    this.timeBucket = timeBucket
+    this.productId = productId
   }
 
-  getApiClient(logger: ILogger): UsageApiClient {
+  getApiClient(logger: ILogger): AnalyticsApiClient {
     const tokenManager = new RefreshTokenManager(
       {
         refreshToken: this.globalConfig!.tokenInfo!.refreshToken!,
@@ -63,7 +74,7 @@ export default abstract class UsageCommand extends CommandWithGlobalConfig {
       this.logger,
     )
 
-    return new UsageApiClient(
+    return new AnalyticsApiClient(
       tokenManager,
       apiBaseUrlDR(
         this.globalConfig!.selectedWorkspaceDataResidency!,
@@ -73,7 +84,7 @@ export default abstract class UsageCommand extends CommandWithGlobalConfig {
     )
   }
 
-  displayResults(resources: UsageResource[]) {
+  displayResults(resources: AnalyticsResource[]) {
     //Dynamic add columns
 
     const columns: { [k: string]: any } = {}
@@ -95,7 +106,7 @@ export default abstract class UsageCommand extends CommandWithGlobalConfig {
   }
 
   async run() {
-    const result = await this.parse(UsageCommand)
+    const result = await this.parse(AnalyticsCommand)
 
     this.args = result.args
     this.flags = result.flags
@@ -107,7 +118,7 @@ export default abstract class UsageCommand extends CommandWithGlobalConfig {
 
     const apiCheckClient = this.getApiClient(this.logger)
 
-    const usageParams = {
+    const analyticsParams = {
       search: this.flags.search ?? this.defaultSearch(),
       group_by: this.flags[`group-by`],
       page: this.flags['page-number'],
@@ -115,17 +126,18 @@ export default abstract class UsageCommand extends CommandWithGlobalConfig {
     }
 
     try {
-      const listResource = await apiCheckClient.getUsage(
+      const listResource = await apiCheckClient.getAnalytics(
         this.globalConfig!.selectedWorkspace!,
-        usageParams,
-        this.typeOfUsage,
+        analyticsParams,
+        this.productId,
+        this.timeBucket,
       )
 
-      if (listResource._embedded.usage.length > 0) {
-        this.displayResults(listResource._embedded.usage)
+      if (listResource._embedded.analytics.length > 0) {
+        this.displayResults(listResource._embedded.analytics)
       }
 
-      displayPagination(this.logger, listResource.page, `Usages`)
+      displayPagination(this.logger, listResource.page, `Analytics`)
     } catch (error) {
       logApiError(this, error)
       this.exit(1)
