@@ -3,7 +3,7 @@ import AnalyticsCommand from '../../../helpers/AnalyticsCommand'
 
 export default class HourlySckAnalytics extends AnalyticsCommand {
   static description =
-    'Get Hourly SimCheck Analytics. By default returns most recent analytics.'
+    'Get Hourly SimCheck Analytics. The date range defaults to current date.'
 
   static flags = {
     ...AnalyticsCommand.flags,
@@ -11,5 +11,9 @@ export default class HourlySckAnalytics extends AnalyticsCommand {
 
   constructor(argv: string[], config: Config) {
     super(argv, config, 'sck', 'hourly')
+  }
+
+  defaultSearch(): string {
+    return `date>=${new Date().toISOString().substring(0, 10)}`
   }
 }

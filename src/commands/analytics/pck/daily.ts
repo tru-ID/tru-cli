@@ -3,7 +3,7 @@ import AnalyticsCommand from '../../../helpers/AnalyticsCommand'
 
 export default class DailyPckAnalytics extends AnalyticsCommand {
   static description =
-    'Get Daily PhoneCheck Analytics. By default returns most recent analytics.'
+    'Get Daily PhoneCheck Analytics. The date range defaults to current date.'
 
   static flags = {
     ...AnalyticsCommand.flags,
@@ -11,5 +11,9 @@ export default class DailyPckAnalytics extends AnalyticsCommand {
 
   constructor(argv: string[], config: Config) {
     super(argv, config, 'pck', 'daily')
+  }
+
+  defaultSearch(): string {
+    return `date>=${new Date().toISOString().substring(0, 10)}`
   }
 }

@@ -3,7 +3,7 @@ import AnalyticsCommand from '../../../helpers/AnalyticsCommand'
 
 export default class MonthlySukAnalytics extends AnalyticsCommand {
   static description =
-    'Get Monthly SubscriberCheck Analytics. By default returns most recent analytics.'
+    'Get Monthly SubscriberCheck Analytics. The date range defaults to the current calendar month.'
 
   static flags = {
     ...AnalyticsCommand.flags,
@@ -11,5 +11,9 @@ export default class MonthlySukAnalytics extends AnalyticsCommand {
 
   constructor(argv: string[], config: Config) {
     super(argv, config, 'suk', 'monthly')
+  }
+
+  defaultSearch(): string {
+    return `date>=${new Date().toISOString().substring(0, 7)}`
   }
 }
