@@ -99,7 +99,7 @@ describe('usage', () => {
       )
       .resolves()
     consoleLoggerInfoStub = sinon.stub(ConsoleLogger.prototype, 'info')
-    MockDate.set('2020-01-01')
+    MockDate.set('2020-10-15T14:00:00Z')
   })
 
   afterEach(() => {
@@ -168,25 +168,28 @@ describe('usage', () => {
       })
   })
 
-  const params = [
+  const testDefaultSearch = [
     {
       command: 'usage:daily',
       subpath: 'daily',
-      searchParam: 'date>=2020-01-01',
+      searchParam: 'date>=2020-10-08',
+      comment: 'default search = last 7 days',
     },
     {
       command: 'usage:monthly',
       subpath: 'monthly',
-      searchParam: 'date>=2020-01',
+      searchParam: 'date>=2020-04',
+      comment: 'default search = last 6 month',
     },
     {
       command: 'usage:hourly',
       subpath: 'hourly',
-      searchParam: 'date>=2020-01-01',
+      searchParam: 'date>=2020-10-15T02',
+      comment: 'default search = last 12 hours',
     },
   ]
 
-  params.forEach(({ command, subpath, searchParam }) => {
+  testDefaultSearch.forEach(({ command, subpath, searchParam, comment }) => {
     testWorkspaceTokenNock
       .nock('https://eu.api.tru.id', (api) => {
         api
@@ -204,7 +207,7 @@ describe('usage', () => {
       })
       .command([command, '--group-by=product_id'])
       .it(
-        `${command} should call /console/v0.2/workspaces/workspace_id/usage/${subpath} with correct default search`,
+        `${command} should call /console/v0.2/workspaces/workspace_id/usage/${subpath} with ${comment}`,
         () => {
           const consoleOutputString = buildConsoleString(consoleLoggerInfoStub)
 

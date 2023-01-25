@@ -3,7 +3,7 @@ import AnalyticsCommand from '../../../helpers/AnalyticsCommand'
 
 export default class MonthlySckAnalytics extends AnalyticsCommand {
   static description =
-    'Get Monthly SimCheck Analytics. The date range defaults to the current calendar month.'
+    'Get Monthly SimCheck Analytics. By default returns most recent analytics.'
 
   static flags = {
     ...AnalyticsCommand.flags,
@@ -11,9 +11,5 @@ export default class MonthlySckAnalytics extends AnalyticsCommand {
 
   constructor(argv: string[], config: Config) {
     super(argv, config, 'sck', 'monthly')
-  }
-
-  defaultSearch(): string {
-    return `date>=${new Date().toISOString().substring(0, 7)}`
   }
 }
