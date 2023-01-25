@@ -18,11 +18,11 @@ import {
 
 export default abstract class UsageCommand extends CommandWithGlobalConfig {
   static pageNumberFlag = Flags.integer({
-    description: `The page number to return in the list resource.`,
+    description: `the page number to return in the list resource.`,
     default: 1,
   })
   static pageSizeFlag = Flags.integer({
-    description: 'The page size to return in list resource request.',
+    description: 'the page size to return in list resource request.',
     default: 10,
   })
 
@@ -30,12 +30,12 @@ export default abstract class UsageCommand extends CommandWithGlobalConfig {
     ...CommandWithGlobalConfig.flags,
     ...CliUx.ux.table.flags(),
     search: Flags.string({
-      description: `The RSQL query for usage. date is required e.g --search='date>=2021-03-29'`,
+      description: `the RSQL query for usage. date is required e.g --search='date>=2021-03-29'`,
       required: false,
     }),
     'group-by': Flags.string({
       description:
-        'Group results by one or more fields e.g product_id or project_id or product_id,project_id',
+        'group results by one or more fields e.g product_id or project_id or product_id,project_id',
       required: false,
     }),
     'page-number': UsageCommand.pageNumberFlag,
