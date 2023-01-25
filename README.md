@@ -21,7 +21,7 @@ $ npm install -g @tru_id/cli
 $ tru COMMAND
 running command...
 $ tru (--version)
-@tru_id/cli/1.2.0 darwin-arm64 node-v18.7.0
+@tru_id/cli/1.2.0 darwin-arm64 node-v18.12.1
 $ tru --help [COMMAND]
 USAGE
   $ tru COMMAND
@@ -67,7 +67,7 @@ USAGE
 
 ## `tru analytics:pck:daily`
 
-Get Daily PhoneCheck Analytics. The date range defaults to current date.
+Get Daily PhoneCheck Analytics. By default returns most recent analytics.
 
 ```
 USAGE
@@ -81,26 +81,26 @@ FLAGS
   --csv                  output is csv format [alias: --output=csv]
   --debug                Enables debug logging for the CLI
   --filter=<value>       filter property by partial string matching, ex: name=foo
-  --group-by=<value>     Group results by one or more fields e.g project_id or network_id
+  --group-by=<value>     group results by one or more fields e.g project_id or network_id
   --help                 Show CLI help.
   --no-header            hide table header from output
   --no-truncate          do not truncate output to fit screen
   --output=<option>      output in a more machine friendly format
                          <options: csv|json|yaml>
-  --page-number=<value>  [default: 1] The page number to return in the list resource.
-  --page-size=<value>    [default: 10] The page size to return in list resource request.
-  --search=<value>       The RSQL query for analytics. date is required e.g --search='date>=2021-03-29'
-  --sort=<value>         property to sort by (prepend '-' for descending)
+  --page-number=<value>  [default: 1] the page number to return in the list resource.
+  --page-size=<value>    [default: 10] the page size to return in list resource request.
+  --search=<value>       the RSQL query for analytics. e.g --search='date>=2021-03-29'
+  --sort=<value>         sort query in the form "{parameter_name},{direction}". For example, "date,asc" or "date,desc".
 
 DESCRIPTION
-  Get Daily PhoneCheck Analytics. The date range defaults to current date.
+  Get Daily PhoneCheck Analytics. By default returns most recent analytics.
 ```
 
 _See code: [dist/commands/analytics/pck/daily.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.0/dist/commands/analytics/pck/daily.ts)_
 
 ## `tru analytics:pck:hourly`
 
-Get Hourly PhoneCheck Analytics. The date range defaults to current date.
+Get Hourly PhoneCheck Analytics. By default returns most recent analytics.
 
 ```
 USAGE
@@ -114,26 +114,26 @@ FLAGS
   --csv                  output is csv format [alias: --output=csv]
   --debug                Enables debug logging for the CLI
   --filter=<value>       filter property by partial string matching, ex: name=foo
-  --group-by=<value>     Group results by one or more fields e.g project_id or network_id
+  --group-by=<value>     group results by one or more fields e.g project_id or network_id
   --help                 Show CLI help.
   --no-header            hide table header from output
   --no-truncate          do not truncate output to fit screen
   --output=<option>      output in a more machine friendly format
                          <options: csv|json|yaml>
-  --page-number=<value>  [default: 1] The page number to return in the list resource.
-  --page-size=<value>    [default: 10] The page size to return in list resource request.
-  --search=<value>       The RSQL query for analytics. date is required e.g --search='date>=2021-03-29'
-  --sort=<value>         property to sort by (prepend '-' for descending)
+  --page-number=<value>  [default: 1] the page number to return in the list resource.
+  --page-size=<value>    [default: 10] the page size to return in list resource request.
+  --search=<value>       the RSQL query for analytics. e.g --search='date>=2021-03-29'
+  --sort=<value>         sort query in the form "{parameter_name},{direction}". For example, "date,asc" or "date,desc".
 
 DESCRIPTION
-  Get Hourly PhoneCheck Analytics. The date range defaults to current date.
+  Get Hourly PhoneCheck Analytics. By default returns most recent analytics.
 ```
 
 _See code: [dist/commands/analytics/pck/hourly.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.0/dist/commands/analytics/pck/hourly.ts)_
 
 ## `tru analytics:pck:monthly`
 
-Get Monthly PhoneCheck Analytics. The date range defaults to the current calendar month.
+Get Monthly PhoneCheck Analytics. By default returns most recent analytics.
 
 ```
 USAGE
@@ -147,26 +147,26 @@ FLAGS
   --csv                  output is csv format [alias: --output=csv]
   --debug                Enables debug logging for the CLI
   --filter=<value>       filter property by partial string matching, ex: name=foo
-  --group-by=<value>     Group results by one or more fields e.g project_id or network_id
+  --group-by=<value>     group results by one or more fields e.g project_id or network_id
   --help                 Show CLI help.
   --no-header            hide table header from output
   --no-truncate          do not truncate output to fit screen
   --output=<option>      output in a more machine friendly format
                          <options: csv|json|yaml>
-  --page-number=<value>  [default: 1] The page number to return in the list resource.
-  --page-size=<value>    [default: 10] The page size to return in list resource request.
-  --search=<value>       The RSQL query for analytics. date is required e.g --search='date>=2021-03-29'
-  --sort=<value>         property to sort by (prepend '-' for descending)
+  --page-number=<value>  [default: 1] the page number to return in the list resource.
+  --page-size=<value>    [default: 10] the page size to return in list resource request.
+  --search=<value>       the RSQL query for analytics. e.g --search='date>=2021-03-29'
+  --sort=<value>         sort query in the form "{parameter_name},{direction}". For example, "date,asc" or "date,desc".
 
 DESCRIPTION
-  Get Monthly PhoneCheck Analytics. The date range defaults to the current calendar month.
+  Get Monthly PhoneCheck Analytics. By default returns most recent analytics.
 ```
 
 _See code: [dist/commands/analytics/pck/monthly.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.0/dist/commands/analytics/pck/monthly.ts)_
 
 ## `tru analytics:sck:daily`
 
-Get Daily SimCheck Analytics. The date range defaults to current date.
+Get Daily SimCheck Analytics. By default returns most recent analytics.
 
 ```
 USAGE
@@ -180,26 +180,26 @@ FLAGS
   --csv                  output is csv format [alias: --output=csv]
   --debug                Enables debug logging for the CLI
   --filter=<value>       filter property by partial string matching, ex: name=foo
-  --group-by=<value>     Group results by one or more fields e.g project_id or network_id
+  --group-by=<value>     group results by one or more fields e.g project_id or network_id
   --help                 Show CLI help.
   --no-header            hide table header from output
   --no-truncate          do not truncate output to fit screen
   --output=<option>      output in a more machine friendly format
                          <options: csv|json|yaml>
-  --page-number=<value>  [default: 1] The page number to return in the list resource.
-  --page-size=<value>    [default: 10] The page size to return in list resource request.
-  --search=<value>       The RSQL query for analytics. date is required e.g --search='date>=2021-03-29'
-  --sort=<value>         property to sort by (prepend '-' for descending)
+  --page-number=<value>  [default: 1] the page number to return in the list resource.
+  --page-size=<value>    [default: 10] the page size to return in list resource request.
+  --search=<value>       the RSQL query for analytics. e.g --search='date>=2021-03-29'
+  --sort=<value>         sort query in the form "{parameter_name},{direction}". For example, "date,asc" or "date,desc".
 
 DESCRIPTION
-  Get Daily SimCheck Analytics. The date range defaults to current date.
+  Get Daily SimCheck Analytics. By default returns most recent analytics.
 ```
 
 _See code: [dist/commands/analytics/sck/daily.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.0/dist/commands/analytics/sck/daily.ts)_
 
 ## `tru analytics:sck:hourly`
 
-Get Hourly SimCheck Analytics. The date range defaults to current date.
+Get Hourly SimCheck Analytics. By default returns most recent analytics.
 
 ```
 USAGE
@@ -213,26 +213,26 @@ FLAGS
   --csv                  output is csv format [alias: --output=csv]
   --debug                Enables debug logging for the CLI
   --filter=<value>       filter property by partial string matching, ex: name=foo
-  --group-by=<value>     Group results by one or more fields e.g project_id or network_id
+  --group-by=<value>     group results by one or more fields e.g project_id or network_id
   --help                 Show CLI help.
   --no-header            hide table header from output
   --no-truncate          do not truncate output to fit screen
   --output=<option>      output in a more machine friendly format
                          <options: csv|json|yaml>
-  --page-number=<value>  [default: 1] The page number to return in the list resource.
-  --page-size=<value>    [default: 10] The page size to return in list resource request.
-  --search=<value>       The RSQL query for analytics. date is required e.g --search='date>=2021-03-29'
-  --sort=<value>         property to sort by (prepend '-' for descending)
+  --page-number=<value>  [default: 1] the page number to return in the list resource.
+  --page-size=<value>    [default: 10] the page size to return in list resource request.
+  --search=<value>       the RSQL query for analytics. e.g --search='date>=2021-03-29'
+  --sort=<value>         sort query in the form "{parameter_name},{direction}". For example, "date,asc" or "date,desc".
 
 DESCRIPTION
-  Get Hourly SimCheck Analytics. The date range defaults to current date.
+  Get Hourly SimCheck Analytics. By default returns most recent analytics.
 ```
 
 _See code: [dist/commands/analytics/sck/hourly.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.0/dist/commands/analytics/sck/hourly.ts)_
 
 ## `tru analytics:sck:monthly`
 
-Get Monthly SimCheck Analytics. The date range defaults to the current calendar month.
+Get Monthly SimCheck Analytics. By default returns most recent analytics.
 
 ```
 USAGE
@@ -246,26 +246,26 @@ FLAGS
   --csv                  output is csv format [alias: --output=csv]
   --debug                Enables debug logging for the CLI
   --filter=<value>       filter property by partial string matching, ex: name=foo
-  --group-by=<value>     Group results by one or more fields e.g project_id or network_id
+  --group-by=<value>     group results by one or more fields e.g project_id or network_id
   --help                 Show CLI help.
   --no-header            hide table header from output
   --no-truncate          do not truncate output to fit screen
   --output=<option>      output in a more machine friendly format
                          <options: csv|json|yaml>
-  --page-number=<value>  [default: 1] The page number to return in the list resource.
-  --page-size=<value>    [default: 10] The page size to return in list resource request.
-  --search=<value>       The RSQL query for analytics. date is required e.g --search='date>=2021-03-29'
-  --sort=<value>         property to sort by (prepend '-' for descending)
+  --page-number=<value>  [default: 1] the page number to return in the list resource.
+  --page-size=<value>    [default: 10] the page size to return in list resource request.
+  --search=<value>       the RSQL query for analytics. e.g --search='date>=2021-03-29'
+  --sort=<value>         sort query in the form "{parameter_name},{direction}". For example, "date,asc" or "date,desc".
 
 DESCRIPTION
-  Get Monthly SimCheck Analytics. The date range defaults to the current calendar month.
+  Get Monthly SimCheck Analytics. By default returns most recent analytics.
 ```
 
 _See code: [dist/commands/analytics/sck/monthly.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.0/dist/commands/analytics/sck/monthly.ts)_
 
 ## `tru analytics:suk:daily`
 
-Get Daily SubscriberCheck Analytics. The date range defaults to current date.
+Get Daily SubscriberCheck Analytics. By default returns most recent analytics.
 
 ```
 USAGE
@@ -279,26 +279,26 @@ FLAGS
   --csv                  output is csv format [alias: --output=csv]
   --debug                Enables debug logging for the CLI
   --filter=<value>       filter property by partial string matching, ex: name=foo
-  --group-by=<value>     Group results by one or more fields e.g project_id or network_id
+  --group-by=<value>     group results by one or more fields e.g project_id or network_id
   --help                 Show CLI help.
   --no-header            hide table header from output
   --no-truncate          do not truncate output to fit screen
   --output=<option>      output in a more machine friendly format
                          <options: csv|json|yaml>
-  --page-number=<value>  [default: 1] The page number to return in the list resource.
-  --page-size=<value>    [default: 10] The page size to return in list resource request.
-  --search=<value>       The RSQL query for analytics. date is required e.g --search='date>=2021-03-29'
-  --sort=<value>         property to sort by (prepend '-' for descending)
+  --page-number=<value>  [default: 1] the page number to return in the list resource.
+  --page-size=<value>    [default: 10] the page size to return in list resource request.
+  --search=<value>       the RSQL query for analytics. e.g --search='date>=2021-03-29'
+  --sort=<value>         sort query in the form "{parameter_name},{direction}". For example, "date,asc" or "date,desc".
 
 DESCRIPTION
-  Get Daily SubscriberCheck Analytics. The date range defaults to current date.
+  Get Daily SubscriberCheck Analytics. By default returns most recent analytics.
 ```
 
 _See code: [dist/commands/analytics/suk/daily.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.0/dist/commands/analytics/suk/daily.ts)_
 
 ## `tru analytics:suk:hourly`
 
-Get Hourly SubscriberCheck Analytics. The date range defaults to current date.
+Get Hourly SubscriberCheck Analytics. By default returns most recent analytics.
 
 ```
 USAGE
@@ -312,26 +312,26 @@ FLAGS
   --csv                  output is csv format [alias: --output=csv]
   --debug                Enables debug logging for the CLI
   --filter=<value>       filter property by partial string matching, ex: name=foo
-  --group-by=<value>     Group results by one or more fields e.g project_id or network_id
+  --group-by=<value>     group results by one or more fields e.g project_id or network_id
   --help                 Show CLI help.
   --no-header            hide table header from output
   --no-truncate          do not truncate output to fit screen
   --output=<option>      output in a more machine friendly format
                          <options: csv|json|yaml>
-  --page-number=<value>  [default: 1] The page number to return in the list resource.
-  --page-size=<value>    [default: 10] The page size to return in list resource request.
-  --search=<value>       The RSQL query for analytics. date is required e.g --search='date>=2021-03-29'
-  --sort=<value>         property to sort by (prepend '-' for descending)
+  --page-number=<value>  [default: 1] the page number to return in the list resource.
+  --page-size=<value>    [default: 10] the page size to return in list resource request.
+  --search=<value>       the RSQL query for analytics. e.g --search='date>=2021-03-29'
+  --sort=<value>         sort query in the form "{parameter_name},{direction}". For example, "date,asc" or "date,desc".
 
 DESCRIPTION
-  Get Hourly SubscriberCheck Analytics. The date range defaults to current date.
+  Get Hourly SubscriberCheck Analytics. By default returns most recent analytics.
 ```
 
 _See code: [dist/commands/analytics/suk/hourly.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.0/dist/commands/analytics/suk/hourly.ts)_
 
 ## `tru analytics:suk:monthly`
 
-Get Monthly SubscriberCheck Analytics. The date range defaults to the current calendar month.
+Get Monthly SubscriberCheck Analytics. By default returns most recent analytics.
 
 ```
 USAGE
@@ -345,19 +345,19 @@ FLAGS
   --csv                  output is csv format [alias: --output=csv]
   --debug                Enables debug logging for the CLI
   --filter=<value>       filter property by partial string matching, ex: name=foo
-  --group-by=<value>     Group results by one or more fields e.g project_id or network_id
+  --group-by=<value>     group results by one or more fields e.g project_id or network_id
   --help                 Show CLI help.
   --no-header            hide table header from output
   --no-truncate          do not truncate output to fit screen
   --output=<option>      output in a more machine friendly format
                          <options: csv|json|yaml>
-  --page-number=<value>  [default: 1] The page number to return in the list resource.
-  --page-size=<value>    [default: 10] The page size to return in list resource request.
-  --search=<value>       The RSQL query for analytics. date is required e.g --search='date>=2021-03-29'
-  --sort=<value>         property to sort by (prepend '-' for descending)
+  --page-number=<value>  [default: 1] the page number to return in the list resource.
+  --page-size=<value>    [default: 10] the page size to return in list resource request.
+  --search=<value>       the RSQL query for analytics. e.g --search='date>=2021-03-29'
+  --sort=<value>         sort query in the form "{parameter_name},{direction}". For example, "date,asc" or "date,desc".
 
 DESCRIPTION
-  Get Monthly SubscriberCheck Analytics. The date range defaults to the current calendar month.
+  Get Monthly SubscriberCheck Analytics. By default returns most recent analytics.
 ```
 
 _See code: [dist/commands/analytics/suk/monthly.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.0/dist/commands/analytics/suk/monthly.ts)_
@@ -920,9 +920,9 @@ FLAGS
   --no-truncate          do not truncate output to fit screen
   --output=<option>      output in a more machine friendly format
                          <options: csv|json|yaml>
-  --page-number=<value>  [default: 1] The page number to return in the list resource.
-  --page-size=<value>    [default: 10] The page size to return in list resource request.
-  --search=<value>       The RSQL query for usage. date is required e.g --search='date>=2021-03-29'
+  --page-number=<value>  [default: 1] the page number to return in the list resource.
+  --page-size=<value>    [default: 10] the page size to return in list resource request.
+  --search=<value>       the RSQL query for usage. date is required e.g --search='date>=2021-03-29'
   --sort=<value>         property to sort by (prepend '-' for descending)
 
 DESCRIPTION
@@ -953,9 +953,9 @@ FLAGS
   --no-truncate          do not truncate output to fit screen
   --output=<option>      output in a more machine friendly format
                          <options: csv|json|yaml>
-  --page-number=<value>  [default: 1] The page number to return in the list resource.
-  --page-size=<value>    [default: 10] The page size to return in list resource request.
-  --search=<value>       The RSQL query for usage. date is required e.g --search='date>=2021-03-29'
+  --page-number=<value>  [default: 1] the page number to return in the list resource.
+  --page-size=<value>    [default: 10] the page size to return in list resource request.
+  --search=<value>       the RSQL query for usage. date is required e.g --search='date>=2021-03-29'
   --sort=<value>         property to sort by (prepend '-' for descending)
 
 DESCRIPTION
@@ -986,9 +986,9 @@ FLAGS
   --no-truncate          do not truncate output to fit screen
   --output=<option>      output in a more machine friendly format
                          <options: csv|json|yaml>
-  --page-number=<value>  [default: 1] The page number to return in the list resource.
-  --page-size=<value>    [default: 10] The page size to return in list resource request.
-  --search=<value>       The RSQL query for usage. date is required e.g --search='date>=2021-03-29'
+  --page-number=<value>  [default: 1] the page number to return in the list resource.
+  --page-size=<value>    [default: 10] the page size to return in list resource request.
+  --search=<value>       the RSQL query for usage. date is required e.g --search='date>=2021-03-29'
   --sort=<value>         property to sort by (prepend '-' for descending)
 
 DESCRIPTION

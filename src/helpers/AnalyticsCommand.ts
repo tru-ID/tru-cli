@@ -21,11 +21,11 @@ import {
 
 export default abstract class AnalyticsCommand extends CommandWithGlobalConfig {
   static pageNumberFlag = Flags.integer({
-    description: `The page number to return in the list resource.`,
+    description: `the page number to return in the list resource.`,
     default: 1,
   })
   static pageSizeFlag = Flags.integer({
-    description: 'The page size to return in list resource request.',
+    description: 'the page size to return in list resource request.',
     default: 10,
   })
 
@@ -33,16 +33,20 @@ export default abstract class AnalyticsCommand extends CommandWithGlobalConfig {
     ...CommandWithGlobalConfig.flags,
     ...CliUx.ux.table.flags(),
     search: Flags.string({
-      description: `The RSQL query for analytics. date is required e.g --search='date>=2021-03-29'`,
+      description: `the RSQL query for analytics. e.g --search='date>=2021-03-29'`,
       required: false,
     }),
     'group-by': Flags.string({
       description:
-        'Group results by one or more fields e.g project_id or network_id',
+        'group results by one or more fields e.g project_id or network_id',
       required: false,
     }),
     'page-number': AnalyticsCommand.pageNumberFlag,
     'page-size': AnalyticsCommand.pageSizeFlag,
+    sort: Flags.string({
+      description: `sort query in the form "{parameter_name},{direction}". For example, "date,asc" or "date,desc".`,
+      required: false,
+    }),
   }
 
   tokenScope: string
@@ -119,10 +123,11 @@ export default abstract class AnalyticsCommand extends CommandWithGlobalConfig {
     const apiCheckClient = this.getApiClient(this.logger)
 
     const analyticsParams = {
-      search: this.flags.search ?? this.defaultSearch(),
+      search: this.flags.search,
       group_by: this.flags[`group-by`],
       page: this.flags['page-number'],
       size: this.flags['page-size'],
+      sort: this.flags.sort,
     }
 
     try {
@@ -143,6 +148,4 @@ export default abstract class AnalyticsCommand extends CommandWithGlobalConfig {
       this.exit(1)
     }
   }
-
-  abstract defaultSearch(): string
 }
