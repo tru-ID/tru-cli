@@ -38,8 +38,8 @@ export default abstract class ChecksListCommand extends CommandWithProjectConfig
   static flags = {
     ...CommandWithProjectConfig.flags,
     ...CliUx.ux.table.flags(),
-    page_number: ChecksListCommand.pageNumberFlag,
-    page_size: ChecksListCommand.pageSizeFlag,
+    'page-number': ChecksListCommand.pageNumberFlag,
+    'page-size': ChecksListCommand.pageSizeFlag,
     search: ChecksListCommand.searchFlag,
     sort: ChecksListCommand.sortFlag,
   }
@@ -109,8 +109,8 @@ export default abstract class ChecksListCommand extends CommandWithProjectConfig
       let listResource: IListCheckResource<CheckResource>
       try {
         listResource = await checkApiClient.list({
-          page: this.flags.page_number,
-          size: this.flags.page_size,
+          page: this.flags['page-number'],
+          size: this.flags['page-size'],
           search: this.flags.search,
           sort: this.flags.sort,
         })

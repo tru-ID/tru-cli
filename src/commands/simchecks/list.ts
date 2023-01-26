@@ -42,8 +42,8 @@ export default class SimCheckList extends CommandWithProjectConfig {
   static flags = {
     ...CommandWithProjectConfig.flags,
     ...CliUx.ux.table.flags(),
-    page_number: SimCheckList.pageNumberFlag,
-    page_size: SimCheckList.pageSizeFlag,
+    'page-number': SimCheckList.pageNumberFlag,
+    'page-size': SimCheckList.pageSizeFlag,
     search: SimCheckList.searchFlag,
     sort: SimCheckList.sortFlag,
   }
@@ -123,8 +123,8 @@ export default class SimCheckList extends CommandWithProjectConfig {
       let listResource: IListSimCheckResource
       try {
         listResource = await apiCheckClient.list({
-          page: this.flags.page_number,
-          size: this.flags.page_size,
+          page: this.flags['page-number'],
+          size: this.flags['page-size'],
           search: this.flags.search,
           sort: this.flags.sort,
         })
