@@ -53,8 +53,8 @@ export default class ProjectsList extends CommandWithGlobalConfig {
   static flags = {
     ...CommandWithGlobalConfig.flags,
     ...CliUx.ux.table.flags(),
-    page_number: ProjectsList.pageNumberFlag,
-    page_size: ProjectsList.pageSizeFlag,
+    'page-number': ProjectsList.pageNumberFlag,
+    'page-size': ProjectsList.pageSizeFlag,
     search: ProjectsList.searchFlag,
     sort: ProjectsList.sortFlag,
   }
@@ -107,8 +107,8 @@ export default class ProjectsList extends CommandWithGlobalConfig {
         listResource = await projectsAPIClient.list(
           this.globalConfig!.selectedWorkspace!,
           {
-            size: this.flags.page_size,
-            page: this.flags.page_number,
+            size: this.flags['page-size'],
+            page: this.flags['page-number'],
             search: this.flags.search,
             sort: this.flags.sort,
           },
