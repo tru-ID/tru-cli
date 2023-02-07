@@ -43,6 +43,7 @@ Creating Project "My first project"
     ...CommandWithProjectConfig.flags,
     ...phoneCheckCallbackUrlFlag.flag,
     ...projectModeFlag.flag,
+    output: CliUx.ux.table.flags().output,
   }
 
   static args = [
@@ -53,7 +54,7 @@ Creating Project "My first project"
     },
   ]
 
-  async run() {
+  async run(): Promise<void> {
     const result = await this.parse(ProjectsCreate)
     this.args = result.args
     this.flags = result.flags
@@ -79,7 +80,6 @@ Creating Project "My first project"
       )
       this.args.name = projectName
     }
-    this.log(`Creating Project "${this.args.name}"`)
 
     const tokenManager = new RefreshTokenManager(
       {
@@ -116,7 +116,7 @@ Creating Project "My first project"
       if (this.flags[projectModeFlag.flagName]) {
         createPayload.mode = this.flags[projectModeFlag.flagName]
       }
-      1
+
       projectCreationResult = await projectsAPI.create(
         this.globalConfig!.selectedWorkspace!,
         createPayload,
@@ -161,13 +161,30 @@ Creating Project "My first project"
         await fs.outputJson(configFileFullPathToCreate, projectConfig, {
           spaces: '\t',
         })
+        if (!this.flags.output) {
+          this.log(
+            `Project configuration saved to "${configFileFullPathToCreate}".`,
+          )
+          return
+        }
 
-        this.log(
-          `Project configuration saved to "${configFileFullPathToCreate}".`,
-        )
+        this.printResponse(projectConfig)
       } catch (error) {
         this.error(`An unexpected error occurred: ${error}`, { exit: 1 })
       }
     }
+  }
+
+  printDefault(response: IProjectCreateResource): void {
+    CliUx.ux.table(
+      [response],
+      {
+        project_id: { header: 'project_id' },
+        name: { header: 'name' },
+        created_at: { header: 'created_at' },
+        data_residency: { header: 'data_residency' },
+      },
+      { ...this.flags },
+    )
   }
 }

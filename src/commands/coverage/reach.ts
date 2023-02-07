@@ -23,7 +23,7 @@ export default class CoverageReach extends CommandWithProjectConfig {
     {
       name: 'device-ip',
       required: true,
-      description: 'The device ip in ipv4 or ipv6 format',
+      description: 'the device ip in ipv4 or ipv6 format',
     },
   ]
 
@@ -52,35 +52,17 @@ export default class CoverageReach extends CommandWithProjectConfig {
 
     const apiClient = this.newApiClient(credentials, flags.debug)
 
-    let response: ICoverageReachResponse | undefined
     try {
-      response = await apiClient.reach(deviceIp)
+      const response = await apiClient.reach(deviceIp)
+
+      this.printResponse(response)
     } catch (error) {
       logApiError(this, error)
       this.exit(1)
     }
-
-    if (response) {
-      CliUx.ux.table(
-        [response],
-        {
-          network_id: { header: 'network_id' },
-          network_name: { header: 'network_name' },
-          country_code: { header: 'country_code' },
-          supported_products: {
-            header: 'supported_products',
-            get: (row: ICoverageReachResponse) =>
-              row.products.map((p: IProduct) => p.product_name).join(','),
-          },
-        },
-        { ...this.flags },
-      )
-    } else {
-      this.log('No reach for this device')
-    }
   }
 
-  async catch(err: Error) {
+  async catch(err: Error): Promise<void> {
     this.error(`failed to retrieve reach: ${err.message}`, { exit: 1 })
   }
 
@@ -113,5 +95,26 @@ export default class CoverageReach extends CommandWithProjectConfig {
       ),
       logger,
     )
+  }
+
+  printDefault(response: ICoverageReachResponse): void {
+    if (response) {
+      CliUx.ux.table(
+        [response],
+        {
+          network_id: { header: 'network_id' },
+          network_name: { header: 'network_name' },
+          country_code: { header: 'country_code' },
+          supported_products: {
+            header: 'supported_products',
+            get: (row: ICoverageReachResponse) =>
+              row.products.map((p: IProduct) => p.product_name).join(','),
+          },
+        },
+        { ...this.flags },
+      )
+    } else {
+      this.log('No reach for this device')
+    }
   }
 }

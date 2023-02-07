@@ -1,108 +1,32 @@
-import { Config } from '@oclif/core'
+import { CliUx, Config } from '@oclif/core'
 import { APIClientCredentialsConfiguration } from '../../api/APIConfiguration'
 import { CheckStatus } from '../../api/CheckStatus'
 import {
-  ISimCheckResource,
+  CreateSimCheckResponse,
   SimCheckAPIClient,
 } from '../../api/SimCheckAPIClient'
 import { ClientCredentialsManager } from '../../api/TokenManager'
-import { apiBaseUrlDR, tokenUrlDR } from '../../DefaultUrls'
-import CommandWithProjectConfig from '../../helpers/CommandWithProjectConfig'
+import { apiBaseUrlDR } from '../../DefaultUrls'
 import ILogger from '../../helpers/ILogger'
-import { promptForNumber } from '../../helpers/phone'
-import {
-  doesProjectConfigExist,
-  isProjectCredentialsValid,
-} from '../../helpers/ValidationUtils'
-import { logApiError } from '../../utilities'
+import ChecksCreateCommand from '../../helpers/ChecksCreateCommand'
 
-export default class SimChecksCreate extends CommandWithProjectConfig {
+export default class SimChecksCreate extends ChecksCreateCommand {
   static description = 'Create SIMChecks within a Project'
 
+  static typeOfCheck = 'SIMCheck'
+
   static flags = {
-    ...CommandWithProjectConfig.flags,
+    ...ChecksCreateCommand.flags,
   }
 
-  static args = [
-    {
-      name: 'phone_number',
-      required: false, // caught upon running and then user is prompted
-      description: 'The phone number to perform the SIMCheck on',
-    },
-  ]
-
-  typeOfCheck = 'SIMCheck'
-
-  tokenScope = 'sim_check'
+  static args = [...ChecksCreateCommand.args]
 
   constructor(argv: string[], config: Config) {
-    super(argv, config)
+    super(SimChecksCreate.typeOfCheck, 'sim_check', argv, config)
   }
 
   parseCommand() {
     return this.parse(SimChecksCreate)
-  }
-
-  async run() {
-    const result = await this.parseCommand()
-    this.args = result.args
-    this.flags = result.flags
-    await this.loadProjectConfig()
-
-    await super.run()
-
-    doesProjectConfigExist(this.projectConfig)
-    isProjectCredentialsValid(this.projectConfig!)
-
-    if (!this.projectConfig?.data_residency) {
-      this.warn(
-        'No data_residency specified in project config tru.json. It will default to eu',
-      )
-    }
-
-    if (this.args.phone_number === undefined) {
-      const response = await promptForNumber(this.typeOfCheck)
-
-      this.args.phone_number = response['phone_number']
-    }
-
-    this.log(`Creating ${this.typeOfCheck} for ${this.args.phone_number}\n`)
-
-    const apiConfiguration: APIClientCredentialsConfiguration = {
-      clientId: this.projectConfig!.credentials[0].client_id!,
-      clientSecret: this.projectConfig!.credentials[0].client_secret!,
-      scopes: [this.tokenScope],
-      tokenUrl: tokenUrlDR(
-        this.projectConfig?.data_residency || 'eu',
-        this.globalConfig!,
-      ),
-    }
-
-    const simCheckApiClient = this.getApiClient(apiConfiguration, this.logger)
-
-    let response: ISimCheckResource
-
-    try {
-      response = await simCheckApiClient.create({
-        phone_number: this.args.phone_number,
-      })
-    } catch (error) {
-      logApiError(this, error)
-      this.exit(1)
-      return
-    }
-
-    if (response.status === CheckStatus.COMPLETED) {
-      this.log(`\tcheck_id: ${response.check_id}`)
-      this.log(`\tstatus: ${response.status}`)
-      this.log(`\tno_sim_change: ${response.no_sim_change}`)
-    } else {
-      this.log(
-        `The ${this.typeOfCheck} could not be created. The ${this.typeOfCheck} status is ${response.status}`,
-      )
-      this.exit(1)
-      return
-    }
   }
 
   getApiClient(
@@ -118,6 +42,32 @@ export default class SimChecksCreate extends CommandWithProjectConfig {
         this.globalConfig!,
       ),
       logger,
+    )
+  }
+
+  printDefault(response: CreateSimCheckResponse): void {
+    if (response.status !== CheckStatus.COMPLETED) {
+      this.log(
+        `The ${this.typeOfCheck} could not be created. The ${this.typeOfCheck} status is ${response.status}`,
+      )
+      return
+    }
+
+    if (!this.flags.output) {
+      this.log(`check_id: ${response.check_id}`)
+      this.log(`status: ${response.status}`)
+      this.log(`no_sim_change: ${response.no_sim_change}`)
+      return
+    }
+
+    CliUx.ux.table(
+      [response],
+      {
+        check_id: { header: 'check_id' },
+        status: { header: 'status' },
+        no_sim_change: { header: 'no_sim_change' },
+      },
+      { ...this.flags },
     )
   }
 }

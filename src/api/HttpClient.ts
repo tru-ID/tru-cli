@@ -125,7 +125,7 @@ export class HttpClient {
     this.logger.debug('Response:', log)
   }
 
-  _filterRequest(request?: AxiosRequestConfig) {
+  _filterRequest(request?: AxiosRequestConfig): any {
     if (!request) {
       return null
     }

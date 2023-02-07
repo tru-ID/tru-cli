@@ -5,7 +5,7 @@ export const displayPagination = function (
   logger: ILogger,
   pagination: IPageNumbers,
   description: string,
-) {
+): void {
   const startIndex = (pagination.number - 1) * pagination.size
   const start = Math.max(1, startIndex)
   const end =

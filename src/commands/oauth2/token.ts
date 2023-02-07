@@ -37,7 +37,7 @@ Emesua0F7gj3qOaav7UaKaBwefaaefaAxlrdGom_mb3U.78Od2d9XpvTQbd44eM1Uf7nzz9e9nezs5TR
   refreshTokenManager: RefreshTokenManager | undefined
   clientCredentialsManager: ClientCredentialsManager | undefined
 
-  async run() {
+  async run(): Promise<void> {
     const result = await this.parse(CreateToken)
 
     this.args = result.args
@@ -72,12 +72,18 @@ Emesua0F7gj3qOaav7UaKaBwefaaefaAxlrdGom_mb3U.78Od2d9XpvTQbd44eM1Uf7nzz9e9nezs5TR
     const accessToken: AccessToken =
       await clientCredentialsManager.getAccessToken()
 
-    this.displayResults([accessToken])
+    this.printResponse(accessToken)
   }
 
-  displayResults(resources: AccessToken[]) {
+  getScopes(projectConfig?: IProjectConfiguration): string[] {
+    const scopes = projectConfig?.credentials[0].scopes ?? ['phone_check']
+
+    return scopes
+  }
+
+  printDefault(response: AccessToken): void {
     CliUx.ux.table(
-      resources,
+      [response],
       {
         access_token: {
           header: 'access_token',
@@ -102,11 +108,5 @@ Emesua0F7gj3qOaav7UaKaBwefaaefaAxlrdGom_mb3U.78Od2d9XpvTQbd44eM1Uf7nzz9e9nezs5TR
         ...this.flags, // parsed flags
       },
     )
-  }
-
-  getScopes(projectConfig?: IProjectConfiguration): string[] {
-    const scopes = projectConfig?.credentials[0].scopes ?? ['phone_check']
-
-    return scopes
   }
 }
