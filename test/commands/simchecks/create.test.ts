@@ -20,7 +20,11 @@ chai.use(sinonChai)
 
 const phoneNumberToTest = '447700900000'
 
-const createSimCheckResponse: simchecks.ICreateSimCheckResponse = {
+const createSimCheckResponse: simchecks.CreateSimCheckResponse = {
+  network_id: '',
+  no_sim_change_period: 0,
+  sim_change_within: 0,
+  updated_at: '',
   check_id: 'c69bc0e6-a429-11ea-bb37-0242ac130002',
   status: CheckStatus.COMPLETED,
   charge_amount: 1,
@@ -164,7 +168,6 @@ describe('SIMCheck Create Scenarios', () => {
     )
     .stdout()
     .command(['simchecks:create', phoneNumberToTest, '--debug'])
-    .exit(1)
     .it(
       `'simchecks:create' -- logs a SIMCheck that has status of ERROR`,
       (ctx) => {

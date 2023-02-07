@@ -1,24 +1,32 @@
 import ILogger from '../helpers/ILogger'
-import { AbstractChecksApiClient } from './ChecksAPIClient'
-import { CheckStatus } from './CheckStatus'
+import {
+  AbstractChecksApiClient,
+  CheckResponse,
+  CreateCheckResponse,
+} from './ChecksAPIClient'
 import { ILink } from './IListResource'
 import { ClientCredentialsManager } from './TokenManager'
 
-export type SubscriberCheckResource = {
-  check_id: string
-  status: CheckStatus
-  match: boolean
-  charge_amount: number
-  charge_currency: string
-  created_at: string
-  updated_at: string
+export type CreateSubscriberCheckResponse = {
+  url: string
+  ttl: number
   _links: {
     self: ILink
+    check_url: ILink
   }
-  no_sim_change: boolean
-}
+} & CreateCheckResponse
 
-export class SubscriberCheckAPIClient extends AbstractChecksApiClient<SubscriberCheckResource> {
+export type SubscriberCheckResponse = {
+  match: boolean
+  no_sim_change: boolean
+  no_sim_change_period: number
+  sim_change_within: number
+} & CheckResponse
+
+export class SubscriberCheckAPIClient extends AbstractChecksApiClient<
+  CreateSubscriberCheckResponse,
+  SubscriberCheckResponse
+> {
   constructor(
     tokenManager: ClientCredentialsManager,
     apiBaseUrlDR: string,

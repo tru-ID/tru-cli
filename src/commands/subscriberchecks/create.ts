@@ -1,13 +1,14 @@
-import { Config } from '@oclif/core'
+import { CliUx, Config } from '@oclif/core'
 import { APIClientCredentialsConfiguration } from '../../api/APIConfiguration'
 import {
+  CreateSubscriberCheckResponse,
   SubscriberCheckAPIClient,
-  SubscriberCheckResource,
 } from '../../api/SubscriberCheckAPIClient'
 import { ClientCredentialsManager } from '../../api/TokenManager'
 import { apiBaseUrlDR } from '../../DefaultUrls'
 import ChecksCreateCommand from '../../helpers/ChecksCreateCommand'
 import ILogger from '../../helpers/ILogger'
+import { CheckStatus } from '../../api/CheckStatus'
 
 export default class SubscriberChecksCreate extends ChecksCreateCommand {
   static typeOfCheck = 'SubscriberCheck'
@@ -21,7 +22,7 @@ export default class SubscriberChecksCreate extends ChecksCreateCommand {
   static args = [...ChecksCreateCommand.args]
 
   constructor(argv: string[], config: Config) {
-    super('SubscriberCheck', 'subscriber_check', argv, config)
+    super(SubscriberChecksCreate.typeOfCheck, 'subscriber_check', argv, config)
   }
 
   parseCommand() {
@@ -44,24 +45,29 @@ export default class SubscriberChecksCreate extends ChecksCreateCommand {
     )
   }
 
-  getPolling(): number {
-    return (
-      this.globalConfig?.subscriberCheckWorkflowRetryMillisecondsOverride ??
-      5000
-    )
-  }
+  printDefault(response: CreateSubscriberCheckResponse): void {
+    if (response.status !== CheckStatus.ACCEPTED) {
+      this.log(
+        `The ${this.typeOfCheck} could not be created. The ${this.typeOfCheck} status is ${response.status}`,
+      )
+      return
+    }
 
-  logResult(checkResponse: SubscriberCheckResource): void {
-    this.log('')
-    this.log(
-      `${this.typeOfCheck} Workflow result:\n` +
-        `\tstatus:  ${checkResponse.status}\n` +
-        `\tmatch:  ${checkResponse.match} ${
-          checkResponse.match ? '✅' : '❌'
-        }\n` +
-        `\tno_sim_change:  ${checkResponse.no_sim_change} ${
-          checkResponse.no_sim_change ? '✅' : '❌'
-        }\n`,
+    if (!this.flags.output) {
+      this.log(`${this.typeOfCheck} ACCEPTED`)
+      this.log(`check_id: ${response.check_id}`)
+      this.log(`check_url: ${response.url}`)
+      return
+    }
+
+    CliUx.ux.table(
+      [response],
+      {
+        status: { header: 'status' },
+        check_id: { header: 'check_id' },
+        url: { header: 'check_url' },
+      },
+      { ...this.flags },
     )
   }
 }

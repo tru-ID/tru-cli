@@ -17,7 +17,7 @@ import {
   isWorkspaceSelected,
   isWorkspaceTokenInfoValid,
 } from '../../helpers/ValidationUtils'
-import { logApiError } from '../../utilities'
+import { logApiError, printJson } from '../../utilities'
 
 export default class ProjectsList extends CommandWithGlobalConfig {
   static description =
@@ -27,26 +27,26 @@ export default class ProjectsList extends CommandWithGlobalConfig {
     {
       name: 'project_id',
       required: false,
-      description: 'The project_id for the Project to retrieve',
+      description: 'the project_id for the Project to retrieve',
     },
   ]
 
   static pageNumberFlag = Flags.integer({
-    description: `The page number to return in the list resource. Ignored if the "project_id" argument is used.`,
+    description: `the page number to return in the list resource. Ignored if the "project_id" argument is used.`,
     default: 1,
   })
   static pageSizeFlag = Flags.integer({
     description:
-      'The page size to return in list resource request. Ignored if the "project_id" argument is used.',
+      'the page size to return in list resource request. Ignored if the "project_id" argument is used.',
     default: 10,
   })
   static searchFlag = Flags.string({
     description:
-      'A RSQL search query. To ensure correct parsing put your query in quotes. For example "--search \'name=p*\'". Ignored if the "project_id" argument is used.',
+      'a RSQL search query. To ensure correct parsing put your query in quotes. For example "--search \'name=p*\'". Ignored if the "project_id" argument is used.',
   })
   static sortFlag = Flags.string({
     description:
-      'Sort query in the form "{parameter_name},{direction}". For example, "created_at,asc" or "created_at,desc". Ignored if the "project_id" argument is used.',
+      'sort query in the form "{parameter_name},{direction}". For example, "created_at,asc" or "created_at,desc". Ignored if the "project_id" argument is used.',
     default: 'created_at,desc',
   })
 
@@ -88,23 +88,15 @@ export default class ProjectsList extends CommandWithGlobalConfig {
       this.logger,
     )
 
-    if (this.args.project_id) {
-      let singleResource: IProjectResource
-      try {
-        singleResource = await projectsAPIClient.get(
+    try {
+      if (this.args.project_id) {
+        const singleResource = await projectsAPIClient.get(
           this.globalConfig!.selectedWorkspace!,
           this.args.project_id,
         )
-
-        this.displayResults([singleResource])
-      } catch (error) {
-        logApiError(this, error)
-        this.exit(1)
-      }
-    } else {
-      let listResource: IListProjectsResponse
-      try {
-        listResource = await projectsAPIClient.list(
+        this.printResponse(singleResource, true)
+      } else {
+        const listResource = await projectsAPIClient.list(
           this.globalConfig!.selectedWorkspace!,
           {
             size: this.flags['page-size'],
@@ -114,16 +106,35 @@ export default class ProjectsList extends CommandWithGlobalConfig {
           },
         )
 
-        this.displayResults(listResource._embedded.projects)
-        displayPagination(this.logger, listResource.page, 'Projects')
-      } catch (error) {
-        logApiError(this, error)
-        this.exit(1)
+        this.printResponse(listResource, false)
       }
+    } catch (error) {
+      logApiError(this, error)
+      this.exit(1)
     }
   }
+  printResponse(
+    response: IProjectResource | IListProjectsResponse,
+    printSingle?: boolean,
+  ): void {
+    if (this.flags.output === 'json') {
+      printJson(this.logger, response)
+      return
+    }
 
-  displayResults(resources: IProjectResource[]): void {
+    if (printSingle) {
+      const singleResponse = response as IProjectResource
+      this.printDefault([singleResponse])
+      return
+    }
+
+    const listResponse = response as IListProjectsResponse
+    this.printDefault(listResponse._embedded.projects)
+
+    displayPagination(this.logger, listResponse.page, 'Projects')
+  }
+
+  printDefault(resources: IProjectResource[]): void {
     // do not use table sort as it only works for simple types e.g., number, etc.
     // and the API already returns sorted results
     const flagsWithNoSort = { ...this.flags, sort: undefined }

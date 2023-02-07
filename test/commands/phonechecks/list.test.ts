@@ -3,10 +3,7 @@ import chai from 'chai'
 import fs from 'fs-extra'
 import sinonChai from 'sinon-chai'
 import sinon from 'ts-sinon'
-import {
-  CheckResource,
-  IListCheckResource,
-} from '../../../src/api/ChecksAPIClient'
+import { IListCheckResource } from '../../../src/api/ChecksAPIClient'
 import { CheckStatus } from '../../../src/api/CheckStatus'
 import {
   accessToken,
@@ -14,6 +11,7 @@ import {
   projectConfig,
   projectConfigFileLocation,
 } from '../../test_helpers'
+import { PhoneCheckResponse } from '../../../src/api/PhoneChecksAPIClient'
 
 const expect = chai.expect
 chai.use(sinonChai)
@@ -21,7 +19,7 @@ chai.use(sinonChai)
 describe('phonechecks:list', () => {
   let readJsonStub: any
 
-  const phoneCheckResource: CheckResource = {
+  const phoneCheckResource: PhoneCheckResponse = {
     _links: {
       self: {
         href: 'https://us.api.tru.id/phone_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002',
@@ -29,6 +27,7 @@ describe('phonechecks:list', () => {
     },
     charge_amount: 1,
     charge_currency: 'API',
+    network_id: '23232',
     check_id: 'c69bc0e6-a429-11ea-bb37-0242ac130002',
     created_at: '2020-06-01T16:43:30+00:00',
     updated_at: '2020-06-01T16:43:30+00:00',
@@ -36,7 +35,7 @@ describe('phonechecks:list', () => {
     status: CheckStatus.EXPIRED,
   }
 
-  const checksListResource: IListCheckResource<CheckResource> = {
+  const checksListResource: IListCheckResource<PhoneCheckResponse> = {
     _embedded: {
       checks: [phoneCheckResource],
     },

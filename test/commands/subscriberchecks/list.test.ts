@@ -5,35 +5,37 @@ import sinonChai from 'sinon-chai'
 import sinon from 'ts-sinon'
 import { IListCheckResource } from '../../../src/api/ChecksAPIClient'
 import { CheckStatus } from '../../../src/api/CheckStatus'
-import * as subscriberCheckAPIClientModules from '../../../src/api/SubscriberCheckAPIClient'
 import {
   accessToken,
   globalConfig,
   projectConfig,
   projectConfigFileLocation,
 } from '../../test_helpers'
+import { SubscriberCheckResponse } from '../../../src/api/SubscriberCheckAPIClient'
 
 const expect = chai.expect
 chai.use(sinonChai)
 
-const subscriberCheckResource: subscriberCheckAPIClientModules.SubscriberCheckResource =
-  {
-    _links: {
-      self: {
-        href: 'https://us.api.tru.id/subscriber_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002',
-      },
+const subscriberCheckResource: SubscriberCheckResponse = {
+  network_id: '',
+  no_sim_change_period: 0,
+  sim_change_within: 0,
+  _links: {
+    self: {
+      href: 'https://us.api.tru.id/subscriber_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002',
     },
-    charge_amount: 1,
-    charge_currency: 'API',
-    check_id: 'c69bc0e6-a429-11ea-bb37-0242ac130002',
-    created_at: '2020-06-01T16:43:30+00:00',
-    updated_at: '2020-06-01T16:43:30+00:00',
-    match: false,
-    no_sim_change: true,
-    status: CheckStatus.ACCEPTED,
-  }
+  },
+  charge_amount: 1,
+  charge_currency: 'API',
+  check_id: 'c69bc0e6-a429-11ea-bb37-0242ac130002',
+  created_at: '2020-06-01T16:43:30+00:00',
+  updated_at: '2020-06-01T16:43:30+00:00',
+  match: false,
+  no_sim_change: true,
+  status: CheckStatus.ACCEPTED,
+}
 
-const subscriberListCheckResource: IListCheckResource<subscriberCheckAPIClientModules.SubscriberCheckResource> =
+const subscriberListCheckResource: IListCheckResource<SubscriberCheckResponse> =
   {
     _embedded: {
       checks: [subscriberCheckResource],

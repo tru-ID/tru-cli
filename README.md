@@ -21,7 +21,7 @@ $ npm install -g @tru_id/cli
 $ tru COMMAND
 running command...
 $ tru (--version)
-@tru_id/cli/1.2.0 darwin-arm64 node-v18.12.1
+@tru_id/cli/1.2.1 darwin-arm64 node-v18.12.1
 $ tru --help [COMMAND]
 USAGE
   $ tru COMMAND
@@ -79,10 +79,10 @@ FLAGS
   -x, --extended         show extra columns
   --columns=<value>      only show provided columns (comma-separated)
   --csv                  output is csv format [alias: --output=csv]
-  --debug                Enables debug logging for the CLI
+  --debug                enables debug logging for the CLI
   --filter=<value>       filter property by partial string matching, ex: name=foo
   --group-by=<value>     group results by one or more fields e.g project_id or network_id
-  --help                 Show CLI help.
+  --help                 show CLI help
   --no-header            hide table header from output
   --no-truncate          do not truncate output to fit screen
   --output=<option>      output in a more machine friendly format
@@ -96,7 +96,7 @@ DESCRIPTION
   Get Daily PhoneCheck Analytics. By default returns most recent analytics.
 ```
 
-_See code: [dist/commands/analytics/pck/daily.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.0/dist/commands/analytics/pck/daily.ts)_
+_See code: [dist/commands/analytics/pck/daily.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.1/dist/commands/analytics/pck/daily.ts)_
 
 ## `tru analytics:pck:hourly`
 
@@ -112,10 +112,10 @@ FLAGS
   -x, --extended         show extra columns
   --columns=<value>      only show provided columns (comma-separated)
   --csv                  output is csv format [alias: --output=csv]
-  --debug                Enables debug logging for the CLI
+  --debug                enables debug logging for the CLI
   --filter=<value>       filter property by partial string matching, ex: name=foo
   --group-by=<value>     group results by one or more fields e.g project_id or network_id
-  --help                 Show CLI help.
+  --help                 show CLI help
   --no-header            hide table header from output
   --no-truncate          do not truncate output to fit screen
   --output=<option>      output in a more machine friendly format
@@ -129,7 +129,7 @@ DESCRIPTION
   Get Hourly PhoneCheck Analytics. By default returns most recent analytics.
 ```
 
-_See code: [dist/commands/analytics/pck/hourly.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.0/dist/commands/analytics/pck/hourly.ts)_
+_See code: [dist/commands/analytics/pck/hourly.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.1/dist/commands/analytics/pck/hourly.ts)_
 
 ## `tru analytics:pck:monthly`
 
@@ -145,10 +145,10 @@ FLAGS
   -x, --extended         show extra columns
   --columns=<value>      only show provided columns (comma-separated)
   --csv                  output is csv format [alias: --output=csv]
-  --debug                Enables debug logging for the CLI
+  --debug                enables debug logging for the CLI
   --filter=<value>       filter property by partial string matching, ex: name=foo
   --group-by=<value>     group results by one or more fields e.g project_id or network_id
-  --help                 Show CLI help.
+  --help                 show CLI help
   --no-header            hide table header from output
   --no-truncate          do not truncate output to fit screen
   --output=<option>      output in a more machine friendly format
@@ -162,7 +162,7 @@ DESCRIPTION
   Get Monthly PhoneCheck Analytics. By default returns most recent analytics.
 ```
 
-_See code: [dist/commands/analytics/pck/monthly.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.0/dist/commands/analytics/pck/monthly.ts)_
+_See code: [dist/commands/analytics/pck/monthly.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.1/dist/commands/analytics/pck/monthly.ts)_
 
 ## `tru analytics:sck:daily`
 
@@ -178,10 +178,10 @@ FLAGS
   -x, --extended         show extra columns
   --columns=<value>      only show provided columns (comma-separated)
   --csv                  output is csv format [alias: --output=csv]
-  --debug                Enables debug logging for the CLI
+  --debug                enables debug logging for the CLI
   --filter=<value>       filter property by partial string matching, ex: name=foo
   --group-by=<value>     group results by one or more fields e.g project_id or network_id
-  --help                 Show CLI help.
+  --help                 show CLI help
   --no-header            hide table header from output
   --no-truncate          do not truncate output to fit screen
   --output=<option>      output in a more machine friendly format
@@ -195,7 +195,7 @@ DESCRIPTION
   Get Daily SimCheck Analytics. By default returns most recent analytics.
 ```
 
-_See code: [dist/commands/analytics/sck/daily.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.0/dist/commands/analytics/sck/daily.ts)_
+_See code: [dist/commands/analytics/sck/daily.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.1/dist/commands/analytics/sck/daily.ts)_
 
 ## `tru analytics:sck:hourly`
 
@@ -211,10 +211,10 @@ FLAGS
   -x, --extended         show extra columns
   --columns=<value>      only show provided columns (comma-separated)
   --csv                  output is csv format [alias: --output=csv]
-  --debug                Enables debug logging for the CLI
+  --debug                enables debug logging for the CLI
   --filter=<value>       filter property by partial string matching, ex: name=foo
   --group-by=<value>     group results by one or more fields e.g project_id or network_id
-  --help                 Show CLI help.
+  --help                 show CLI help
   --no-header            hide table header from output
   --no-truncate          do not truncate output to fit screen
   --output=<option>      output in a more machine friendly format
@@ -228,7 +228,7 @@ DESCRIPTION
   Get Hourly SimCheck Analytics. By default returns most recent analytics.
 ```
 
-_See code: [dist/commands/analytics/sck/hourly.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.0/dist/commands/analytics/sck/hourly.ts)_
+_See code: [dist/commands/analytics/sck/hourly.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.1/dist/commands/analytics/sck/hourly.ts)_
 
 ## `tru analytics:sck:monthly`
 
@@ -244,10 +244,10 @@ FLAGS
   -x, --extended         show extra columns
   --columns=<value>      only show provided columns (comma-separated)
   --csv                  output is csv format [alias: --output=csv]
-  --debug                Enables debug logging for the CLI
+  --debug                enables debug logging for the CLI
   --filter=<value>       filter property by partial string matching, ex: name=foo
   --group-by=<value>     group results by one or more fields e.g project_id or network_id
-  --help                 Show CLI help.
+  --help                 show CLI help
   --no-header            hide table header from output
   --no-truncate          do not truncate output to fit screen
   --output=<option>      output in a more machine friendly format
@@ -261,7 +261,7 @@ DESCRIPTION
   Get Monthly SimCheck Analytics. By default returns most recent analytics.
 ```
 
-_See code: [dist/commands/analytics/sck/monthly.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.0/dist/commands/analytics/sck/monthly.ts)_
+_See code: [dist/commands/analytics/sck/monthly.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.1/dist/commands/analytics/sck/monthly.ts)_
 
 ## `tru analytics:suk:daily`
 
@@ -277,10 +277,10 @@ FLAGS
   -x, --extended         show extra columns
   --columns=<value>      only show provided columns (comma-separated)
   --csv                  output is csv format [alias: --output=csv]
-  --debug                Enables debug logging for the CLI
+  --debug                enables debug logging for the CLI
   --filter=<value>       filter property by partial string matching, ex: name=foo
   --group-by=<value>     group results by one or more fields e.g project_id or network_id
-  --help                 Show CLI help.
+  --help                 show CLI help
   --no-header            hide table header from output
   --no-truncate          do not truncate output to fit screen
   --output=<option>      output in a more machine friendly format
@@ -294,7 +294,7 @@ DESCRIPTION
   Get Daily SubscriberCheck Analytics. By default returns most recent analytics.
 ```
 
-_See code: [dist/commands/analytics/suk/daily.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.0/dist/commands/analytics/suk/daily.ts)_
+_See code: [dist/commands/analytics/suk/daily.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.1/dist/commands/analytics/suk/daily.ts)_
 
 ## `tru analytics:suk:hourly`
 
@@ -310,10 +310,10 @@ FLAGS
   -x, --extended         show extra columns
   --columns=<value>      only show provided columns (comma-separated)
   --csv                  output is csv format [alias: --output=csv]
-  --debug                Enables debug logging for the CLI
+  --debug                enables debug logging for the CLI
   --filter=<value>       filter property by partial string matching, ex: name=foo
   --group-by=<value>     group results by one or more fields e.g project_id or network_id
-  --help                 Show CLI help.
+  --help                 show CLI help
   --no-header            hide table header from output
   --no-truncate          do not truncate output to fit screen
   --output=<option>      output in a more machine friendly format
@@ -327,7 +327,7 @@ DESCRIPTION
   Get Hourly SubscriberCheck Analytics. By default returns most recent analytics.
 ```
 
-_See code: [dist/commands/analytics/suk/hourly.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.0/dist/commands/analytics/suk/hourly.ts)_
+_See code: [dist/commands/analytics/suk/hourly.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.1/dist/commands/analytics/suk/hourly.ts)_
 
 ## `tru analytics:suk:monthly`
 
@@ -343,10 +343,10 @@ FLAGS
   -x, --extended         show extra columns
   --columns=<value>      only show provided columns (comma-separated)
   --csv                  output is csv format [alias: --output=csv]
-  --debug                Enables debug logging for the CLI
+  --debug                enables debug logging for the CLI
   --filter=<value>       filter property by partial string matching, ex: name=foo
   --group-by=<value>     group results by one or more fields e.g project_id or network_id
-  --help                 Show CLI help.
+  --help                 show CLI help
   --no-header            hide table header from output
   --no-truncate          do not truncate output to fit screen
   --output=<option>      output in a more machine friendly format
@@ -360,7 +360,7 @@ DESCRIPTION
   Get Monthly SubscriberCheck Analytics. By default returns most recent analytics.
 ```
 
-_See code: [dist/commands/analytics/suk/monthly.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.0/dist/commands/analytics/suk/monthly.ts)_
+_See code: [dist/commands/analytics/suk/monthly.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.1/dist/commands/analytics/suk/monthly.ts)_
 
 ## `tru coverage:country CODE`
 
@@ -378,9 +378,9 @@ FLAGS
   -x, --extended         show extra columns
   --columns=<value>      only show provided columns (comma-separated)
   --csv                  output is csv format [alias: --output=csv]
-  --debug                Enables debug logging for the CLI
+  --debug                enables debug logging for the CLI
   --filter=<value>       filter property by partial string matching, ex: name=foo
-  --help                 Show CLI help.
+  --help                 show CLI help
   --no-header            hide table header from output
   --no-truncate          do not truncate output to fit screen
   --output=<option>      output in a more machine friendly format
@@ -392,7 +392,7 @@ DESCRIPTION
   Retrieve country based coverage and prices
 ```
 
-_See code: [dist/commands/coverage/country.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.0/dist/commands/coverage/country.ts)_
+_See code: [dist/commands/coverage/country.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.1/dist/commands/coverage/country.ts)_
 
 ## `tru coverage:reach DEVICE-IP`
 
@@ -404,15 +404,15 @@ USAGE
     <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ]
 
 ARGUMENTS
-  DEVICE-IP  The device ip in ipv4 or ipv6 format
+  DEVICE-IP  the device ip in ipv4 or ipv6 format
 
 FLAGS
   -x, --extended         show extra columns
   --columns=<value>      only show provided columns (comma-separated)
   --csv                  output is csv format [alias: --output=csv]
-  --debug                Enables debug logging for the CLI
+  --debug                enables debug logging for the CLI
   --filter=<value>       filter property by partial string matching, ex: name=foo
-  --help                 Show CLI help.
+  --help                 show CLI help
   --no-header            hide table header from output
   --no-truncate          do not truncate output to fit screen
   --output=<option>      output in a more machine friendly format
@@ -424,7 +424,7 @@ DESCRIPTION
   Find if a certain device ip is reachable
 ```
 
-_See code: [dist/commands/coverage/reach.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.0/dist/commands/coverage/reach.ts)_
+_See code: [dist/commands/coverage/reach.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.1/dist/commands/coverage/reach.ts)_
 
 ## `tru help [COMMAND]`
 
@@ -461,7 +461,7 @@ DESCRIPTION
   Login to tru.ID
 ```
 
-_See code: [dist/commands/login/index.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.0/dist/commands/login/index.ts)_
+_See code: [dist/commands/login/index.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.1/dist/commands/login/index.ts)_
 
 ## `tru oauth2:token`
 
@@ -474,8 +474,8 @@ USAGE
 
 FLAGS
   -x, --extended         show extra columns
-  --debug                Enables debug logging for the CLI
-  --help                 Show CLI help.
+  --debug                enables debug logging for the CLI
+  --help                 show CLI help
   --no-header            hide table header from output
   --no-truncate          do not truncate output to fit screen
   --output=<option>      output in a more machine friendly format
@@ -496,7 +496,7 @@ EXAMPLES
   Emesua0F7gj3qOaav7UaKaBwefaaefaAxlrdGom_mb3U.78Od2d9XpvTQbd44eM1Uf7nzz9e9nezs5TRjPmpDnMc
 ```
 
-_See code: [dist/commands/oauth2/token.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.0/dist/commands/oauth2/token.ts)_
+_See code: [dist/commands/oauth2/token.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.1/dist/commands/oauth2/token.ts)_
 
 ## `tru phonechecks:create [PHONE_NUMBER]`
 
@@ -504,21 +504,23 @@ Creates a PhoneCheck within a project
 
 ```
 USAGE
-  $ tru phonechecks:create [PHONE_NUMBER] [--debug] [--help] [--project-dir <value>]
+  $ tru phonechecks:create [PHONE_NUMBER] [--debug] [--help] [--project-dir <value>] [--output csv|json|yaml |  | ]
 
 ARGUMENTS
-  PHONE_NUMBER  The phone number to perform the Check on
+  PHONE_NUMBER  the phone number to perform the Check on
 
 FLAGS
-  --debug                Enables debug logging for the CLI
-  --help                 Show CLI help.
+  --debug                enables debug logging for the CLI
+  --help                 show CLI help
+  --output=<option>      output in a more machine friendly format
+                         <options: csv|json|yaml>
   --project-dir=<value>  The directory that contains the tru.json Project configuration file
 
 DESCRIPTION
   Creates a PhoneCheck within a project
 ```
 
-_See code: [dist/commands/phonechecks/create.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.0/dist/commands/phonechecks/create.ts)_
+_See code: [dist/commands/phonechecks/create.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.1/dist/commands/phonechecks/create.ts)_
 
 ## `tru phonechecks:list [CHECK_ID]`
 
@@ -531,34 +533,34 @@ USAGE
     <value>] [--page-size <value>] [--search <value>]
 
 ARGUMENTS
-  CHECK_ID  The check_id for the PhoneCheck to list
+  CHECK_ID  the check_id for the Check to list
 
 FLAGS
   -x, --extended         show extra columns
   --columns=<value>      only show provided columns (comma-separated)
   --csv                  output is csv format [alias: --output=csv]
-  --debug                Enables debug logging for the CLI
+  --debug                enables debug logging for the CLI
   --filter=<value>       filter property by partial string matching, ex: name=foo
-  --help                 Show CLI help.
+  --help                 show CLI help
   --no-header            hide table header from output
   --no-truncate          do not truncate output to fit screen
   --output=<option>      output in a more machine friendly format
                          <options: csv|json|yaml>
-  --page-number=<value>  [default: 1] The page number to return in the list resource. Ignored if the "check_id" argument
+  --page-number=<value>  [default: 1] the page number to return in the list resource. Ignored if the "check_id" argument
                          is used.
-  --page-size=<value>    [default: 10] The page size to return in list resource request. Ignored if the "check_id"
+  --page-size=<value>    [default: 10] the page size to return in list resource request. Ignored if the "check_id"
                          argument is used.
   --project-dir=<value>  The directory that contains the tru.json Project configuration file
-  --search=<value>       A RSQL search query. To ensure correct parsing put your query in quotes. For example "--search
+  --search=<value>       a RSQL search query. To ensure correct parsing put your query in quotes. For example "--search
                          'status==COMPLETED'". Ignored if the "check_id" argument is used.
-  --sort=<value>         [default: created_at,desc] Sort query in the form "{parameter_name},{direction}". For example,
+  --sort=<value>         [default: created_at,desc] sort query in the form "{parameter_name},{direction}". For example,
                          "created_at,asc" or "created_at,desc". Ignored if the "check_id" argument is used.
 
 DESCRIPTION
   Lists details for all PhoneChecks or a specific PhoneCheck if the a check-id argument is passed
 ```
 
-_See code: [dist/commands/phonechecks/list.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.0/dist/commands/phonechecks/list.ts)_
+_See code: [dist/commands/phonechecks/list.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.1/dist/commands/phonechecks/list.ts)_
 
 ## `tru phonechecks:traces CHECK_ID`
 
@@ -571,28 +573,28 @@ USAGE
     <value>]
 
 ARGUMENTS
-  CHECK_ID  The check_id for which we want to get the traces
+  CHECK_ID  the check_id for which we want to get the traces
 
 FLAGS
   -x, --extended         show extra columns
   --columns=<value>      only show provided columns (comma-separated)
   --csv                  output is csv format [alias: --output=csv]
-  --debug                Enables debug logging for the CLI
+  --debug                enables debug logging for the CLI
   --filter=<value>       filter property by partial string matching, ex: name=foo
-  --help                 Show CLI help.
+  --help                 show CLI help
   --no-header            hide table header from output
   --no-truncate          do not truncate output to fit screen
   --output=<option>      output in a more machine friendly format
                          <options: csv|json|yaml>
   --project-dir=<value>  The directory that contains the tru.json Project configuration file
   --sort=<value>         property to sort by (prepend '-' for descending)
-  --trace-id=<value>     The trace-id for which we want to get the logs
+  --trace-id=<value>     the trace-id for which we want to get the logs
 
 DESCRIPTION
   Get the traces of a PhoneCheck
 ```
 
-_See code: [dist/commands/phonechecks/traces.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.0/dist/commands/phonechecks/traces.ts)_
+_See code: [dist/commands/phonechecks/traces.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.1/dist/commands/phonechecks/traces.ts)_
 
 ## `tru projects:create [NAME]`
 
@@ -601,16 +603,18 @@ Creates a new Project
 ```
 USAGE
   $ tru projects:create [NAME] [--debug] [--help] [--project-dir <value>] [--phonecheck-callback <value> | ] [--mode
-    live|sandbox]
+    live|sandbox] [--output csv|json|yaml |  | ]
 
 ARGUMENTS
   NAME  the name of the project to create
 
 FLAGS
-  --debug                        Enables debug logging for the CLI
-  --help                         Show CLI help.
+  --debug                        enables debug logging for the CLI
+  --help                         show CLI help
   --mode=<option>                Set the project mode to "live" or "sandbox"
                                  <options: live|sandbox>
+  --output=<option>              output in a more machine friendly format
+                                 <options: csv|json|yaml>
   --phonecheck-callback=<value>  set a callback to be invoked when a PhoneCheck reaches an end state
   --project-dir=<value>          The directory that contains the tru.json Project configuration file
 
@@ -629,7 +633,7 @@ EXAMPLES
   $ tru projects:create --mode live
 ```
 
-_See code: [dist/commands/projects/create.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.0/dist/commands/projects/create.ts)_
+_See code: [dist/commands/projects/create.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.1/dist/commands/projects/create.ts)_
 
 ## `tru projects:list [PROJECT_ID]`
 
@@ -642,33 +646,33 @@ USAGE
     [--search <value>]
 
 ARGUMENTS
-  PROJECT_ID  The project_id for the Project to retrieve
+  PROJECT_ID  the project_id for the Project to retrieve
 
 FLAGS
   -x, --extended         show extra columns
   --columns=<value>      only show provided columns (comma-separated)
   --csv                  output is csv format [alias: --output=csv]
-  --debug                Enables debug logging for the CLI
+  --debug                enables debug logging for the CLI
   --filter=<value>       filter property by partial string matching, ex: name=foo
-  --help                 Show CLI help.
+  --help                 show CLI help
   --no-header            hide table header from output
   --no-truncate          do not truncate output to fit screen
   --output=<option>      output in a more machine friendly format
                          <options: csv|json|yaml>
-  --page-number=<value>  [default: 1] The page number to return in the list resource. Ignored if the "project_id"
+  --page-number=<value>  [default: 1] the page number to return in the list resource. Ignored if the "project_id"
                          argument is used.
-  --page-size=<value>    [default: 10] The page size to return in list resource request. Ignored if the "project_id"
+  --page-size=<value>    [default: 10] the page size to return in list resource request. Ignored if the "project_id"
                          argument is used.
-  --search=<value>       A RSQL search query. To ensure correct parsing put your query in quotes. For example "--search
+  --search=<value>       a RSQL search query. To ensure correct parsing put your query in quotes. For example "--search
                          'name=p*'". Ignored if the "project_id" argument is used.
-  --sort=<value>         [default: created_at,desc] Sort query in the form "{parameter_name},{direction}". For example,
+  --sort=<value>         [default: created_at,desc] sort query in the form "{parameter_name},{direction}". For example,
                          "created_at,asc" or "created_at,desc". Ignored if the "project_id" argument is used.
 
 DESCRIPTION
   Lists details for all Projects or a Projects that match a given criteria
 ```
 
-_See code: [dist/commands/projects/list.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.0/dist/commands/projects/list.ts)_
+_See code: [dist/commands/projects/list.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.1/dist/commands/projects/list.ts)_
 
 ## `tru projects:update [PROJECT-ID]`
 
@@ -677,16 +681,18 @@ Update an existing Project
 ```
 USAGE
   $ tru projects:update [PROJECT-ID] [--debug] [--help] [--project-dir <value>] [--phonecheck-callback <value> |
-    --remove-phonecheck-callback] [--mode live|sandbox]
+    --remove-phonecheck-callback] [--mode live|sandbox] [--output csv|json|yaml |  | ]
 
 ARGUMENTS
   PROJECT-ID  the ID of the project to update
 
 FLAGS
-  --debug                        Enables debug logging for the CLI
-  --help                         Show CLI help.
+  --debug                        enables debug logging for the CLI
+  --help                         show CLI help
   --mode=<option>                Set the project mode to "live" or "sandbox"
                                  <options: live|sandbox>
+  --output=<option>              output in a more machine friendly format
+                                 <options: csv|json|yaml>
   --phonecheck-callback=<value>  set a callback to be invoked when a PhoneCheck reaches an end state
   --project-dir=<value>          The directory that contains the tru.json Project configuration file
   --remove-phonecheck-callback   remove the PhoneCheck callback configuration from the Project
@@ -704,7 +710,7 @@ EXAMPLES
   $ tru projects:update --mode live
 ```
 
-_See code: [dist/commands/projects/update.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.0/dist/commands/projects/update.ts)_
+_See code: [dist/commands/projects/update.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.1/dist/commands/projects/update.ts)_
 
 ## `tru simchecks:create [PHONE_NUMBER]`
 
@@ -712,21 +718,23 @@ Create SIMChecks within a Project
 
 ```
 USAGE
-  $ tru simchecks:create [PHONE_NUMBER] [--debug] [--help] [--project-dir <value>]
+  $ tru simchecks:create [PHONE_NUMBER] [--debug] [--help] [--project-dir <value>] [--output csv|json|yaml |  | ]
 
 ARGUMENTS
-  PHONE_NUMBER  The phone number to perform the SIMCheck on
+  PHONE_NUMBER  the phone number to perform the Check on
 
 FLAGS
-  --debug                Enables debug logging for the CLI
-  --help                 Show CLI help.
+  --debug                enables debug logging for the CLI
+  --help                 show CLI help
+  --output=<option>      output in a more machine friendly format
+                         <options: csv|json|yaml>
   --project-dir=<value>  The directory that contains the tru.json Project configuration file
 
 DESCRIPTION
   Create SIMChecks within a Project
 ```
 
-_See code: [dist/commands/simchecks/create.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.0/dist/commands/simchecks/create.ts)_
+_See code: [dist/commands/simchecks/create.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.1/dist/commands/simchecks/create.ts)_
 
 ## `tru simchecks:list [CHECK_ID]`
 
@@ -739,34 +747,34 @@ USAGE
     <value>] [--page-size <value>] [--search <value>]
 
 ARGUMENTS
-  CHECK_ID  The check_id for the SIMCheck to list
+  CHECK_ID  the check_id for the Check to list
 
 FLAGS
   -x, --extended         show extra columns
   --columns=<value>      only show provided columns (comma-separated)
   --csv                  output is csv format [alias: --output=csv]
-  --debug                Enables debug logging for the CLI
+  --debug                enables debug logging for the CLI
   --filter=<value>       filter property by partial string matching, ex: name=foo
-  --help                 Show CLI help.
+  --help                 show CLI help
   --no-header            hide table header from output
   --no-truncate          do not truncate output to fit screen
   --output=<option>      output in a more machine friendly format
                          <options: csv|json|yaml>
-  --page-number=<value>  [default: 1] The page number to return in the list resource. Ignored if the "check_id" argument
+  --page-number=<value>  [default: 1] the page number to return in the list resource. Ignored if the "check_id" argument
                          is used.
-  --page-size=<value>    [default: 10] The page size to return in list resource request. Ignored if the "check_id"
+  --page-size=<value>    [default: 10] the page size to return in list resource request. Ignored if the "check_id"
                          argument is used.
   --project-dir=<value>  The directory that contains the tru.json Project configuration file
-  --search=<value>       A RSQL search query. To ensure correct parsing put your query in quotes. For example "--search
+  --search=<value>       a RSQL search query. To ensure correct parsing put your query in quotes. For example "--search
                          'status==COMPLETED'". Ignored if the "check_id" argument is used.
-  --sort=<value>         [default: created_at,desc] Sort query in the form "{parameter_name},{direction}". For example,
+  --sort=<value>         [default: created_at,desc] sort query in the form "{parameter_name},{direction}". For example,
                          "created_at,asc" or "created_at,desc". Ignored if the "check_id" argument is used.
 
 DESCRIPTION
   Lists details for all SIMChecks or a specific SIMCheck if the a check-id argument is passed
 ```
 
-_See code: [dist/commands/simchecks/list.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.0/dist/commands/simchecks/list.ts)_
+_See code: [dist/commands/simchecks/list.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.1/dist/commands/simchecks/list.ts)_
 
 ## `tru simchecks:traces CHECK_ID`
 
@@ -779,28 +787,28 @@ USAGE
     <value>]
 
 ARGUMENTS
-  CHECK_ID  The check_id for which we want to get the traces
+  CHECK_ID  the check_id for which we want to get the traces
 
 FLAGS
   -x, --extended         show extra columns
   --columns=<value>      only show provided columns (comma-separated)
   --csv                  output is csv format [alias: --output=csv]
-  --debug                Enables debug logging for the CLI
+  --debug                enables debug logging for the CLI
   --filter=<value>       filter property by partial string matching, ex: name=foo
-  --help                 Show CLI help.
+  --help                 show CLI help
   --no-header            hide table header from output
   --no-truncate          do not truncate output to fit screen
   --output=<option>      output in a more machine friendly format
                          <options: csv|json|yaml>
   --project-dir=<value>  The directory that contains the tru.json Project configuration file
   --sort=<value>         property to sort by (prepend '-' for descending)
-  --trace-id=<value>     The trace-id for which we want to get the logs
+  --trace-id=<value>     the trace-id for which we want to get the logs
 
 DESCRIPTION
   Get the traces of a SIMCheck
 ```
 
-_See code: [dist/commands/simchecks/traces.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.0/dist/commands/simchecks/traces.ts)_
+_See code: [dist/commands/simchecks/traces.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.1/dist/commands/simchecks/traces.ts)_
 
 ## `tru subscriberchecks:create [PHONE_NUMBER]`
 
@@ -808,21 +816,23 @@ Creates SubscriberChecks within a project
 
 ```
 USAGE
-  $ tru subscriberchecks:create [PHONE_NUMBER] [--debug] [--help] [--project-dir <value>]
+  $ tru subscriberchecks:create [PHONE_NUMBER] [--debug] [--help] [--project-dir <value>] [--output csv|json|yaml |  | ]
 
 ARGUMENTS
-  PHONE_NUMBER  The phone number to perform the Check on
+  PHONE_NUMBER  the phone number to perform the Check on
 
 FLAGS
-  --debug                Enables debug logging for the CLI
-  --help                 Show CLI help.
+  --debug                enables debug logging for the CLI
+  --help                 show CLI help
+  --output=<option>      output in a more machine friendly format
+                         <options: csv|json|yaml>
   --project-dir=<value>  The directory that contains the tru.json Project configuration file
 
 DESCRIPTION
   Creates SubscriberChecks within a project
 ```
 
-_See code: [dist/commands/subscriberchecks/create.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.0/dist/commands/subscriberchecks/create.ts)_
+_See code: [dist/commands/subscriberchecks/create.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.1/dist/commands/subscriberchecks/create.ts)_
 
 ## `tru subscriberchecks:list [CHECK_ID]`
 
@@ -835,34 +845,34 @@ USAGE
     <value>] [--page-size <value>] [--search <value>]
 
 ARGUMENTS
-  CHECK_ID  The check_id for the SubscriberCheck to list
+  CHECK_ID  the check_id for the Check to list
 
 FLAGS
   -x, --extended         show extra columns
   --columns=<value>      only show provided columns (comma-separated)
   --csv                  output is csv format [alias: --output=csv]
-  --debug                Enables debug logging for the CLI
+  --debug                enables debug logging for the CLI
   --filter=<value>       filter property by partial string matching, ex: name=foo
-  --help                 Show CLI help.
+  --help                 show CLI help
   --no-header            hide table header from output
   --no-truncate          do not truncate output to fit screen
   --output=<option>      output in a more machine friendly format
                          <options: csv|json|yaml>
-  --page-number=<value>  [default: 1] The page number to return in the list resource. Ignored if the "check_id" argument
+  --page-number=<value>  [default: 1] the page number to return in the list resource. Ignored if the "check_id" argument
                          is used.
-  --page-size=<value>    [default: 10] The page size to return in list resource request. Ignored if the "check_id"
+  --page-size=<value>    [default: 10] the page size to return in list resource request. Ignored if the "check_id"
                          argument is used.
   --project-dir=<value>  The directory that contains the tru.json Project configuration file
-  --search=<value>       A RSQL search query. To ensure correct parsing put your query in quotes. For example "--search
+  --search=<value>       a RSQL search query. To ensure correct parsing put your query in quotes. For example "--search
                          'status==COMPLETED'". Ignored if the "check_id" argument is used.
-  --sort=<value>         [default: created_at,desc] Sort query in the form "{parameter_name},{direction}". For example,
+  --sort=<value>         [default: created_at,desc] sort query in the form "{parameter_name},{direction}". For example,
                          "created_at,asc" or "created_at,desc". Ignored if the "check_id" argument is used.
 
 DESCRIPTION
   Lists details for all SubscriberChecks or a specific SubscriberCheck if the a check-id argument is passed
 ```
 
-_See code: [dist/commands/subscriberchecks/list.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.0/dist/commands/subscriberchecks/list.ts)_
+_See code: [dist/commands/subscriberchecks/list.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.1/dist/commands/subscriberchecks/list.ts)_
 
 ## `tru subscriberchecks:traces CHECK_ID`
 
@@ -875,28 +885,28 @@ USAGE
     <value>]
 
 ARGUMENTS
-  CHECK_ID  The check_id for which we want to get the traces
+  CHECK_ID  the check_id for which we want to get the traces
 
 FLAGS
   -x, --extended         show extra columns
   --columns=<value>      only show provided columns (comma-separated)
   --csv                  output is csv format [alias: --output=csv]
-  --debug                Enables debug logging for the CLI
+  --debug                enables debug logging for the CLI
   --filter=<value>       filter property by partial string matching, ex: name=foo
-  --help                 Show CLI help.
+  --help                 show CLI help
   --no-header            hide table header from output
   --no-truncate          do not truncate output to fit screen
   --output=<option>      output in a more machine friendly format
                          <options: csv|json|yaml>
   --project-dir=<value>  The directory that contains the tru.json Project configuration file
   --sort=<value>         property to sort by (prepend '-' for descending)
-  --trace-id=<value>     The trace-id for which we want to get the logs
+  --trace-id=<value>     the trace-id for which we want to get the logs
 
 DESCRIPTION
   Get the traces of a SubscriberCheck
 ```
 
-_See code: [dist/commands/subscriberchecks/traces.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.0/dist/commands/subscriberchecks/traces.ts)_
+_See code: [dist/commands/subscriberchecks/traces.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.1/dist/commands/subscriberchecks/traces.ts)_
 
 ## `tru usage:daily`
 
@@ -912,10 +922,10 @@ FLAGS
   -x, --extended         show extra columns
   --columns=<value>      only show provided columns (comma-separated)
   --csv                  output is csv format [alias: --output=csv]
-  --debug                Enables debug logging for the CLI
+  --debug                enables debug logging for the CLI
   --filter=<value>       filter property by partial string matching, ex: name=foo
   --group-by=<value>     group results by one or more fields e.g product_id or project_id or product_id,project_id
-  --help                 Show CLI help.
+  --help                 show CLI help
   --no-header            hide table header from output
   --no-truncate          do not truncate output to fit screen
   --output=<option>      output in a more machine friendly format
@@ -929,7 +939,7 @@ DESCRIPTION
   Get Daily Usage. The date range defaults to the last 7 days.
 ```
 
-_See code: [dist/commands/usage/daily.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.0/dist/commands/usage/daily.ts)_
+_See code: [dist/commands/usage/daily.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.1/dist/commands/usage/daily.ts)_
 
 ## `tru usage:hourly`
 
@@ -945,10 +955,10 @@ FLAGS
   -x, --extended         show extra columns
   --columns=<value>      only show provided columns (comma-separated)
   --csv                  output is csv format [alias: --output=csv]
-  --debug                Enables debug logging for the CLI
+  --debug                enables debug logging for the CLI
   --filter=<value>       filter property by partial string matching, ex: name=foo
   --group-by=<value>     group results by one or more fields e.g product_id or project_id or product_id,project_id
-  --help                 Show CLI help.
+  --help                 show CLI help
   --no-header            hide table header from output
   --no-truncate          do not truncate output to fit screen
   --output=<option>      output in a more machine friendly format
@@ -962,7 +972,7 @@ DESCRIPTION
   Get Hourly Usage. The date range defaults to the last 12 hours.
 ```
 
-_See code: [dist/commands/usage/hourly.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.0/dist/commands/usage/hourly.ts)_
+_See code: [dist/commands/usage/hourly.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.1/dist/commands/usage/hourly.ts)_
 
 ## `tru usage:monthly`
 
@@ -978,10 +988,10 @@ FLAGS
   -x, --extended         show extra columns
   --columns=<value>      only show provided columns (comma-separated)
   --csv                  output is csv format [alias: --output=csv]
-  --debug                Enables debug logging for the CLI
+  --debug                enables debug logging for the CLI
   --filter=<value>       filter property by partial string matching, ex: name=foo
   --group-by=<value>     group results by one or more fields e.g product_id or project_id or product_id,project_id
-  --help                 Show CLI help.
+  --help                 show CLI help
   --no-header            hide table header from output
   --no-truncate          do not truncate output to fit screen
   --output=<option>      output in a more machine friendly format
@@ -995,7 +1005,7 @@ DESCRIPTION
   Get Monthly Usage. The date range defaults to the last 6 months.
 ```
 
-_See code: [dist/commands/usage/monthly.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.0/dist/commands/usage/monthly.ts)_
+_See code: [dist/commands/usage/monthly.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.1/dist/commands/usage/monthly.ts)_
 
 ## `tru workspaces:list`
 
@@ -1006,8 +1016,8 @@ USAGE
   $ tru workspaces:list [--debug] [--help] [--output csv|json|yaml | --no-truncate | ] [--no-header | ]
 
 FLAGS
-  --debug            Enables debug logging for the CLI
-  --help             Show CLI help.
+  --debug            enables debug logging for the CLI
+  --help             show CLI help
   --no-header        hide table header from output
   --no-truncate      do not truncate output to fit screen
   --output=<option>  output in a more machine friendly format
@@ -1017,7 +1027,7 @@ DESCRIPTION
   List of available workspaces
 ```
 
-_See code: [dist/commands/workspaces/list.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.0/dist/commands/workspaces/list.ts)_
+_See code: [dist/commands/workspaces/list.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.1/dist/commands/workspaces/list.ts)_
 
 ## `tru workspaces:selected`
 
@@ -1028,8 +1038,8 @@ USAGE
   $ tru workspaces:selected [--debug] [--help] [--output csv|json|yaml | --no-truncate | ] [--no-header | ]
 
 FLAGS
-  --debug            Enables debug logging for the CLI
-  --help             Show CLI help.
+  --debug            enables debug logging for the CLI
+  --help             show CLI help
   --no-header        hide table header from output
   --no-truncate      do not truncate output to fit screen
   --output=<option>  output in a more machine friendly format
@@ -1039,7 +1049,7 @@ DESCRIPTION
   Displays selected workspace information
 ```
 
-_See code: [dist/commands/workspaces/selected.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.0/dist/commands/workspaces/selected.ts)_
+_See code: [dist/commands/workspaces/selected.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.1/dist/commands/workspaces/selected.ts)_
 
 ## `tru workspaces:switch DATA_RESIDENCY WORKSPACE_ID`
 
@@ -1051,12 +1061,12 @@ USAGE
     ] [--no-header | ]
 
 ARGUMENTS
-  DATA_RESIDENCY  Data residency where the workspace is located
-  WORKSPACE_ID    Selected Workspace
+  DATA_RESIDENCY  data residency where the workspace is located
+  WORKSPACE_ID    selected Workspace
 
 FLAGS
-  --debug            Enables debug logging for the CLI
-  --help             Show CLI help.
+  --debug            enables debug logging for the CLI
+  --help             show CLI help
   --no-header        hide table header from output
   --no-truncate      do not truncate output to fit screen
   --output=<option>  output in a more machine friendly format
@@ -1066,7 +1076,7 @@ DESCRIPTION
   Switch workspaces
 ```
 
-_See code: [dist/commands/workspaces/switch.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.0/dist/commands/workspaces/switch.ts)_
+_See code: [dist/commands/workspaces/switch.ts](https://github.com/tru-ID/tru-cli/blob/v1.2.1/dist/commands/workspaces/switch.ts)_
 <!-- commandsstop -->
 
 # Development
