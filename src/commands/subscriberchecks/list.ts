@@ -2,7 +2,7 @@ import { CliUx, Config } from '@oclif/core'
 import { APIClientCredentialsConfiguration } from '../../api/APIConfiguration'
 import {
   SubscriberCheckAPIClient,
-  SubscriberCheckResource,
+  SubscriberCheckResponse,
 } from '../../api/SubscriberCheckAPIClient'
 import { ClientCredentialsManager } from '../../api/TokenManager'
 import { apiBaseUrlDR } from '../../DefaultUrls'
@@ -13,13 +13,7 @@ export default class SubscriberCheckList extends ChecksListCommand {
   static description =
     'Lists details for all SubscriberChecks or a specific SubscriberCheck if the a check-id argument is passed'
 
-  static args = [
-    {
-      name: 'check_id',
-      required: false,
-      description: 'The check_id for the SubscriberCheck to list',
-    },
-  ]
+  static args = [...ChecksListCommand.args]
 
   static flags = {
     ...ChecksListCommand.flags,
@@ -49,7 +43,7 @@ export default class SubscriberCheckList extends ChecksListCommand {
     )
   }
 
-  displayResults(resources: SubscriberCheckResource[]): void {
+  printDefault(resources: SubscriberCheckResponse[]): void {
     // do not use table sort as it only works for simple types e.g., number, etc.
     // and the API already returns sorted results
     const flagsWithNoSort = { ...this.flags, sort: undefined }

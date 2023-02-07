@@ -30,16 +30,16 @@ export default class WorkspaceSwitch extends CommandWithGlobalConfig {
     {
       name: 'data_residency',
       required: true,
-      description: 'Data residency where the workspace is located',
+      description: 'data residency where the workspace is located',
     },
     {
       name: 'workspace_id',
       required: true,
-      description: 'Selected Workspace',
+      description: 'selected Workspace',
     },
   ]
 
-  async run() {
+  async run(): Promise<void> {
     const result = await this.parse(WorkspaceSwitch)
     this.flags = result.flags
     this.args = result.args
@@ -72,16 +72,16 @@ export default class WorkspaceSwitch extends CommandWithGlobalConfig {
 
       await this.updateGlobalConfig(workspace)
 
-      this.displayResults([workspace])
+      this.printResponse(workspace)
     } catch (error) {
       logApiError(this, error)
       this.exit(1)
     }
   }
 
-  displayResults(resources: IWorkspaceResource[]): void {
+  printDefault(resources: IWorkspaceResource): void {
     CliUx.ux.table(
-      resources,
+      [resources],
       {
         data_residency: {
           header: 'DR',

@@ -19,7 +19,7 @@ export default abstract class CommandWithProjectConfig extends CommandWithGlobal
 
   projectConfig?: IProjectConfiguration
 
-  async init() {
+  async init(): Promise<void> {
     await super.init()
   }
 

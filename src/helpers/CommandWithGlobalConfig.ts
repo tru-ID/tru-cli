@@ -4,13 +4,16 @@ import path from 'path'
 import { ConsoleLogger, LogLevel } from '../helpers/ConsoleLogger'
 import { IGlobalAuthConfiguration } from '../IGlobalAuthConfiguration'
 import ILogger from './ILogger'
+import { printJson } from '../utilities'
 
 export default abstract class CommandWithGlobalConfig extends Command {
   static flags = {
     debug: Flags.boolean({
-      description: 'Enables debug logging for the CLI',
+      description: 'enables debug logging for the CLI',
     }),
-    help: Flags.help(),
+    help: Flags.help({
+      description: 'show CLI help',
+    }),
   }
 
   flags: {
@@ -31,14 +34,14 @@ export default abstract class CommandWithGlobalConfig extends Command {
     )
   }
 
-  async init() {
-    super.init()
+  async init(): Promise<void> {
+    await super.init()
     const configLocation = this.getConfigPath()
 
     await this.loadGlobalConfig(configLocation)
   }
 
-  async run() {
+  async run(): Promise<void> {
     this.logger = new ConsoleLogger(
       !this.flags.debug ? LogLevel.info : LogLevel.debug,
     )
@@ -58,4 +61,14 @@ export default abstract class CommandWithGlobalConfig extends Command {
 
     this.globalConfig = await fs.readJson(configLocation)
   }
+
+  printResponse(response: any): void {
+    if (this.flags.output === 'json') {
+      printJson(this.logger, response)
+      return
+    }
+    this.printDefault(response)
+  }
+
+  abstract printDefault(response: any): void
 }

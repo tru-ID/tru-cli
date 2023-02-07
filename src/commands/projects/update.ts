@@ -1,4 +1,5 @@
 import {
+  IProjectResource,
   IUpdateProjectPayload,
   ProjectsAPIClient,
 } from '../../api/ProjectsAPIClient'
@@ -21,6 +22,7 @@ import {
   isWorkspaceTokenInfoValid,
 } from '../../helpers/ValidationUtils'
 import { logApiError } from '../../utilities'
+import { CliUx } from '@oclif/core'
 
 export default class ProjectsUpdate extends CommandWithProjectConfig {
   static description = 'Update an existing Project'
@@ -37,6 +39,7 @@ export default class ProjectsUpdate extends CommandWithProjectConfig {
     ...phoneCheckCallbackUrlFlag.flag,
     ...removePhoneCheckCallbackFlag.flag,
     ...projectModeFlag.flag,
+    output: CliUx.ux.table.flags().output,
   }
 
   static args = [
@@ -47,7 +50,7 @@ export default class ProjectsUpdate extends CommandWithProjectConfig {
     },
   ]
 
-  async run() {
+  async run(): Promise<void> {
     const result = await this.parse(ProjectsUpdate)
     this.args = result.args
     this.flags = result.flags
@@ -84,8 +87,6 @@ export default class ProjectsUpdate extends CommandWithProjectConfig {
       )
       this.exit(1)
     }
-
-    this.log(`Updated Project with project_id "${this.args['project-id']}"`)
 
     const tokenManager = new RefreshTokenManager(
       {
@@ -125,16 +126,41 @@ export default class ProjectsUpdate extends CommandWithProjectConfig {
         updatePayload.mode = this.flags[projectModeFlag.flagName]
       }
 
-      await projectsAPIClient.update(
+      const updatedProject = await projectsAPIClient.update(
         this.globalConfig!.selectedWorkspace!,
         this.args['project-id'],
         updatePayload,
       )
 
-      this.logger.info('✅ Project updated')
+      this.printResponse(updatedProject)
     } catch (error) {
       logApiError(this, error)
       this.exit(1)
     }
+  }
+
+  printDefault(response: IProjectResource): void {
+    if (!this.flags.output) {
+      this.logger.info('✅ Project updated')
+      return
+    }
+
+    CliUx.ux.table(
+      [response],
+      {
+        project_id: { header: 'project_id' },
+        name: { header: 'name' },
+        mode: { header: 'mode' },
+        disabled: { header: 'disabled' },
+        created_at: { header: 'created_at' },
+        updated_at: { header: 'updated_at' },
+        phonecheck_callback_url: {
+          header: 'configuration.phone_check.callback_url',
+          get: (row: IProjectResource) =>
+            row.configuration?.phone_check?.callback_url,
+        },
+      },
+      { ...this.flags },
+    )
   }
 }

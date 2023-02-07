@@ -19,7 +19,7 @@ export const transform = (number: string): string => {
 }
 
 export const promptForNumber = async (typeOfCheck: string) => {
-  return await inquirer.prompt([
+  return inquirer.prompt([
     {
       name: 'phone_number',
       message: `Please enter the phone number you would like to ${typeOfCheck}`,

@@ -5,7 +5,6 @@ import inquirer from 'inquirer'
 import path from 'path'
 import sinonChai from 'sinon-chai'
 import sinon from 'ts-sinon'
-import { ICreateCheckResponse } from '../../../src/api/ChecksAPIClient'
 import { CheckStatus } from '../../../src/api/CheckStatus'
 import CommandWithProjectConfig from '../../../src/helpers/CommandWithProjectConfig'
 import {
@@ -14,14 +13,16 @@ import {
   projectConfig,
   projectConfigFileLocation,
 } from '../../test_helpers'
+import { CreateSubscriberCheckResponse } from '../../../src/api/SubscriberCheckAPIClient'
+import { CreatePhoneCheckResponse } from '../../../src/api/PhoneChecksAPIClient'
 
 const expect = chai.expect
 chai.use(sinonChai)
 
-const createSubscriberCheckResponse: ICreateCheckResponse = {
+const createSubscriberCheckResponse: CreateSubscriberCheckResponse = {
   check_id: 'c69bc0e6-a429-11ea-bb37-0242ac130002',
+  url: 'https://us.api.tru.id/subscriber_check/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002/redirect',
   status: CheckStatus.ACCEPTED,
-  match: false,
   charge_amount: 1,
   charge_currency: 'API',
   created_at: '2020-06-01T16:43:30+00:00',
@@ -37,10 +38,10 @@ const createSubscriberCheckResponse: ICreateCheckResponse = {
   snapshot_balance: 100,
 }
 
-const createPhoneCheckResponse: ICreateCheckResponse = {
+const createPhoneCheckResponse: CreatePhoneCheckResponse = {
   check_id: 'c69bc0e6-a429-11ea-bb37-0242ac130002',
+  url: 'https://us.api.tru.id/phone_checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002/redirect',
   status: CheckStatus.ACCEPTED,
-  match: false,
   charge_amount: 1,
   charge_currency: 'API',
   created_at: '2020-06-01T16:43:30+00:00',
@@ -352,7 +353,6 @@ describe('PhoneCheck and SubscriberCheck Create Scenarios', () => {
         )
         .stdout()
         .command([command, phoneNumberToTest, '--debug'])
-        .exit(1)
         .it(
           `${command} -- logs a ${typeOfCheck} that has status of ERROR`,
           (ctx) => {

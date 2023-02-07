@@ -27,7 +27,7 @@ export default class WorkspaceSelected extends CommandWithGlobalConfig {
     'no-truncate': CliUx.ux.table.flags()['no-truncate'],
   }
 
-  async run() {
+  async run(): Promise<void> {
     const result = await this.parse(WorkspaceSelected)
     this.flags = result.flags
 
@@ -55,22 +55,21 @@ export default class WorkspaceSelected extends CommandWithGlobalConfig {
       this.logger,
     )
 
-    let singleResource: IWorkspaceResource
     try {
-      singleResource = await workspacesAPIClient.get(
+      const singleResource = await workspacesAPIClient.get(
         this.globalConfig!.selectedWorkspace!,
       )
 
-      this.displayResults([singleResource])
+      this.printResponse(singleResource)
     } catch (error) {
       logApiError(this, error)
       this.exit(1)
     }
   }
 
-  displayResults(resources: IWorkspaceResource[]): void {
+  printDefault(resources: IWorkspaceResource): void {
     CliUx.ux.table(
-      resources,
+      [resources],
       {
         data_residency: {
           header: 'dr',
@@ -96,7 +95,6 @@ export default class WorkspaceSelected extends CommandWithGlobalConfig {
         },
         created_at: {
           header: 'created_at',
-          extended: true,
         },
       },
       {

@@ -1,7 +1,7 @@
 import { CliUx, Config, Flags } from '@oclif/core'
 import {
   AnalyticsApiClient,
-  AnalyticsResource,
+  IListAnalyticsResource,
 } from '../api/AnalyticsAPIClient'
 import { RefreshTokenManager } from '../api/TokenManager'
 import {
@@ -88,28 +88,7 @@ export default abstract class AnalyticsCommand extends CommandWithGlobalConfig {
     )
   }
 
-  displayResults(resources: AnalyticsResource[]) {
-    //Dynamic add columns
-
-    const columns: { [k: string]: any } = {}
-
-    const params = Object.getOwnPropertyNames(resources[0])
-
-    for (const param of params) {
-      columns[`${param}`] = {
-        header: `${param}`,
-      }
-    }
-
-    CliUx.ux.table(resources, columns, {
-      printLine: (s: any) => {
-        this.logger!.info(s)
-      },
-      ...this.flags, // parsed flags
-    })
-  }
-
-  async run() {
+  async run(): Promise<void> {
     const result = await this.parse(AnalyticsCommand)
 
     this.args = result.args
@@ -138,14 +117,35 @@ export default abstract class AnalyticsCommand extends CommandWithGlobalConfig {
         this.timeBucket,
       )
 
-      if (listResource._embedded.analytics.length > 0) {
-        this.displayResults(listResource._embedded.analytics)
-      }
-
-      displayPagination(this.logger, listResource.page, `Analytics`)
+      this.printResponse(listResource)
     } catch (error) {
       logApiError(this, error)
       this.exit(1)
     }
+  }
+
+  printDefault(listResource: IListAnalyticsResource): void {
+    if (listResource._embedded.analytics.length > 0) {
+      const resources = listResource._embedded.analytics
+      //Dynamic add columns
+      const columns: { [k: string]: any } = {}
+
+      const params = Object.getOwnPropertyNames(resources[0])
+
+      for (const param of params) {
+        columns[`${param}`] = {
+          header: `${param}`,
+        }
+      }
+
+      CliUx.ux.table(resources, columns, {
+        printLine: (s: any) => {
+          this.logger!.info(s)
+        },
+        ...this.flags, // parsed flags
+      })
+    }
+
+    displayPagination(this.logger, listResource.page, `Analytics`)
   }
 }

@@ -45,68 +45,20 @@ export default class CoverageCountry extends CommandWithProjectConfig {
 
     const apiClient = this.newApiClient(credentials, flags.debug)
 
-    let response: ICoverageCountryResponse | undefined
     try {
-      response = await apiClient.countryReach(code)
+      const response = await apiClient.countryReach(code)
+
+      this.printResponse(response)
     } catch (error) {
       logApiError(this, error)
       this.exit(1)
     }
-
-    if (response) {
-      const transformed = this.transformResult(response)
-      CliUx.ux.table(
-        transformed,
-        {
-          country_code: { header: 'country_code', extended: true },
-          dialing_code: { header: 'dialing_code', extended: true },
-          product_id: { header: 'product_id', extended: true },
-          product_name: { header: 'product_name' },
-          network_id: { header: 'network_id' },
-          network_name: { header: 'network_name' },
-          currency: { header: 'currency' },
-          amount: { header: 'amount' },
-        },
-        { ...this.flags },
-      )
-    } else {
-      this.log('No reach for this country/dialing code')
-    }
   }
 
-  async catch(err: Error) {
+  async catch(err: Error): Promise<void> {
     this.error(`failed to retrieve country coverage: ${err.message}`, {
       exit: 1,
     })
-  }
-
-  transformResult(countryCoverage: ICoverageCountryResponse): any[] {
-    const { country_code, dialing_code, products } = countryCoverage
-    const result: any[] = []
-
-    for (const p of products) {
-      if (p.networks) {
-        for (const network of p.networks) {
-          if (network.prices) {
-            for (const price of network.prices) {
-              const transformed = {
-                country_code,
-                dialing_code,
-                product_id: p.product_id,
-                product_name: p.product_name,
-                network_id: network.network_id,
-                network_name: network.network_name,
-                currency: price.currency,
-                amount: price.amount,
-              }
-              result.push(transformed)
-            }
-          }
-        }
-      }
-    }
-
-    return result
   }
 
   newApiClient(credentials: Credential, debug: boolean): CoverageAPIClient {
@@ -144,5 +96,57 @@ export default class CoverageCountry extends CommandWithProjectConfig {
       ),
       logger,
     )
+  }
+
+  printDefault(response: ICoverageCountryResponse): void {
+    if (response) {
+      const transformed = this.transformResult(response)
+
+      CliUx.ux.table(
+        transformed,
+        {
+          country_code: { header: 'country_code', extended: true },
+          dialing_code: { header: 'dialing_code', extended: true },
+          product_id: { header: 'product_id', extended: true },
+          product_name: { header: 'product_name' },
+          network_id: { header: 'network_id' },
+          network_name: { header: 'network_name' },
+          currency: { header: 'currency' },
+          amount: { header: 'amount' },
+        },
+        { ...this.flags },
+      )
+    } else {
+      this.log('No reach for this country/dialing code')
+    }
+  }
+
+  transformResult(countryCoverage: ICoverageCountryResponse): any[] {
+    const { country_code, dialing_code, products } = countryCoverage
+    const result: any[] = []
+
+    for (const p of products) {
+      if (p.networks) {
+        for (const network of p.networks) {
+          if (network.prices) {
+            for (const price of network.prices) {
+              const transformed = {
+                country_code,
+                dialing_code,
+                product_id: p.product_id,
+                product_name: p.product_name,
+                network_id: network.network_id,
+                network_name: network.network_name,
+                currency: price.currency,
+                amount: price.amount,
+              }
+              result.push(transformed)
+            }
+          }
+        }
+      }
+    }
+
+    return result
   }
 }
