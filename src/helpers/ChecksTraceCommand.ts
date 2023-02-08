@@ -3,10 +3,11 @@ import { APIClientCredentialsConfiguration } from '../api/APIConfiguration'
 import {
   CheckLogResource,
   CheckTraceResource,
+  IListCheckTracesResource,
   TraceApiClient,
 } from '../api/TraceAPIClient'
 import { tokenUrlDR } from '../DefaultUrls'
-import { logApiError } from '../utilities'
+import { logApiError, printJson } from '../utilities'
 import CommandWithProjectConfig from './CommandWithProjectConfig'
 import ILogger from './ILogger'
 import {
@@ -26,7 +27,7 @@ export default abstract class ChecksTraceCommand extends CommandWithProjectConfi
     {
       name: 'check_id',
       required: true,
-      description: 'The check_id for which we want to get the traces',
+      description: 'the check_id for which we want to get the traces',
     },
   ]
 
@@ -34,7 +35,7 @@ export default abstract class ChecksTraceCommand extends CommandWithProjectConfi
     ...CommandWithProjectConfig.flags,
     ...CliUx.ux.table.flags(),
     'trace-id': Flags.string({
-      description: 'The trace-id for which we want to get the logs',
+      description: 'the trace-id for which we want to get the logs',
       required: false,
     }),
   }
@@ -43,7 +44,7 @@ export default abstract class ChecksTraceCommand extends CommandWithProjectConfi
 
   tokenScope: string
 
-  constructor(
+  protected constructor(
     typeOfCheck: string,
     tokenScope: string,
     argv: string[],
@@ -61,7 +62,7 @@ export default abstract class ChecksTraceCommand extends CommandWithProjectConfi
     logger: ILogger,
   ): TraceApiClient
 
-  async run() {
+  async run(): Promise<void> {
     const result = await this.parseCommand()
     this.args = result.args
     this.flags = result.flags
@@ -90,14 +91,14 @@ export default abstract class ChecksTraceCommand extends CommandWithProjectConfi
 
     const checkApiClient = this.getApiClient(apiConfiguration, this.logger)
 
-    if (this.flags.trace_id) {
+    if (this.flags['trace-id']) {
       try {
         const singleResource = await checkApiClient.getTrace(
           this.args.check_id,
-          this.flags.trace_id,
+          this.flags['trace-id'],
         )
 
-        this.displayResults(this.transform([singleResource], this.logger))
+        this.printResponse(singleResource, true)
       } catch (error) {
         logApiError(this, error)
         this.exit(1)
@@ -106,9 +107,7 @@ export default abstract class ChecksTraceCommand extends CommandWithProjectConfi
       try {
         const listResource = await checkApiClient.getTraces(this.args.check_id)
 
-        this.displayResults(
-          this.transform(listResource._embedded.traces, this.logger),
-        )
+        this.printResponse(listResource)
       } catch (error) {
         logApiError(this, error)
         this.exit(1)
@@ -116,11 +115,11 @@ export default abstract class ChecksTraceCommand extends CommandWithProjectConfi
     }
   }
 
-  transform(resources: CheckTraceResource[], logger: ILogger): LogEntry[] {
+  transform(resources: CheckTraceResource[]): LogEntry[] {
     const result: LogEntry[] = []
 
     for (const traceResource of resources) {
-      logger.debug('traceResource :', traceResource)
+      this.logger.debug('traceResource :', traceResource)
 
       for (const logResource of traceResource.logs) {
         const transformed = {
@@ -137,7 +136,7 @@ export default abstract class ChecksTraceCommand extends CommandWithProjectConfi
     return result
   }
 
-  displayResults(resources: LogEntry[]): void {
+  printDefault(resources: LogEntry[]): void {
     CliUx.ux.table(
       resources,
       {
@@ -162,5 +161,24 @@ export default abstract class ChecksTraceCommand extends CommandWithProjectConfi
         ...this.flags, // parsed flags
       },
     )
+  }
+
+  printResponse(
+    response: CheckTraceResource | IListCheckTracesResource,
+    printSingle?: boolean,
+  ): void {
+    if (this.flags.output === 'json') {
+      printJson(this.logger, response)
+      return
+    }
+
+    if (printSingle) {
+      const singleResponse = response as CheckTraceResource
+      this.printDefault(this.transform([singleResponse]))
+      return
+    }
+
+    const listResponse = response as IListCheckTracesResource
+    this.printDefault(this.transform(listResponse._embedded.traces))
   }
 }

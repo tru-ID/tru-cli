@@ -1,6 +1,6 @@
 import { CliUx, Config, Flags } from '@oclif/core'
 import { RefreshTokenManager } from '../api/TokenManager'
-import { UsageApiClient, UsageResource } from '../api/UsageAPIClient'
+import { IListUsageResource, UsageApiClient } from '../api/UsageAPIClient'
 import {
   apiBaseUrlDR,
   issuerUrl,
@@ -9,7 +9,7 @@ import {
 } from '../DefaultUrls'
 import CommandWithGlobalConfig from '../helpers/CommandWithGlobalConfig'
 import ILogger from '../helpers/ILogger'
-import { displayPagination } from '../helpers/ux'
+import { displayPagination } from './ux'
 import { logApiError } from '../utilities'
 import {
   isWorkspaceSelected,
@@ -46,7 +46,7 @@ export default abstract class UsageCommand extends CommandWithGlobalConfig {
 
   typeOfUsage: string
 
-  constructor(argv: string[], config: Config, typeOfUsage: string) {
+  protected constructor(argv: string[], config: Config, typeOfUsage: string) {
     super(argv, config)
     this.tokenScope = 'usage'
     this.typeOfUsage = typeOfUsage
@@ -73,28 +73,33 @@ export default abstract class UsageCommand extends CommandWithGlobalConfig {
     )
   }
 
-  displayResults(resources: UsageResource[]) {
-    //Dynamic add columns
+  printDefault(listResource: IListUsageResource): void {
+    if (listResource._embedded.usage.length > 0) {
+      //Dynamic add columns
+      const resources = listResource._embedded.usage
 
-    const columns: { [k: string]: any } = {}
+      const columns: { [k: string]: any } = {}
 
-    const params = Object.getOwnPropertyNames(resources[0])
+      const params = Object.getOwnPropertyNames(resources[0])
 
-    for (const param of params) {
-      columns[`${param}`] = {
-        header: `${param}`,
+      for (const param of params) {
+        columns[`${param}`] = {
+          header: `${param}`,
+        }
       }
+
+      CliUx.ux.table(resources, columns, {
+        printLine: (s: any) => {
+          this.logger!.info(s)
+        },
+        ...this.flags,
+      })
     }
 
-    CliUx.ux.table(resources, columns, {
-      printLine: (s: any) => {
-        this.logger!.info(s)
-      },
-      ...this.flags, // parsed flags
-    })
+    displayPagination(this.logger, listResource.page, `Usages`)
   }
 
-  async run() {
+  async run(): Promise<void> {
     const result = await this.parse(UsageCommand)
 
     this.args = result.args
@@ -121,11 +126,7 @@ export default abstract class UsageCommand extends CommandWithGlobalConfig {
         this.typeOfUsage,
       )
 
-      if (listResource._embedded.usage.length > 0) {
-        this.displayResults(listResource._embedded.usage)
-      }
-
-      displayPagination(this.logger, listResource.page, `Usages`)
+      this.printResponse(listResource)
     } catch (error) {
       logApiError(this, error)
       this.exit(1)

@@ -1,7 +1,9 @@
 import { CliUx, Config } from '@oclif/core'
 import { APIClientCredentialsConfiguration } from '../../api/APIConfiguration'
-import { CheckResource } from '../../api/ChecksAPIClient'
-import { PhoneChecksAPIClient } from '../../api/PhoneChecksAPIClient'
+import {
+  PhoneCheckResponse,
+  PhoneChecksAPIClient,
+} from '../../api/PhoneChecksAPIClient'
 import { ClientCredentialsManager } from '../../api/TokenManager'
 import { apiBaseUrlDR } from '../../DefaultUrls'
 import ChecksListCommand from '../../helpers/ChecksListCommand'
@@ -15,21 +17,14 @@ export default class PhoneChecksList extends ChecksListCommand {
     ...ChecksListCommand.flags,
   }
 
-  static args = [
-    {
-      name: 'check_id',
-      required: false,
-      description: 'The check_id for the PhoneCheck to list',
-    },
-  ]
+  static args = [...ChecksListCommand.args]
 
   constructor(argv: string[], config: Config) {
     super('PhoneCheck', 'phone_check', argv, config)
   }
 
   async parseCommand(): Promise<any> {
-    const command = await this.parse(PhoneChecksList)
-    return command
+    return await this.parse(PhoneChecksList)
   }
 
   getApiClient(
@@ -49,7 +44,7 @@ export default class PhoneChecksList extends ChecksListCommand {
     )
   }
 
-  displayResults(resources: CheckResource[]): void {
+  printDefault(resources: PhoneCheckResponse[]): void {
     // do not use table sort as it only works for simple types e.g., number, etc.
     // and the API already returns sorted results
     const flagsWithNoSort = { ...this.flags, sort: undefined }

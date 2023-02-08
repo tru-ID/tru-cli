@@ -4,10 +4,11 @@ import fs from 'fs-extra'
 import sinonChai from 'sinon-chai'
 import sinon from 'ts-sinon'
 import { CheckStatus } from '../../../src/api/CheckStatus'
-import * as simchecks from '../../../src/api/SimCheckAPIClient'
 import { IGlobalAuthConfiguration } from '../../../src/IGlobalAuthConfiguration'
 import { IProjectConfiguration } from '../../../src/IProjectConfiguration'
 import { accessToken, projectConfigFileLocation } from '../../test_helpers'
+import { IListCheckResource } from '../../../src/api/ChecksAPIClient'
+import { SimCheckResponse } from '../../../src/api/SimCheckAPIClient'
 
 const expect = chai.expect
 chai.use(sinonChai)
@@ -37,7 +38,11 @@ describe('simchecks:list', () => {
     ],
   }
 
-  const simCheckResource: simchecks.ISimCheckResource = {
+  const simCheckResource: SimCheckResponse = {
+    network_id: '',
+    no_sim_change_period: 0,
+    sim_change_within: 0,
+    updated_at: '',
     _links: {
       self: {
         href: 'https://us.api.tru.id/sim_Checks/v0.1/checks/c69bc0e6-a429-11ea-bb37-0242ac130002',
@@ -51,7 +56,7 @@ describe('simchecks:list', () => {
     status: CheckStatus.COMPLETED,
   }
 
-  const listResource: simchecks.IListSimCheckResource = {
+  const listResource: IListCheckResource<SimCheckResponse> = {
     _embedded: {
       checks: [simCheckResource],
     },

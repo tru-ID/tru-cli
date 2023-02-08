@@ -2,6 +2,7 @@ import { CliUx } from '@oclif/core'
 import { RefreshTokenManager } from '../../api/TokenManager'
 import { UserInfoAPIClient } from '../../api/UserInfoAPIClient'
 import {
+  IListWorkspaces,
   IWorkspaceResource,
   WorkspacesAPIClient,
 } from '../../api/WorkspacesAPIClient'
@@ -54,8 +55,6 @@ export default class WorkspaceLists extends CommandWithGlobalConfig {
     try {
       const userInfo = await userinfoClient.post()
 
-      let workspaces: IWorkspaceResource[] = new Array<IWorkspaceResource>()
-
       for (const dataResidency of userInfo.workspace_membership_in) {
         const workspacesAPIClient = new WorkspacesAPIClient(
           tokenManager,
@@ -65,19 +64,21 @@ export default class WorkspaceLists extends CommandWithGlobalConfig {
 
         const workspaceList = await workspacesAPIClient.getAll()
 
-        workspaces = workspaces.concat(workspaceList._embedded.workspaces)
+        this.printResponse(workspaceList)
       }
-
-      this.displayResults(workspaces)
     } catch (error) {
       logApiError(this, error)
       this.exit(1)
     }
   }
 
-  displayResults(resources: IWorkspaceResource[]): void {
+  printDefault(workspaceList: IListWorkspaces): void {
+    let workspaces: IWorkspaceResource[] = new Array<IWorkspaceResource>()
+
+    workspaces = workspaces.concat(workspaceList._embedded.workspaces)
+
     CliUx.ux.table(
-      resources,
+      workspaces,
       {
         data_residency: {
           header: 'DR',
@@ -94,7 +95,6 @@ export default class WorkspaceLists extends CommandWithGlobalConfig {
         },
         created_at: {
           header: 'created_at',
-          extended: true,
         },
       },
       {
