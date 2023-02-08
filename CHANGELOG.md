@@ -2,7 +2,29 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-## [1.1.0](https://github.com/tru-ID/tru-cli/compare/v1.0.5...v1.1.0) (2022-12-06)
+## [1.2.1](https://github.com/tru-ID/tru-cli/compare/v1.1.1...v1.2.1) (2023-02-08)
+
+
+### Bug Fixes
+
+* **--output**: flag support for all commands
+* **--output=json**: return correct json format for all commands
+* **--trace-id**: correct behavior for filtering by trace-id in checks commands ([f5fe191](https://github.com/tru-ID/tru-cli/commit/f5fe1919e3a59962134ee58bdc19538318f65fc3))
+
+### [1.2.0](https://github.com/tru-ID/tru-cli/compare/v1.1.1...v1.2.0) (2023-01-26)
+
+
+### Features
+
+* **analytics**: analytics API integration ([482ddc9](https://github.com/tru-ID/tru-cli/commit/482ddc9ca997266edfb677436eb3e38fffde54fd))
+
+### Bug Fixes
+
+* consistent naming for cli params(kebab case) ([482ddc9](https://github.com/tru-ID/tru-cli/commit/482ddc9ca997266edfb677436eb3e38fffde54fd))
+* **usage**: change default search range 
+
+
+### [1.1.0](https://github.com/tru-ID/tru-cli/compare/v1.0.5...v1.1.0) (2022-12-06)
 
 
 ### Features
