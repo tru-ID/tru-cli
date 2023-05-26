@@ -146,6 +146,8 @@ export default abstract class AnalyticsCommand extends CommandWithGlobalConfig {
       })
     }
 
+    if (this.flags.output === 'csv' || this.flags.csv) return
+
     displayPagination(this.logger, listResource.page, `Analytics`)
   }
 }
