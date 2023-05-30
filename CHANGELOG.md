@@ -2,7 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-## [1.2.1](https://github.com/tru-ID/tru-cli/compare/v1.1.1...v1.2.1) (2023-02-08)
+### [1.2.2](https://github.com/tru-ID/tru-cli/compare/v1.2.1...v1.2.2) (2023-05-30)
+
+
+### Bug Fixes
+
+* **analytics** && **usage**:remove paging info for csv output ([aee0f7e](https://github.com/tru-ID/tru-cli/commit/aee0f7eef9e20a6de2be3a0988fde143d39bd0d4))
+
+### [1.2.1](https://github.com/tru-ID/tru-cli/compare/v1.1.1...v1.2.1) (2023-02-08)
 
 
 ### Bug Fixes
