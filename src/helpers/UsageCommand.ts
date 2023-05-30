@@ -96,8 +96,6 @@ export default abstract class UsageCommand extends CommandWithGlobalConfig {
       })
     }
 
-    if (this.flags.output === 'csv' || this.flags.csv) return
-
     displayPagination(this.logger, listResource.page, `Usages`)
   }
 
